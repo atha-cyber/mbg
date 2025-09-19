@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kehadiran Siswa - Makan Bergizi Gratis | SMPN 4 Pandak</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            section, .attendance-card, #summary-section {
+                box-shadow: none !important;
+                border: 1px solid #e5e7eb;
+                page-break-inside: avoid;
+            }
+            .attendance-card {
+                transform: none !important;
+            }
+            .attendance-input {
+                display: none !important;
+            }
+            .attendance-display {
+                display: block !important;
+            }
+            h1, h2, h3, p, span {
+                color: black !important;
+            }
+            .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-gray-100 {
+                background-color: #f9fafb !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">REKAP KEHADIRAN SISWA</h1>
+            <p class="text-xl md:text-2xl text-blue-600 font-semibold mt-1">PROGRAM MAKAN BERGIZI GRATIS</p>
+            <h2 class="text-lg md:text-xl text-gray-600 mt-2">SMP NEGERI 4 PANDAK</h2>
+            <p id="current-date" class="mt-4 text-gray-500"></p>
+        </header>
+
+        <section id="summary-section" class="bg-white p-6 rounded-xl shadow-md mb-10">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Rangkuman Hari Ini</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-blue-700 font-semibold">Hadir Kelas VII</p>
+                    <p id="total-vii" class="text-3xl font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-green-700 font-semibold">Hadir Kelas VIII</p>
+                    <p id="total-viii" class="text-3xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <p class="text-sm text-purple-700 font-semibold">Hadir Kelas IX</p>
+                    <p id="total-ix" class="text-3xl font-bold text-purple-600">0</p>
+                </div>
+                 <div class="bg-gray-100 p-4 rounded-lg col-span-2 md:col-span-4 grid grid-cols-2 gap-4">
+                    <div class="border-r border-gray-300">
+                        <p class="text-base text-gray-700 font-bold">TOTAL HADIR</p>
+                        <p id="total-present" class="text-5xl font-extrabold text-gray-800">0</p>
+                    </div>
+                    <div>
+                        <p class="text-base text-gray-700 font-bold">SISA PORSI</p>
+                        <p id="remaining-portions" class="text-5xl font-extrabold text-red-600">472</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <div id="teacher-controls" class="text-center mb-10 flex items-center justify-center flex-wrap gap-4 no-print">
+            <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                Ubah Data Kehadiran
+            </button>
+            <div id="edit-mode-controls" class="hidden space-x-2 sm:space-x-4">
+                <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center space-x-2">
+                    <span id="save-btn-text">Simpan Perubahan</span>
+                    <div id="save-spinner" class="w-5 h-5 border-t-2 border-white rounded-full animate-spin hidden"></div>
+                </button>
+                <button id="cancel-btn" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition">
+                    Batal
+                </button>
+            </div>
+            <button id="print-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+                    <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
+                    <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                </svg>
+                Cetak Laporan
+            </button>
+        </div>
+
+        <main id="attendance-grid">
+            <div class="loader"></div>
+            <p class="text-center text-gray-500 mt-2">Memuat data...</p>
+        </main>
+        
+        <footer class="text-center mt-12 pt-6 border-t border-gray-300 no-print">
+            <p class="text-gray-600">&copy; 2025 SMP Negeri 4 Pandak. Didukung oleh Teknologi Digital.</p>
+        </footer>
+    </div>
+
+    <!-- Modal Notifikasi Sukses/Error -->
+    <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm text-center">
+            <p id="notification-message" class="text-lg text-gray-800 mb-6"></p>
+            <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition">OK</button>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
+            authDomain: "mbg4-329e3.firebaseapp.com",
+            projectId: "mbg4-329e3",
+            storageBucket: "mbg4-329e3.appspot.com",
+            messagingSenderId: "13330785414",
+            appId: "1:13330785414:web:99505859877a60a2311d07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
+
+        // --- ELEMEN DOM ---
+        const dateElement = document.getElementById('current-date');
+        const attendanceGrid = document.getElementById('attendance-grid');
+        
+        const editBtn = document.getElementById('edit-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const printBtn = document.getElementById('print-btn');
+        const editModeControls = document.getElementById('edit-mode-controls');
+        
+        const saveSpinner = document.getElementById('save-spinner');
+        const saveBtnText = document.getElementById('save-btn-text');
+
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationOkBtn = document.getElementById('notification-ok-btn');
+        
+        const totalViiEl = document.getElementById('total-vii');
+        const totalViiiEl = document.getElementById('total-viii');
+        const totalIxEl = document.getElementById('total-ix');
+        const totalPresentEl = document.getElementById('total-present');
+        const remainingPortionsEl = document.getElementById('remaining-portions');
+        
+        let currentData = {};
+        const TOTAL_SISWA_KESELURUHAN = 472;
+        const CLASSES_CONFIG = {
+            'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'] },
+            'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'] },
+            'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
+        };
+
+        // --- FUNGSI RENDER & KALKULASI ---
+        function renderAttendanceGrid(data) {
+            let html = '';
+            for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
+                const levelRoman = level.split(' ')[1];
+                html += `
+                <section class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6 pb-2 border-b-2 border-${details.color}-500 text-${details.color}-700">${level}</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                `;
+                details.rombels.forEach(rombel => {
+                    const classId = `${levelRoman}${rombel}`;
+                    const count = data[classId] || 0;
+                    html += `
+                        <div class="attendance-card bg-white rounded-xl shadow-md p-5 text-center transition transform hover:-translate-y-1 hover:shadow-lg" data-class-id="${classId}">
+                            <p class="text-lg font-semibold text-gray-700">${level} ${rombel}</p>
+                            <span class="attendance-display text-4xl font-bold text-${details.color}-600 mt-2">${count}</span>
+                            <input type="number" class="attendance-input hidden w-24 text-center text-4xl font-bold bg-gray-100 border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:border-${details.color}-500" value="${count}" min="0" max="50">
+                            <p class="text-sm text-gray-500 mt-1">Siswa Hadir</p>
+                        </div>
+                    `;
+                });
+                html += `</div></section>`;
+            }
+            attendanceGrid.innerHTML = html;
+        }
+
+        function updateSummary(data) {
+            let totalVii = 0, totalViii = 0, totalIx = 0;
+
+            CLASSES_CONFIG['Kelas VII'].rombels.forEach(rombel => totalVii += parseInt(data[`VII${rombel}`], 10) || 0);
+            CLASSES_CONFIG['Kelas VIII'].rombels.forEach(rombel => totalViii += parseInt(data[`VIII${rombel}`], 10) || 0);
+            CLASSES_CONFIG['Kelas IX'].rombels.forEach(rombel => totalIx += parseInt(data[`IX${rombel}`], 10) || 0);
+
+            const totalHadir = totalVii + totalViii + totalIx;
+            const sisaPorsi = TOTAL_SISWA_KESELURUHAN - totalHadir;
+
+            totalViiEl.textContent = totalVii;
+            totalViiiEl.textContent = totalViii;
+            totalIxEl.textContent = totalIx;
+            totalPresentEl.textContent = totalHadir;
+            remainingPortionsEl.textContent = sisaPorsi;
+        }
+
+        // --- FUNGSI UTAMA ---
+        function displayCurrentDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = `Data untuk Hari Ini: ${today.toLocaleDateString('id-ID', options)}`;
+        }
+
+        function toggleEditMode(enable) {
+            editBtn.classList.toggle('hidden', enable);
+            printBtn.classList.toggle('hidden', enable);
+            editModeControls.classList.toggle('hidden', !enable);
+
+            document.querySelectorAll('.attendance-card').forEach(card => {
+                card.querySelector('.attendance-display').classList.toggle('hidden', enable);
+                card.querySelector('.attendance-input').classList.toggle('hidden', !enable);
+            });
+        }
+        
+        function showNotification(message) {
+            notificationMessage.textContent = message;
+            notificationModal.classList.remove('hidden');
+        }
+
+        // --- EVENT LISTENERS ---
+        editBtn.addEventListener('click', () => toggleEditMode(true));
+        
+        cancelBtn.addEventListener('click', () => {
+            toggleEditMode(false);
+            renderAttendanceGrid(currentData);
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            saveBtn.disabled = true;
+            saveSpinner.classList.remove('hidden');
+            saveBtnText.textContent = 'Menyimpan...';
+
+            const todayString = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+            const newData = {
+                lastUpdated: todayString
+            };
+
+            document.querySelectorAll('.attendance-card').forEach(card => {
+                const classId = card.dataset.classId;
+                const inputElement = card.querySelector('.attendance-input');
+                const value = parseInt(inputElement.value);
+                newData[classId] = isNaN(value) || value < 0 ? 0 : value;
+            });
+
+            try {
+                await setDoc(attendanceDocRef, newData);
+                toggleEditMode(false);
+                showNotification("Data kehadiran berhasil disimpan!");
+            } catch (error) {
+                console.error("Error writing document: ", error);
+                showNotification("Gagal menyimpan data. Coba lagi.");
+            } finally {
+                saveBtn.disabled = false;
+                saveSpinner.classList.add('hidden');
+                saveBtnText.textContent = 'Simpan Perubahan';
+            }
+        });
+        
+        printBtn.addEventListener('click', () => window.print());
+
+        notificationOkBtn.addEventListener('click', () => {
+            notificationModal.classList.add('hidden');
+        });
+
+        // --- INISIALISASI & REAL-TIME LISTENER ---
+        displayCurrentDate();
+
+        onSnapshot(attendanceDocRef, (doc) => {
+            console.log("Menerima pembaruan data dari Firestore...");
+            const todayString = new Date().toISOString().split('T')[0];
+            const data = doc.exists() ? doc.data() : {};
+            const savedDate = data.lastUpdated;
+
+            if (savedDate !== todayString) {
+                console.log(`Tanggal berbeda (tersimpan: ${savedDate}, hari ini: ${todayString}). Data akan di-reset.`);
+                
+                const resetData = { lastUpdated: todayString };
+                for (const level in CLASSES_CONFIG) {
+                    const levelRoman = level.split(' ')[1];
+                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                        resetData[`${levelRoman}${rombel}`] = 0;
+                    });
+                }
+                
+                // Simpan data yang sudah di-reset. onSnapshot akan otomatis terpanggil lagi
+                // dengan data baru yang bersih, lalu akan masuk ke blok 'else'.
+                setDoc(attendanceDocRef, resetData).catch(error => {
+                    console.error("Gagal mereset data otomatis:", error);
+                    attendanceGrid.innerHTML = '<p class="text-center text-red-500">Gagal memulai sesi baru. Coba muat ulang halaman.</p>';
+                });
+
+                // Tampilkan pesan sementara
+                attendanceGrid.innerHTML = `<div class="loader"></div><p class="text-center text-gray-500 mt-2">Memulai rekap untuk hari ini...</p>`;
+            } else {
+                currentData = data;
+                renderAttendanceGrid(currentData);
+                updateSummary(currentData);
+            }
+        }, (error) => {
+            console.error("Gagal memuat data dari Firestore:", error);
+            attendanceGrid.innerHTML = '<p class="text-center text-red-500 font-semibold">Gagal terhubung ke database. Pastikan konfigurasi Firebase sudah benar.</p>';
+        });
+
+    </script>
+</body>
+</html>
+
