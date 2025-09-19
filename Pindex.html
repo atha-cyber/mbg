@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pencatatan Pelanggaran Siswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F0F4F8; /* Light blue-gray background */
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        select:disabled {
+            background-color: #f1f5f9;
+            cursor: not-allowed;
+        }
+        #undo-container {
+            transition: all 0.3s ease-in-out;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-content {
+             transition: transform 0.25s ease;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        /* Style for action textarea */
+        .action-textarea {
+            transition: box-shadow 0.2s;
+        }
+        .action-textarea:focus {
+            box-shadow: 0 0 0 2px #818cf8; /* Indigo ring */
+            outline: none;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-8 p-6 rounded-2xl gradient-bg text-white shadow-lg">
+            <h1 class="text-4xl md:text-5xl font-bold flex items-center justify-center gap-3">
+                <i class="ph-fill ph-student"></i>
+                Aplikasi Pelanggaran Siswa
+            </h1>
+            <p class="text-blue-100 mt-2 text-lg">SMP Negeri 4 Pandak</p>
+        </header>
+        
+        <div class="flex justify-center items-center gap-4 mb-10">
+            <button id="show-all-violations-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 mx-auto">
+                <i class="ph-fill ph-file-text"></i>
+                Laporan Pelanggaran
+            </button>
+            <button id="manage-students-btn" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 mx-auto">
+                <i class="ph-fill ph-users-four"></i>
+                Pengelola Siswa
+            </button>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Kolom Kiri: Pemilihan Kelas & Daftar Siswa -->
+            <div class="card p-6 flex flex-col">
+                <h2 class="text-2xl font-bold text-slate-700 mb-4 border-b-2 border-slate-200 pb-3 flex items-center gap-2"><i class="ph-fill ph-users-three text-blue-500"></i>Daftar Siswa</h2>
+                
+                <div class="mb-4">
+                    <label for="class-select" class="block text-sm font-medium text-slate-600 mb-2">Pilih Kelas</label>
+                    <select id="class-select" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <option value="">-- Silakan Pilih Kelas --</option>
+                    </select>
+                </div>
+
+                <div id="student-list-container" class="flex-grow min-h-[200px] bg-slate-50 p-3 rounded-lg border">
+                    <div id="student-list" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                        <p id="no-student-msg" class="text-slate-500 text-center py-8">Pilih kelas untuk menampilkan daftar siswa.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Detail Pelanggaran -->
+            <div id="violation-details" class="card p-6 hidden">
+                <h2 class="text-2xl font-bold text-slate-700 mb-4 border-b-2 border-slate-200 pb-3 flex items-center gap-2">
+                    <i class="ph-fill ph-warning-circle text-amber-500"></i>
+                    Riwayat Pelanggaran
+                </h2>
+                <div class="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                    <p class="font-bold text-slate-800 text-lg">Siswa: <span id="selected-student-name" class="text-blue-600"></span></p>
+                    <p class="text-sm text-slate-600">Kelas: <span id="selected-student-class" class="font-semibold"></span></p>
+                </div>
+                
+                <div class="mb-4 space-y-4">
+                    <p class="block text-md font-bold text-slate-600">Tambah Pelanggaran Baru</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="new-violation-date" class="block text-xs font-medium text-slate-500 mb-1">Tanggal Pelanggaran</label>
+                            <input type="date" id="new-violation-date" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                        </div>
+                        <div>
+                            <label for="new-violation-time" class="block text-xs font-medium text-slate-500 mb-1">Jam Pelanggaran</label>
+                            <input type="time" id="new-violation-time" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                        </div>
+                    </div>
+                
+                    <div>
+                        <label for="new-violation-desc" class="block text-xs font-medium text-slate-500 mb-1">Deskripsi</label>
+                        <input type="text" id="new-violation-desc" placeholder="Tulis deskripsi pelanggaran..." class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                    </div>
+                
+                    <div class="text-right">
+                        <button id="add-violation-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-3 rounded-lg shadow-md transition-all transform hover:scale-105 flex items-center gap-2 ml-auto">
+                            <i class="ph-fill ph-plus-circle"></i>
+                            Catat Pelanggaran
+                        </button>
+                    </div>
+                </div>
+
+                <div id="undo-container" class="hidden opacity-0 bg-slate-800 text-white p-3 rounded-lg mb-4 flex justify-between items-center">
+                    <span>Catatan telah dihapus.</span>
+                    <button id="undo-btn" class="font-semibold hover:underline flex items-center gap-1"><i class="ph-bold ph-arrow-counter-clockwise"></i>Kembalikan</button>
+                </div>
+
+                <div id="violation-list" class="space-y-4 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Daftar pelanggaran akan dimuat di sini -->
+                </div>
+            </div>
+            
+            <div id="select-student-placeholder" class="card p-6 flex items-center justify-center">
+                <div class="text-center">
+                    <i class="ph-light ph-selection-plus text-7xl text-slate-300"></i>
+                    <h3 class="mt-2 text-xl font-bold text-slate-700">Pilih Siswa</h3>
+                    <p class="mt-1 text-slate-500">Pilih kelas, lalu klik nama siswa untuk melihat riwayatnya.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Laporan Semua Pelanggaran -->
+    <div id="all-violations-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 opacity-0">
+        <div class="modal-content bg-slate-50 w-full max-w-6xl rounded-xl shadow-2xl p-6 transform scale-95">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2"><i class="ph-fill ph-books text-purple-600"></i>Laporan Semua Pelanggaran</h3>
+                <button id="close-all-violations-modal-btn" class="text-slate-400 hover:text-slate-600 text-4xl transition">&times;</button>
+            </div>
+            
+            <div class="mb-4">
+                <input type="text" id="search-violations-input" placeholder="🔍 Cari berdasarkan nama, kelas, atau deskripsi..." class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+
+            <div id="all-violations-list-container" class="max-h-[60vh] overflow-y-auto custom-scrollbar border rounded-lg bg-white">
+                <!-- Daftar akan dimuat di sini -->
+            </div>
+            
+            <div class="flex justify-end items-center mt-6 pt-4 border-t gap-3">
+                 <button id="print-all-violations-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all flex items-center gap-2">
+                    <i class="ph-fill ph-printer"></i>Cetak Laporan
+                </button>
+                <button id="close-all-violations-modal-btn-2" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-5 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pengelola Siswa -->
+    <div id="manage-students-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 opacity-0">
+        <div class="modal-content bg-slate-50 w-full max-w-5xl rounded-xl shadow-2xl p-6 transform scale-95">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2"><i class="ph-fill ph-user-list text-blue-600"></i>Pengelola Daftar Siswa</h3>
+                <button id="close-manage-students-modal-btn" class="text-slate-400 hover:text-slate-600 text-4xl transition">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                <div class="md:col-span-1 bg-slate-100 p-3 rounded-lg border">
+                    <h4 class="font-bold mb-2 text-slate-600 px-1">Pilih Kelas</h4>
+                    <div id="manage-class-list" class="space-y-1 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                        <!-- Daftar kelas akan dimuat di sini -->
+                    </div>
+                </div>
+
+                <div id="class-management-panel" class="md:col-span-2">
+                    <div id="manage-students-placeholder" class="text-center p-10 h-full flex flex-col justify-center items-center bg-slate-100 rounded-lg">
+                        <i class="ph-light ph-arrow-bend-up-left text-6xl text-slate-400"></i>
+                        <p class="mt-2 text-slate-500">Pilih kelas di samping kiri untuk mengelola siswa.</p>
+                    </div>
+
+                    <div id="student-action-panel" class="hidden">
+                        <h4 class="font-bold mb-4 text-slate-700 text-lg">Siswa di Kelas <span id="managed-class-name" class="text-blue-600"></span></h4>
+                        
+                        <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                             <label for="modal-new-student-name" class="block text-sm font-medium text-slate-600 mb-2">Tambah Siswa Baru</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="modal-new-student-name" placeholder="Ketik nama siswa baru..." class="flex-grow w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                <button id="modal-add-student-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-lg shadow-sm transition-all flex items-center justify-center">
+                                    <i class="ph-bold ph-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="manage-student-list" class="space-y-2 max-h-[45vh] overflow-y-auto custom-scrollbar p-1">
+                            <!-- Daftar siswa untuk dikelola akan dimuat di sini -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA SISWA (diambil dari file yang diupload) ---
+            const initialStudentList = {
+                '7A': ["ALVITO MEILAN DEWANTARA", "ARDANA NUR HAFIIZH SAPUTRA", "ARINI LUTVI KAMALIYA", "CORNELLIA SYAFIKA PUTRI WARDHANI", "DIMAS ALVARO RAMADHAN", "FABIANO SATRIA ATMAJA", "FABIOLA CYRILLA ARNANDA", "FA'IQ ERFINO NAZULA FIKAR", "FANDY RIZQI PRATAMA", "IMAM MURTADHO", "KEELAN MUHAMMAD FELAINI", "KURNIA RAHMAPINKA WIJAYA", "MAHER ZAIN MURZANA", "MUHAMMAD IQBAL SYADID AS SYAKHA", "MUHAMMAD JUNIOR RIFQI SAPUTRA", "MUQAMAT ALIF NASOKAH", "NANDA IRWAN", "NASHA VIOLETTA ANINDYA AYU", "NOVELINA SINAR PUTRI", "NOVITA CHELYA PUTRI", "OLIVIA ANGGRAENI RAMADHAN", "PARAS MAGANI BRATANDARI", "RAISHA REINA AZZAHRA", "RHEVALIA RAMAZANNI YASMIN", "RICKO NARYO ZADA PRATAMA", "SABRINA RARA ABIDAH", "SAPUTRA REZKY PRATAMA", "SHALSA BILA NURAINI", "SHELVIA DINA AULIA", "SITI MAISAROH", "SYIFA NUR FATONAH", "VITTO FERDYANZA"],
+                '7B': ["AFIKA MAYLANI PUTRI", "AHMAD 'ALY ZAHID", "AISYAH ANGGUN TRI ASIH", "ALDO RIZKI ARIFANSYAH", "AMMAR ATHA'ULLAH ARDHIYANTO", "ANGGER MAULANA MUHAMMAD AL FATIH", "ANINDA GALUH FEBRIANA", "ANUGRAH ADHA AMIN", "ATHA ADIKA SURYA", "CINTA WAWA SEFANDRA", "ELVINA PURNAWATI", "ERLAND FAITH RICHIE AKINS", "ERLIND AQHILA PUTRI", "FARHAN RAFKHA ANANTA", "HAFID DWI RAHARJO", "HAFIZ LUTHFI SAPUTRA", "HANUM AZZAHRA", "KHARISMA DEWI SETYOWATI", "KIYANU NUR PUTRA ISNAN", "LINTANG FIDELA ARRAYNAA", "LUCKY RAMADHANI", "LUKI ROMADHONI", "MUHAMMAD FAJAR RAMADHAN", "MUHAMMAD RIZKY", "NAFIZ AHMAD MA'RUF", "NAILA SALMA AQILA", "NASYIFA AZ-ZAHRA", "NICHY WULANDARI", "NIKO ANANTA", "NOVELITA ERLINDA SARI", "RAHMAT DARMAWAN", "REVI FARANDIKA ALBA"],
+                '7C': ["ABIZA AMAR ALTAFA", "AHMAD AS SYIFA ALAMSYAH SIREGAR", "AKSATA RIZQ SYANDANA", "ALAZKA DASTAN PRAYOGA", "ALFIAN YUDA SAPUTRA", "ALLISYA LAILATUL AISAH", "AQILA KHOIRUN NISA", "ARDIAN DWI RAMADHANI", "ARISTA LEILA YUNIFA", "DIMAS ARYA DWI OKTORA", "EGY DESTAN TRI PRADANA", "FADLI AKBAR ARIFIN", "FAEZA GOVIN ALKALIFI", "FARANISSA AZZAHRA", "FATHAN HERIANOVA", "IQBAL FADHILAH ZAKY", "KARIS CANDRA ALFARIZI", "KAYLA VERONIKA PUTRI", "KELVIN PUTRA ALVARO", "KHALIFA MUSTOFA", "LUTFI NUR KHALIFAH", "MUHAMAD RIZKI SAPUTRA", "MUHAMMAD ALFIANIKO PRATAMA", "MUTIARA QUINARA PUTRI", "NABILA KHOIRUNISA", "NAZWA HABIBAH", "NIZAM ADWA TSAQIB RAFIF", "RAFIF NARANTAKA ADJAYA", "RIFA NUR KHAIRIYYAH", "TSANI' ASYARO FIRRIZQI", "WAHYU ZAULIANA RAHMAWATI", "ZASKIA ADELIA NUROCHMAH"],
+                '7D': ["ADLI NAUFAL RAFI'I", "ALDY CAHYA SAPUTRA", "ALFIAN YUSUF MUZAKY", "ALVINO ZAKARIA FEBRIANTO", "ANDIEN ANGGRAENI", "ANISAH SYIFATURROHMAH", "ATALAH YUSUF MUSTOFA", "ATTHAYA ANUNG HANINDITO", "AZIZAH NUR SAPUTRI", "DECILLA KUSDANIFAH EL YAMOR", "DELFAGA MEY LISTA", "DEWA CAHYA ANDARU", "DIAN PRASTYA", "DINDA NUR AFISA", "DISTRA REGA RASETA", "ELMA KINANTI", "FATIMAH EKA NUR RAMADHANY", "FEBRI GILANG PAMUNGKAS", "FICO DANU ADMAJA", "GENDHIST ARUNA NAGARI ESA", "HELGA ABDIEL RINDRA PRATAMA", "HUSNI SAPUTRI", "INDRA SURYATAMA", "LUTFI AL-BUCHORI", "MUHAMMAD SALMAN ARROSSYIDIN", "RAFKI SRIDARMA PUTRA", "RIZKI TRISNA KURNIAWAN", "SASKIA AMELIA", "SHAFA ANINDYA", "VANIA OKSA MELVIYANI", "ZAHRA OKTAFIA", "ZAHRI ANUGRAH"],
+                '7E': ["ARFIAN VITO PRASETYA", "ARIF MAULANA", "ASRORI BAGUS SETIAWAN", "AYESHA IZZ ZARA", "BAYU RAMADHANI", "DISTI RAHMA NURUL AISYAH", "FAHREYHAN DWI PANGESTU", "FARIZ ANJAR ARRAFI", "FAUZI DIAN PRATAMA", "FERDY DWI KURNIAWAN", "FLORENCIA HUMANITA SIPAYUNG", "GALANG ARENDRA WIBI PUTRA PRATAMA", "HABIL ABDILLAH NUGROHO", "IDA MUNAWAROH", "MOHAMMAD RAFLI AINOOR", "MUHAMAD RIZKY ADITYA PRATAMA", "NAURA MIA AGUSTIN", "NAZWA SYIFA NURHIDAYAH", "NIA RAHMADANI", "NINA NUR LESTARI", "OKAN APRILIO PUTRA NUARI", "PUTRI VIA NUR AKHRINI", "RIO AKBAR ALDIANTO", "RIRIN SOFIANA", "SALWA ANANDA SAVITA MODESTY", "SARIFA PUTRI", "SYASA SAHFA MEYSYA", "VICENZO JOVAN ERNANDHA", "VIONA AURORA ANASTASYA PUTRI", "WAHYU SAPUTRA", "YOSEPH ANUGRAH AGUNG NURALAM", "ZANUAR PANDU MAULANA"],
+                '8A': ["ADAM CANDRA PURNAMA", "AFIFA ZAHRA KHOLFANI", "ALFIAN DAMAR RAMADHAN", "AMANDA AULIA DEWI", "ANISA SUCI PERTIWI", "ANISSA NUR KHASANAH", "BULAN ANDISYA FITRI", "CHALISTA ROINSHA PUTRI", "DARU IKRAM SATRIA TANAYA", "DEDEK PUTRA MAULANA", "DHENAYU EKA ZAHRA", "DIAN AULIATIKA", "FEBRIAN NUR EKA SAPUTRA", "GENDIS PUTRI PRATIWI", "HAIKAL DAFFA CANDRA SETY", "ILHAM FIRMANSYAH", "JIHAN AYU ASTUTI", "KHARISMA PUTRI RAMADHA", "MAYSDHA AYU PRATIWI", "MUHAMMAD KAFKA VIJAYA", "MUHAMMAD ROIHAN ABDUL", "NABILA CANDRASARI", "NATASYA KALISTA AZAHRA", "NAUFAL GHOZI ARIFIAN", "NURIL HUDA", "NURINA ANINDYA WATI", "RIZKY MUHAMMAD ABRIDAN", "ROSYID ALFIN TRISUSANTO", "SANJU ALVINO PURNOMO", "SIFA ZULIA PUTRI", "YOGA DWI LAKSANA", "ZAHRA AINUNIKMAH"],
+                '8B': ["ADISTA APRIANA", "AMELIA PUTRI ANGGRAENI", "APSELI INDI WAHYUNI", "AXCELINO RIZKI NUR RAHM", "AYU ANDIRA", "BUKHARI AHZA GHAISAN LU", "DEFANI ALIYA PUTRI", "DEVAN SYAHDAN MAHESA", "FABYAN GALIH NURFAUZI", "FIQI ALFI SAPUTRA", "GHEYA NUGRAHENI", "JOYCE LEICA NUR AINI", "KHALISTA PUTRI KHASANAH", "KHANSA UFAIRAH MARJON", "KRISNA WIBOWO", "MUHAMMAD CHANDRA", "NARA PUTRA JILLIOSA", "NAUFAL ZAKI ALFARAZI", "NURUL KARIM", "PUPUT TRI RAMADANI", "PUTRI NOVIANI IRAWAN", "RAFA ARDIANSA PUTRA", "RAHMA DIAN HANIF PRAMI", "RATNA SAFI DAMAYANTI", "RHEYZA FAREED IBADILLA", "RIRIS IKA PRATIWI", "RIRIS LARASATI", "RIZAM ORLANDO", "SITI HUTAMI HADININGSIH", "TSANIA QHOTRUN NADA", "VIRGINIA RAHMA DHANI", "YUNI FITRIYANINGSIH"],
+                '8C': ["ADINDA ERYANA PUTRI", "AGA ZAKI PRATAMA", "ALLIZA PUTRI ZHUSTIKA RATN", "AMELYA PUTRI KUSUMA", "ANDREAS RANDY WIBOWO", "CENNY NICOLAZ SAPUTRA", "DAMAR KUSUMO", "DEWI PUSPITA SARI", "ERLISA PUSPITA MAHARANI", "FADIL ARYA SAPUTRA", "FERI FERNANDA", "GALIH ARFARIS", "HAFIZ FARHANI", "HANUNG DUWI HAPSARI", "HAZZA NUR AGUNG", "INDAH TRI HAPSARI", "IRVANDA BAHDIN", "KEN AYU BINTANG GUMILANG", "LINTANG NOVRIA OCEANI", "LUTFIA LEVI MADYA", "MARGARETHA ADINTYA ANGE", "MUHAMMAD ALIFIL MA'LUF", "MUHAMMAD RAFFI PUTRATA", "NADIA FERNANDA MAISYAROI", "NATHANAEL KENZIE PRATAM", "NAURA SYAKILLA RAMADHAN", "RENDI ROZAK DIANSYAH", "SARAS NUR LESTARI", "SIFA AULIA PUTRI", "ZAHRA AINUN CAHYANI", "ZAHRA AVRILIA LINTANG ANGI", "ZIDANE BAYU SAPUTRA"],
+                '8D': ["AFRIALI ILHAM HADI", "ALFINO RIZKY ADITYA", "ALIFAH WIDYANINGRUM", "ANANDA DHELVin AVINZA BINTANG", "ANNIDA NUR HANIFAH", "BERLY AFNAN ZUHROH", "BHINUKO RIZKI RAHMATTULLOH", "CHINTYA PUSPA SARI", "DAFFA FADHILLA SYAHPUTRA", "EKA AHNAF SAPUTRA", "ELIS ALFYANSA ADITASARI", "FAEYZA DESNA SYAHPUTRA", "FAISYIA PUTRI PRASTOWO", "FELLY RAHAYU SEKAR PINASTI", "GAVIN ADAM ROYTAMA", "IKE PUTRI FATMAWATI", "IZZA LAILLATUL SABRINA", "LUTFI WULANSARI", "MUHAMMAD RICHO VERALD", "OKTAVIA BELLA SAPUTRI", "RACKA OKKY SYAHPUTRA", "RICA CHACHA PERMANA", "RISKI NURSILAWATI", "SCOOFEETA HOPE YOHANA PUTRI", "SHIFA NUR OKTAVIANI", "SURAJIYANTO", "TYAS NUR FITRIANI", "ULFA ISNAINI", "VEBRIA DEWI OKTARI", "ZASKIA LARASATI", "ZIA SEINA SALSABILA", "ZIDHAN PUTRA PAMUNGKAS"],
+                '8E': ["AGESTA PUTRI RAMADHANI", "AKBAR NUR HIDAYAT", "ALIFA MELLA ALVINA", "ANGELA LESTARI TRI WIDYASTU", "ARDA NAILAN ULYA PUTRI", "ARIF RAMADHAN", "AYUNDA INDAH SANI", "DHEA REAVIKA LATIF", "DIMAS CHANDRA SAJOKO", "DIMAS RADITYA PUNGGAWA", "FARID AFNAN", "FATHIN SYAFIQ AQUILLA", "FIKA ERFIANI", "KEIYLA ELENA SAPUTRI", "KHOIRUN NISA", "KRISNA DWI SAPUTRA", "KRISTIN JUNIAVANTI PANGESTU", "M.ARIEF FELIC NUR YAHYA", "MIFTAH FAZA FADHLURRAHMA", "MUHAMMAD ZAINURROZIQIN", "NABILA WAHYUNINGTYAS", "NERISA PUSPITA AMELIA", "NOVIA PUSPITA SARI", "NURVITA PUTRI HARYANI", "RENI SETYA DEWI", "RIO FERDIANSYAH", "SITI NOVIYANTI FATIKHASYARI", "TRI VARIANISA", "TYSKA PUTRI", "WAHYU TRI NUGROHO", "ZAINI ARZAD", "ZULHAM ALFIANSYAH"],
+                '9A': ["ALIF SAPUTRI", "ANNISA FITRI FIAN NUGRAHA", "AZALIA NUR ROHMAH", "CHOIRUL TRI PRADITIA", "DHEA CHINTA EKA PUTRA", "DIKA RAIHAN MAHESWARA", "DIMAS PUTRA ABRIYANTO", "FAAIZ IMAM RIZQI", "GALIH SATRIA PRATAMA", "KENSYA YULIANA PUTRI", "KHANSA AZZAHRA AL MURIFKI", "KHIARA FARDA AZARIA", "KRISNA DWI CAHYADI", "LETICIA CHEREN ANJELITA", "MARADONA FIRDAUS ANDIKA DEWI", "LUTFI PUSPITA SARI", "MARSA EKA PRATAMA", "MASAYU JINAR HAPSARI", "MUHAMMAD SYIHABUDIN AL AYUBI", "NADZIRA NUR ASYIFA", "NAUFAL MUKHLIS RAHMAN", "NENA ERLIVA", "PUTRI ALIFIA LATIFA", "RAFKA HERNANDO PUTRA", "RANGGA KRISNA PRATAMA", "REFALINA WULANDARI", "REVAN KUNCORO", "RESTU HUDA JANESA", "RIF'AT ANANTA", "YOGI KEDYA PRATAMA", "YOVINA AQILLA RAHMA"],
+                '9B': ["AKMAL CHAISAN", "ALVIN HAKIM", "ARKAN MAULANA RAHADI", "ARVA YULIA ALVARO KRISTANTO", "ARYA AJI KURNIA JATI", "AYUNDA PUTRI PRATIWI", "AZARIA SAVA ARDANI", "DEAN REZA HINDRA PRIYANA", "DIONI CHANDRA", "DZAKIR ULUM", "FERLINA ANITA SAPUTRI", "FIKRI ALFIANSYAH", "GALIH PRIMA RAMADHAN", "GUSTAM ARYA RAHADI", "INRAM JANUTAMA", "INTAN SETIAWATI", "ISNAINI NUR HIDAYAH", "KEVIN CAHYADI PRATAMA", "KHARISA RAHMAWATI", "MUHAMMAD ASSYA ASHSHIDDIQ RACHMAD", "NADHIZA PUTRI KURNIASARI", "NAILA SYIFA AZZAHRA", "NAYAZAHRA ISMU NURRAHMAH", "NAYLA ZARA", "NURRIZKA LISTIANA FUADI", "PUTRA ANGGA FIRMANSYAH", "QUEENSA DEWI ANJANI", "RAFA SATYA PRATAMA", "RARA ANGGARA KASIH", "SATRIA AJI SAPUTRA", "VITRAN MAHESA", "YOGA PANDU PAMUNGKAS"],
+                '9C': ["ADISTI KENYA WULANDARI", "ADITYA DIKA SAPUTRA", "ADITYA RICHI KAKA", "AGUNG TEGAR WINANTIO", "ARIF NUR FATAH", "ARYA ABBAR SAPUTRA", "ASYA ABBAR SAPUTRA", "ASHIKHA PUTRA MAHARANI", "AZIZAH NUR KASIH", "BAHRUR FATHIR NUR SALIM", "DANIS WAHYUNINGSIH", "DIANI LUKMANSYAH", "DIAH EKA SAFITRI", "DIKA PRAYOGA ADI", "FARIL ALFARIZ SHEEVAN", "FERNANDA YANUARITA", "KHARISMA ADIT KURNIARDI", "KURNIA ADITYA PUTRA", "LINTANG NUR HATI", "MUHAMMAD ALVIN PUTRA ERYANTO", "MUHAMMAD HENDRA PRADANA", "MUHAMMAD IMAM AL FARISI", "MUHAMMAD MIFTAHUL ROMADHON", "NITA ARDANIA", "ROVIANA HUSNIYAH", "SIVA ARINI", "TATAG TIRTO LAKSONO", "WIDAN PRADANA", "WISNU WICAKSONO", "ZAINAL ARIFIN MUSTOFA"],
+                '9D': ["AGUNG SANTOSO", "ALFA MAULANA NASRULLOH", "ALFIRDA YUSTISIA PALUPI", "ANDHIKA ANGGA SYAHREZZA", "ANDRE RIFKY SAPUTRA", "ANDREAS ADVEN PUTRA WICAKSANA", "AULIA NUR FAIZAH", "DITRIAN AZKYA RAMADHANI", "EVAN ATSAQHIF NAJAYA", "FARREL EMERALDY BERMANA", "FAUZAN NUR FAIZ", "FELICITAS CALLYSTA MAHARANI", "FERNANDO PUTRA OKTAVIANUS BARU", "GARDA PRIMA ANDIKA", "IGNATIUS DHANIS TRI YUNIANTO", "ILYASHA NUGRAHA IKHSANUL FIKRI", "KARIN NUR AYU NINGTYAS", "KEVIN BARA SAPUTRA", "MICHAEL DAVID HERPRATOMO", "MUHAMMAD FAKHRI HIDAYAT", "MUHAMMAD RAFKA AFFANDI", "NAVIS PURWA NUGRAHA", "QONITAH AZARIA RIZKY", "RAFIQ AHMAD MAULANA", "SILVIANA DHITA APRILIA", "SLAMET LATANGGANG", "TATANG KURNIAWAN", "VIA AULIA AZZAHRA", "VIKA AMELIA", "YELLOWVA VULCANIA NADIN", "YORIS JUNJUNG PAMORA"],
+                '9E': ["'ALYA NAWWAL SALSABILA", "ADHAM SETYAWAN", "ALFIANDY RAMADHAN", "ALIKHA VANDAN FREYAQUINSHA", "ALVINO TRI WIBOWO", "ANESTA NUR AFIFA", "ARIF FIRMANSYAH", "ARIF LINGGA SAPUTRA", "BIMA RANU PRASETYA", "CHANDRA SETIYAWAN", "DEDEK SULASTRI", "DESTA NUR HIDAYAT", "DHIMAS ABDI SYAPUTRATAMA", "FITRA NUR FADHILAH", "JEFRI ROY SETIAWAN", "KHULFAN YOGA RAMADHAN", "MUHAMMAD RAEHAN PAMUNGKAS", "PUTRA ADITYA PERWITA", "RAINA LALITA RHAMADANI CHANIAGO", "RENO DWI SAPUTRA", "RIFALDI HERDIANSYAH SAPUTRA", "SAFA AILSA PUTRI NURAINI", "SAKHI AR RASYID", "SEPTALIA PUTRI CAHYATI", "SILVIA ANINDA RAHMADANTI", "SYAHILLA NAFI RASYADHA", "TRI ANDIKA PRATAMA", "TRI PUSPITA HINAYA", "YANUARTA"]
+            };
+
+            // --- ELEMEN DOM & VARIABEL GLOBAL ---
+            const classSelect = document.getElementById('class-select');
+            const studentListEl = document.getElementById('student-list');
+            const noStudentMsg = document.getElementById('no-student-msg');
+            const violationDetailsEl = document.getElementById('violation-details');
+            const selectStudentPlaceholder = document.getElementById('select-student-placeholder');
+            const selectedStudentNameEl = document.getElementById('selected-student-name');
+            const selectedStudentClassEl = document.getElementById('selected-student-class');
+            const violationListEl = document.getElementById('violation-list');
+            const newViolationDateInput = document.getElementById('new-violation-date');
+            const newViolationTimeInput = document.getElementById('new-violation-time');
+            const newViolationDescInput = document.getElementById('new-violation-desc');
+            const addViolationBtn = document.getElementById('add-violation-btn');
+            const undoContainer = document.getElementById('undo-container');
+            const undoBtn = document.getElementById('undo-btn');
+
+            // Elemen Modal Laporan
+            const showAllViolationsBtn = document.getElementById('show-all-violations-btn');
+            const allViolationsModal = document.getElementById('all-violations-modal');
+            const modalContent = allViolationsModal.querySelector('.modal-content');
+            const closeAllViolationsModalBtn = document.getElementById('close-all-violations-modal-btn');
+            const closeAllViolationsModalBtn2 = document.getElementById('close-all-violations-modal-btn-2');
+            const allViolationsListContainer = document.getElementById('all-violations-list-container');
+            const searchViolationsInput = document.getElementById('search-violations-input');
+            const printAllViolationsBtn = document.getElementById('print-all-violations-btn');
+
+            // Elemen Modal Pengelola Siswa
+            const manageStudentsBtn = document.getElementById('manage-students-btn');
+            const manageStudentsModal = document.getElementById('manage-students-modal');
+            const closeManageStudentsModalBtn = document.getElementById('close-manage-students-modal-btn');
+            const manageClassList = document.getElementById('manage-class-list');
+            const classManagementPanel = document.getElementById('class-management-panel');
+            const manageStudentsPlaceholder = document.getElementById('manage-students-placeholder');
+            const studentActionPanel = document.getElementById('student-action-panel');
+            const managedClassName = document.getElementById('managed-class-name');
+            const modalNewStudentNameInput = document.getElementById('modal-new-student-name');
+            const modalAddStudentBtn = document.getElementById('modal-add-student-btn');
+            const manageStudentList = document.getElementById('manage-student-list');
+
+
+            let schoolData = {};
+            let activeClass = null;
+            let activeStudent = null;
+            let lastDeletedViolation = null;
+            let undoTimeout = null;
+
+            // --- FUNGSI-FUNGSI ---
+
+            const saveData = () => {
+                localStorage.setItem('studentViolationData', JSON.stringify(schoolData));
+            };
+
+            const loadData = () => {
+                const savedData = localStorage.getItem('studentViolationData');
+                if (savedData) {
+                    schoolData = JSON.parse(savedData);
+                    // --- Migrasi Data Lama (jika belum ada properti 'action') ---
+                    Object.values(schoolData).forEach(classData => {
+                        Object.values(classData).forEach(violations => {
+                            violations.forEach(v => {
+                                if (v.action === undefined) {
+                                    v.action = ''; // Tambahkan properti action jika tidak ada
+                                }
+                            });
+                        });
+                    });
+
+                } else {
+                    // Transformasi data awal jika tidak ada data tersimpan
+                    schoolData = {};
+                    for (const className in initialStudentList) {
+                        schoolData[className] = {};
+                        initialStudentList[className].forEach(studentName => {
+                            schoolData[className][studentName] = []; // Setiap siswa punya array pelanggaran
+                        });
+                    }
+                    saveData();
+                }
+            };
+
+            const formatDateTime = (isoString) => {
+                const date = new Date(isoString);
+                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
+                const dateString = date.toLocaleDateString('id-ID', optionsDate);
+                const timeString = date.toLocaleTimeString('id-ID', optionsTime).replace('.', ':');
+                return { date: dateString, time: timeString };
+            };
+            
+            const populateClassDropdown = () => {
+                classSelect.innerHTML = '<option value="">-- Silakan Pilih Kelas --</option>';
+                const classNames = Object.keys(schoolData).sort();
+                classNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = `Kelas ${name}`;
+                    classSelect.appendChild(option);
+                });
+            };
+
+            const renderStudentList = (className) => {
+                studentListEl.innerHTML = '';
+                activeStudent = null; // Reset siswa aktif saat ganti kelas
+                
+                // Sembunyikan detail pelanggaran dan undo bar
+                violationDetailsEl.classList.add('hidden');
+                selectStudentPlaceholder.classList.remove('hidden');
+                hideUndoBar();
+
+                if (!className || !schoolData[className]) {
+                    noStudentMsg.innerHTML = `<div class="text-center py-8"><i class="ph-light ph-book-open text-6xl text-slate-300"></i><p class="mt-2 text-slate-500">Pilih kelas untuk menampilkan daftar siswa.</p></div>`;
+                    noStudentMsg.classList.remove('hidden');
+                    return;
+                }
+
+                const studentNames = Object.keys(schoolData[className]).sort();
+
+                if (studentNames.length === 0) {
+                     noStudentMsg.innerHTML = `<div class="text-center py-8"><i class="ph-light ph-user-list text-6xl text-slate-300"></i><p class="mt-2 text-slate-500">Tidak ada siswa di kelas ini.</p></div>`;
+                    noStudentMsg.classList.remove('hidden');
+                } else {
+                    noStudentMsg.classList.add('hidden');
+                    studentNames.forEach(name => {
+                        const studentDiv = document.createElement('div');
+                        studentDiv.className = `p-3 rounded-lg cursor-pointer transition-all flex justify-between items-center hover:bg-slate-100 hover:shadow-sm`;
+                        studentDiv.textContent = name;
+                        
+                        studentDiv.addEventListener('click', () => {
+                            activeStudent = name;
+                            // Highlight siswa yang aktif
+                            document.querySelectorAll('#student-list > div').forEach(div => {
+                                div.classList.remove('bg-blue-500', 'text-white', 'font-bold', 'shadow-md');
+                            });
+                            studentDiv.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md');
+                            showViolationDetails(name, className);
+                        });
+                        studentListEl.appendChild(studentDiv);
+                    });
+                }
+            };
+
+            const hideUndoBar = () => {
+                clearTimeout(undoTimeout);
+                undoContainer.classList.add('hidden');
+                undoContainer.classList.add('opacity-0');
+            };
+            
+            const showViolationDetails = (studentName, className) => {
+                selectedStudentNameEl.textContent = studentName;
+                selectedStudentClassEl.textContent = className;
+                violationListEl.innerHTML = '';
+                hideUndoBar();
+
+                // Set default date and time to current
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                newViolationDateInput.value = `${year}-${month}-${day}`;
+                newViolationTimeInput.value = `${hours}:${minutes}`;
+
+
+                const violations = schoolData[className][studentName] || [];
+                violations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                if (violations.length === 0) {
+                    violationListEl.innerHTML = '<p class="text-center text-slate-500 py-8">Tidak ada riwayat pelanggaran. ✨</p>';
+                } else {
+                    violations.forEach((v) => {
+                        const { date, time } = formatDateTime(v.timestamp);
+                        const violationItem = document.createElement('div');
+                        violationItem.className = 'bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-start transition-all hover:shadow-md hover:border-slate-300';
+                        
+                        const safeTimestampId = v.timestamp.replace(/[.:]/g, '');
+
+                        violationItem.innerHTML = `
+                            <div class="flex-grow mr-4">
+                                <p class="font-medium text-slate-800">${v.description}</p>
+                                <p class="text-sm text-slate-500 mt-1 flex items-center gap-1">
+                                    <i class="ph-fill ph-calendar-blank"></i>
+                                    <span>${date} - Jam ${time}</span>
+                                </p>
+                                <div class="mt-3 action-container" id="action-container-${safeTimestampId}" data-timestamp="${v.timestamp}">
+                                    ${renderActionSection(v)}
+                                </div>
+                            </div>
+                            <button class="delete-violation-btn flex-shrink-0 text-slate-400 hover:text-red-500 p-1 rounded-full transition-colors" title="Hapus Catatan" data-timestamp="${v.timestamp}">
+                                <i class="ph-bold ph-trash text-lg"></i>
+                            </button>
+                        `;
+                        violationListEl.appendChild(violationItem);
+                    });
+                }
+
+                violationDetailsEl.classList.remove('hidden');
+                selectStudentPlaceholder.classList.add('hidden');
+            };
+            
+            const renderActionSection = (violation) => {
+                if (violation.action && violation.action.trim() !== '') {
+                    // Using <pre> to respect newlines and spaces in the action text
+                    return `
+                        <div class="bg-indigo-50 p-3 rounded-md border border-indigo-200">
+                            <p class="text-xs font-bold text-indigo-700 flex items-center gap-1"><i class="ph-fill ph-chats"></i>Tindak Lanjut:</p>
+                            <pre class="text-sm text-indigo-800 whitespace-pre-wrap font-sans mt-1">${violation.action}</pre>
+                            <button class="edit-action-btn text-xs text-indigo-600 hover:underline mt-2 font-semibold" data-timestamp="${violation.timestamp}">Edit Tindakan</button>
+                        </div>
+                    `;
+                } else {
+                    return `<button class="add-action-btn text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold py-1 px-3 rounded-full transition flex items-center gap-1" data-timestamp="${violation.timestamp}"><i class="ph-bold ph-plus"></i>Tambah Tindakan</button>`;
+                }
+            };
+            
+            const showActionEditForm = (container, timestamp, existingAction = '') => {
+                container.innerHTML = `
+                    <div class="p-1">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Tulis Tindak Lanjut</label>
+                        <textarea class="action-textarea w-full p-2 border rounded-md text-sm border-slate-300" rows="3" placeholder="Contoh: Diberi nasihat dan membuat surat pernyataan.">${existingAction}</textarea>
+                        <div class="flex gap-2 mt-2">
+                            <button class="save-action-btn bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold py-1 px-3 rounded-md" data-timestamp="${timestamp}">Simpan</button>
+                            <button class="cancel-action-btn bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-bold py-1 px-3 rounded-md">Batal</button>
+                        </div>
+                    </div>
+                `;
+                container.querySelector('textarea').focus();
+            };
+
+            const handleSaveAction = (timestamp, actionText) => {
+                if (!activeClass || !activeStudent) return;
+                const violation = schoolData[activeClass][activeStudent].find(v => v.timestamp === timestamp);
+                if (violation) {
+                    violation.action = actionText.trim();
+                    saveData();
+                    showViolationDetails(activeStudent, activeClass); // Re-render
+                }
+            };
+            
+            const handleDelete = (timestamp, studentName, className) => {
+                const violations = schoolData[className][studentName];
+                const index = violations.findIndex(v => v.timestamp === timestamp);
+                if (index > -1) {
+                    lastDeletedViolation = {
+                        data: violations[index],
+                        student: studentName,
+                        class: className,
+                        index: index
+                    };
+                    violations.splice(index, 1);
+                    saveData();
+                    showViolationDetails(studentName, className);
+                    undoContainer.classList.remove('hidden');
+                    setTimeout(() => undoContainer.classList.remove('opacity-0'), 10);
+                    clearTimeout(undoTimeout);
+                    undoTimeout = setTimeout(() => {
+                        hideUndoBar();
+                        lastDeletedViolation = null;
+                    }, 7000);
+                }
+            };
+            
+            const handleUndo = () => {
+                if (lastDeletedViolation) {
+                    const { data, student, class: className, index } = lastDeletedViolation;
+                    schoolData[className][student].splice(index, 0, data);
+                    saveData();
+                    showViolationDetails(student, className);
+                    lastDeletedViolation = null;
+                    hideUndoBar();
+                }
+            };
+
+            const addViolation = () => {
+                const violationDate = newViolationDateInput.value;
+                const violationTime = newViolationTimeInput.value;
+                const description = newViolationDescInput.value.trim();
+
+                if (description && violationDate && violationTime && activeClass && activeStudent) {
+                    const timestamp = new Date(`${violationDate}T${violationTime}`).toISOString();
+                    const newViolation = { description, timestamp, action: '' }; // Add action property
+                    schoolData[activeClass][activeStudent].push(newViolation);
+                    saveData();
+                    newViolationDescInput.value = '';
+                    showViolationDetails(activeStudent, activeClass);
+                } else {
+                    // Using a more modern notification can be an improvement, but alert is simple and effective here.
+                    alert('Harap isi tanggal, jam, dan deskripsi pelanggaran.');
+                }
+            };
+
+            // --- FUNGSI MODAL LAPORAN ---
+            const renderAllViolations = (filterText = '') => {
+                let allViolations = [];
+                for (const className in schoolData) {
+                    for (const studentName in schoolData[className]) {
+                        schoolData[className][studentName].forEach(v => {
+                            allViolations.push({
+                                ...v,
+                                student: studentName,
+                                class: className
+                            });
+                        });
+                    }
+                }
+
+                allViolations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                const lowerCaseFilter = filterText.toLowerCase();
+                const filtered = allViolations.filter(v => 
+                    v.student.toLowerCase().includes(lowerCaseFilter) ||
+                    v.class.toLowerCase().includes(lowerCaseFilter) ||
+                    v.description.toLowerCase().includes(lowerCaseFilter) ||
+                    (v.action && v.action.toLowerCase().includes(lowerCaseFilter))
+                );
+
+                allViolationsListContainer.innerHTML = '';
+                if (filtered.length === 0) {
+                    allViolationsListContainer.innerHTML = `<p class="text-center text-slate-500 p-8">Tidak ada catatan pelanggaran ditemukan.</p>`;
+                    return;
+                }
+
+                const table = document.createElement('table');
+                table.className = 'w-full text-sm text-left text-slate-600';
+                table.innerHTML = `
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Tanggal & Waktu</th>
+                            <th scope="col" class="px-6 py-3">Siswa</th>
+                            <th scope="col" class="px-6 py-3">Kelas</th>
+                            <th scope="col" class="px-6 py-3">Deskripsi Pelanggaran</th>
+                            <th scope="col" class="px-6 py-3">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+
+                const tbody = table.querySelector('tbody');
+                filtered.forEach(v => {
+                    const { date, time } = formatDateTime(v.timestamp);
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-slate-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>${date}</div>
+                            <div class="text-xs text-slate-400">Jam ${time}</div>
+                        </td>
+                        <td class="px-6 py-4 font-medium text-slate-900">${v.student}</td>
+                        <td class="px-6 py-4">${v.class}</td>
+                        <td class="px-6 py-4">${v.description}</td>
+                        <td class="px-6 py-4 whitespace-pre-wrap">${v.action || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                allViolationsListContainer.appendChild(table);
+            };
+
+            const openAllViolationsModal = () => {
+                renderAllViolations();
+                allViolationsModal.classList.remove('hidden');
+                setTimeout(() => {
+                    allViolationsModal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                }, 10);
+            };
+
+            const closeAllViolationsModal = () => {
+                allViolationsModal.classList.add('opacity-0');
+                modalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    allViolationsModal.classList.add('hidden');
+                    searchViolationsInput.value = '';
+                }, 250);
+            };
+
+            const handlePrintReport = () => {
+                const reportContent = allViolationsListContainer.innerHTML;
+                const printWindow = window.open('', '', 'height=800,width=1000');
+                printWindow.document.write('<html><head><title>Laporan Pelanggaran Siswa</title>');
+                printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">');
+                printWindow.document.write('<style>body { padding: 2rem; font-family: "Poppins", sans-serif; } table { width: 100%; border-collapse: collapse; font-size: 12px; } th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; } thead { position: sticky; top: 0; } th { background-color: #f2f2f2; } h1 { text-align: center; margin-bottom: 2rem; color: #334155; } td:last-child { white-space: pre-wrap; } </style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write('<h1>Laporan Semua Pelanggaran Siswa</h1>');
+                printWindow.document.write(reportContent);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
+            };
+
+            // --- FUNGSI MODAL PENGELOLA SISWA ---
+            const openManageStudentsModal = () => {
+                renderManageClassList();
+                manageStudentsPlaceholder.classList.remove('hidden');
+                studentActionPanel.classList.add('hidden');
+                manageStudentsModal.classList.remove('hidden');
+                setTimeout(() => {
+                    manageStudentsModal.classList.remove('opacity-0');
+                    manageStudentsModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            };
+
+            const closeManageStudentsModal = () => {
+                manageStudentsModal.classList.add('opacity-0');
+                manageStudentsModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => {
+                    manageStudentsModal.classList.add('hidden');
+                }, 250);
+            };
+
+            const renderManageClassList = () => {
+                manageClassList.innerHTML = '';
+                const classNames = Object.keys(schoolData).sort();
+                classNames.forEach(name => {
+                    const classDiv = document.createElement('div');
+                    classDiv.className = 'p-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-200';
+                    classDiv.textContent = `Kelas ${name}`;
+                    classDiv.dataset.className = name;
+                    classDiv.addEventListener('click', () => {
+                        document.querySelectorAll('#manage-class-list > div').forEach(div => {
+                            div.classList.remove('bg-blue-500', 'text-white', 'font-bold');
+                        });
+                        classDiv.classList.add('bg-blue-500', 'text-white', 'font-bold');
+                        renderStudentManagement(name);
+                    });
+                    manageClassList.appendChild(classDiv);
+                });
+            };
+
+            const renderStudentManagement = (className) => {
+                manageStudentsPlaceholder.classList.add('hidden');
+                studentActionPanel.classList.remove('hidden');
+                managedClassName.textContent = className;
+                modalAddStudentBtn.dataset.className = className; // Simpan kelas aktif di tombol
+                manageStudentList.innerHTML = '';
+                
+                const students = Object.keys(schoolData[className]).sort();
+                if (students.length === 0) {
+                    manageStudentList.innerHTML = `<p class="text-center text-slate-500 p-4">Belum ada siswa di kelas ini.</p>`;
+                } else {
+                    students.forEach(studentName => {
+                        const studentItem = document.createElement('div');
+                        studentItem.className = 'flex items-center justify-between p-3 bg-white rounded-lg border';
+                        studentItem.innerHTML = `
+                            <span class="student-name-span">${studentName}</span>
+                            <div class="student-actions-div flex items-center gap-2">
+                                <button class="edit-student-btn text-slate-500 hover:text-blue-600" title="Edit Nama"><i class="ph-bold ph-pencil-simple"></i></button>
+                                <button class="delete-student-btn text-slate-500 hover:text-red-600" title="Hapus Siswa"><i class="ph-bold ph-trash"></i></button>
+                            </div>
+                        `;
+                        manageStudentList.appendChild(studentItem);
+                        
+                        // Add event listeners
+                        studentItem.querySelector('.edit-student-btn').addEventListener('click', () => handleEditStudent(studentName, className, studentItem));
+                        studentItem.querySelector('.delete-student-btn').addEventListener('click', () => handleDeleteStudent(studentName, className));
+                    });
+                }
+            };
+            
+            const handleEditStudent = (oldName, className, studentItem) => {
+                const nameSpan = studentItem.querySelector('.student-name-span');
+                const actionsDiv = studentItem.querySelector('.student-actions-div');
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = oldName;
+                input.className = 'flex-grow p-1 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none';
+                
+                const saveBtn = document.createElement('button');
+                saveBtn.innerHTML = '<i class="ph-bold ph-check-circle text-green-500 text-xl"></i>';
+                saveBtn.title = "Simpan";
+                saveBtn.onclick = () => {
+                    const newName = input.value.trim().toUpperCase();
+                    if (newName && newName !== oldName) {
+                        saveStudentEdit(oldName, newName, className);
+                    } else {
+                        renderStudentManagement(className); // Batal jika nama sama atau kosong
+                    }
+                };
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.innerHTML = '<i class="ph-bold ph-x-circle text-red-500 text-xl"></i>';
+                cancelBtn.title = "Batal";
+                cancelBtn.onclick = () => renderStudentManagement(className);
+                
+                nameSpan.replaceWith(input);
+                actionsDiv.innerHTML = '';
+                actionsDiv.appendChild(saveBtn);
+                actionsDiv.appendChild(cancelBtn);
+                input.focus();
+            };
+
+            const saveStudentEdit = (oldName, newName, className) => {
+                // Cek duplikat
+                if (schoolData[className].hasOwnProperty(newName)) {
+                    alert(`Nama "${newName}" sudah ada di kelas ini.`);
+                    return;
+                }
+
+                // Update data
+                schoolData[className][newName] = schoolData[className][oldName]; // Salin data pelanggaran
+                delete schoolData[className][oldName]; // Hapus data lama
+                saveData();
+
+                renderStudentManagement(className); // Re-render list di modal
+                
+                // Jika kelas yang diedit adalah kelas yang aktif di halaman utama, render ulang juga
+                if(className === activeClass) {
+                    renderStudentList(className);
+                }
+            };
+
+            const handleDeleteStudent = (studentName, className) => {
+                if (confirm(`Apakah Anda yakin ingin menghapus siswa "${studentName}" dari kelas ${className}? SEMUA data pelanggaran siswa ini juga akan terhapus secara permanen.`)) {
+                    delete schoolData[className][studentName];
+                    saveData();
+                    renderStudentManagement(className);
+                    if(className === activeClass) {
+                        renderStudentList(className);
+                    }
+                }
+            };
+            
+            const handleAddStudentInModal = () => {
+                const className = modalAddStudentBtn.dataset.className;
+                const newName = modalNewStudentNameInput.value.trim().toUpperCase();
+
+                if (newName && className && !schoolData[className].hasOwnProperty(newName)) {
+                    schoolData[className][newName] = [];
+                    saveData();
+                    modalNewStudentNameInput.value = '';
+                    renderStudentManagement(className);
+                    if(className === activeClass) {
+                        renderStudentList(className);
+                    }
+                } else if (schoolData[className].hasOwnProperty(newName)) {
+                     alert(`Nama "${newName}" sudah ada di kelas ini.`);
+                } else {
+                    alert('Nama siswa tidak boleh kosong.');
+                }
+            };
+
+
+            // --- EVENT LISTENERS ---
+
+            classSelect.addEventListener('change', (e) => {
+                activeClass = e.target.value;
+                renderStudentList(activeClass);
+            });
+
+            addViolationBtn.addEventListener('click', addViolation);
+            newViolationDescInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addViolation(); });
+            undoBtn.addEventListener('click', handleUndo);
+
+            // Event Delegation for violation list actions (delete, add/edit action)
+            violationListEl.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                const timestamp = button.dataset.timestamp;
+
+                if (button.classList.contains('delete-violation-btn')) {
+                    handleDelete(timestamp, activeStudent, activeClass);
+                } else if (button.classList.contains('add-action-btn')) {
+                    const container = button.parentElement;
+                    showActionEditForm(container, timestamp);
+                } else if (button.classList.contains('edit-action-btn')) {
+                    const container = button.parentElement.parentElement;
+                    const violation = schoolData[activeClass][activeStudent].find(v => v.timestamp === timestamp);
+                    showActionEditForm(container, timestamp, violation.action);
+                } else if (button.classList.contains('save-action-btn')) {
+                    const textarea = button.parentElement.parentElement.querySelector('textarea');
+                    handleSaveAction(timestamp, textarea.value);
+                } else if (button.classList.contains('cancel-action-btn')) {
+                    showViolationDetails(activeStudent, activeClass); // Re-render to cancel
+                }
+            });
+
+
+            // Event Listeners Modal Laporan
+            showAllViolationsBtn.addEventListener('click', openAllViolationsModal);
+            closeAllViolationsModalBtn.addEventListener('click', closeAllViolationsModal);
+            closeAllViolationsModalBtn2.addEventListener('click', closeAllViolationsModal);
+            searchViolationsInput.addEventListener('keyup', (e) => renderAllViolations(e.target.value));
+            printAllViolationsBtn.addEventListener('click', handlePrintReport);
+            
+            // Event Listeners Modal Pengelola Siswa
+            manageStudentsBtn.addEventListener('click', openManageStudentsModal);
+            closeManageStudentsModalBtn.addEventListener('click', closeManageStudentsModal);
+            modalAddStudentBtn.addEventListener('click', handleAddStudentInModal);
+            modalNewStudentNameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAddStudentInModal(); });
+
+            // --- INISIALISASI ---
+            loadData();
+            populateClassDropdown();
+            renderStudentList(null); // Mulai dengan state kosong
+        });
+    </script>
+</body>
+</html>
