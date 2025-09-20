@@ -11,7 +11,11 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-image: url('https://github.com/atha-cyber/logo-/raw/main/%E2%80%94Pngtree%E2%80%94c4d%20neon%20cool%20background_1113037.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -19,8 +23,6 @@
             margin: 0; 
         }
         input[type=number] { -moz-appearance: textfield; }
-
-        .logo-transparent-bg { mix-blend-mode: multiply; }
 
         .skeleton-loader {
             background-color: #e2e8f0;
@@ -41,32 +43,15 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
-
-        /* Animasi untuk berputar lalu berhenti 3 detik */
-        .animate-spin-pause {
-            /* Total durasi: 1.2s spin + 3s pause = 4.2s */
-            animation: spin-and-pause 4.2s linear infinite;
-        }
-
-        @keyframes spin-and-pause {
-            0% {
-                transform: rotate(0deg);
-            }
-            /* Selesai berputar dalam 1.2 detik (1.2s / 4.2s = ~28.6%) */
-            28.6% {
-                transform: rotate(360deg);
-            }
-            /* Tetap diam di posisi akhir selama sisa waktu (3 detik) */
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-
+        
         @media print {
-            body { background-color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { 
+                background-image: none !important;
+                background-color: white !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
             .no-print { display: none !important; }
-            .logo-transparent-bg { mix-blend-mode: normal; }
             .container { max-width: 100%; padding: 0; margin: 0; }
             section, .attendance-card, #summary-section { box-shadow: none !important; border: 1px solid #e5e7eb; page-break-inside: avoid; }
             .attendance-card { transform: none !important; }
@@ -74,7 +59,7 @@
             .attendance-display { display: block !important; }
             h1, h2, h3, p, span { color: black !important; }
             .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-gray-100 { background-color: #f9fafb !important; }
-            .animate-blinking-opacity, .animate-pulse, .animate-spin-pause { animation: none !important; } /* Menonaktifkan animasi saat cetak */
+            .animate-blinking-opacity, .animate-pulse { animation: none !important; }
         }
     </style>
 </head>
@@ -82,61 +67,72 @@
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <header class="text-center mb-8">
-            <div class="flex justify-center items-center space-x-4 mb-4">
-                <img src="https://github.com/atha-cyber/logo-/raw/main/logo%20kab.png" alt="Logo Kabupaten" class="h-16 w-16 sm:h-20 sm:w-20 object-contain logo-transparent-bg">
-                <img src="https://github.com/atha-cyber/logo-/raw/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-20 w-20 sm:h-24 sm:w-24 object-contain animate-spin-pause">
-                <img src="https://github.com/atha-cyber/logo-/raw/main/images.jfif" alt="Logo Tut Wuri Handayani" class="h-16 w-16 sm:h-20 sm:w-20 object-contain logo-transparent-bg">
+        <header class="relative mb-8 rounded-2xl shadow-lg p-6 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
+            <!-- Header Content -->
+            <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
+                <!-- Logo Kiri (SMP) -->
+                <div class="flex justify-start">
+                    <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full shadow-lg border border-white/30 flex-shrink-0" 
+                         style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: cover; background-position: center;">
+                    </div>
+                </div>
+
+                <!-- Konten Teks Tengah -->
+                <div class="text-center min-w-0">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran Siswa</h1>
+                    <marquee class="text-base md:text-lg text-gray-200 font-semibold mt-1 drop-shadow-md">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</marquee>
+                    <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-sm"></p>
+                </div>
+
+                <!-- Konten Kanan (Logo BGN) -->
+                <div class="flex justify-end">
+                    <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
+                </div>
             </div>
-            
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Dasbor Kehadiran Siswa</h1>
-            <p class="text-lg md:text-xl text-blue-600 font-semibold mt-1">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</p>
-            <p id="current-date" class="mt-3 text-gray-500 bg-gray-100 px-4 py-1 rounded-full inline-block text-sm"></p>
         </header>
 
         <main id="attendance-grid" class="space-y-8">
-            <!-- Skeleton Loader -->
-            <div id="skeleton-loader-container"></div>
+            <!-- Konten akan dimuat oleh JavaScript -->
         </main>
         
         <!-- Bagian Rangkuman / Dasbor Mini -->
-        <section id="summary-section" class="bg-white p-5 rounded-2xl shadow-lg mt-8">
+        <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Rangkuman Hari Ini</h3>
+                <h3 class="text-xl font-bold text-white">Rangkuman Hari Ini</h3>
                 <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zM0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
                 </button>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <!-- Hadir Per Kelas -->
-                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-200">
-                    <p class="text-sm text-blue-800 font-semibold">Hadir Kelas VII</p>
-                    <p id="total-vii" class="text-3xl font-bold text-blue-600">0</p>
+                <div class="bg-blue-900/30 p-4 rounded-xl border border-blue-400/50">
+                    <p class="text-sm text-blue-200 font-semibold">Hadir Kelas VII</p>
+                    <p id="total-vii" class="text-3xl font-bold text-blue-300">0</p>
                 </div>
-                <div class="bg-green-50/50 p-4 rounded-xl border border-green-200">
-                    <p class="text-sm text-green-800 font-semibold">Hadir Kelas VIII</p>
-                    <p id="total-viii" class="text-3xl font-bold text-green-600">0</p>
+                <div class="bg-green-900/30 p-4 rounded-xl border border-green-400/50">
+                    <p class="text-sm text-green-200 font-semibold">Hadir Kelas VIII</p>
+                    <p id="total-viii" class="text-3xl font-bold text-green-300">0</p>
                 </div>
-                <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-200">
-                    <p class="text-sm text-purple-800 font-semibold">Hadir Kelas IX</p>
-                    <p id="total-ix" class="text-3xl font-bold text-purple-600">0</p>
+                <div class="bg-purple-900/30 p-4 rounded-xl border border-purple-400/50">
+                    <p class="text-sm text-purple-200 font-semibold">Hadir Kelas IX</p>
+                    <p id="total-ix" class="text-3xl font-bold text-purple-300">0</p>
                 </div>
                 <!-- Total & Sisa Porsi -->
-                <div class="bg-gray-100 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1">
+                <div class="bg-gray-700/30 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
                     <div>
-                        <p class="text-sm text-gray-700 font-bold">TOTAL HADIR</p>
-                        <p id="total-present" class="text-4xl font-extrabold text-gray-800">0</p>
+                        <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
+                        <p id="total-present" class="text-4xl font-extrabold text-white">0</p>
                     </div>
-                    <div class="md:border-t md:border-gray-300 md:mt-1 md:pt-1">
-                        <p class="text-sm text-gray-700 font-bold">SISA PORSI</p>
-                        <p id="remaining-portions" class="text-2xl font-extrabold text-red-600 animate-blinking-opacity">472</p>
+                    <div class="md:border-t md:border-gray-300/30 md:mt-1 md:pt-1">
+                        <p class="text-sm text-gray-200 font-bold">SISA PORSI</p>
+                        <p id="remaining-portions" class="text-2xl font-extrabold text-red-400 animate-blinking-opacity">472</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <footer class="text-center mt-10 pt-6 border-t border-gray-200 no-print">
-            <p class="text-sm text-gray-500">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
+        <footer class="text-center mt-10 pt-6 border-t border-white/20 no-print">
+            <p class="text-sm text-gray-200">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
         </footer>
     </div>
 
@@ -152,9 +148,11 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+        
+        // Konfigurasi Firebase diletakkan di sini agar pratinjau berfungsi.
+        // UNTUK PROYEK LOKAL ANDA: Tetap gunakan file firebase-config.js yang terpisah dan .gitignore
         const firebaseConfig = {
-            apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc", 
+            apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
             authDomain: "mbg4-329e3.firebaseapp.com",
             projectId: "mbg4-329e3",
             storageBucket: "mbg4-329e3.appspot.com",
@@ -175,7 +173,6 @@
         const notificationMessage = document.getElementById('notification-message');
         const notificationOkBtn = document.getElementById('notification-ok-btn');
         const notificationIcon = document.getElementById('notification-icon');
-        const skeletonContainer = document.getElementById('skeleton-loader-container');
         
         // --- State and Config ---
         let currentData = {};
@@ -224,7 +221,7 @@
             let skeletonHtml = '';
             for (const details of Object.values(CLASSES_CONFIG)) {
                 skeletonHtml += `
-                    <div class="mb-8 p-4 rounded-2xl bg-white shadow-md">
+                    <div class="mb-8 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
                         <div class="h-8 w-32 skeleton-loader mb-4"></div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             ${Array(5).fill('').map(() => `<div class="h-28 w-full skeleton-loader"></div>`).join('')}
@@ -232,19 +229,17 @@
                     </div>
                 `;
             }
-            skeletonContainer.innerHTML = skeletonHtml;
-            attendanceGrid.prepend(skeletonContainer);
+            attendanceGrid.innerHTML = skeletonHtml;
         }
 
         function renderAttendanceGrid(data) {
-            skeletonContainer.remove();
             let html = '';
             for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
                 const levelRoman = level.split(' ')[1];
                 html += `
-                <section class="bg-white p-4 sm:p-5 rounded-2xl shadow-lg" data-level="${levelRoman}">
-                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
-                        <h3 class="text-xl font-bold text-gray-800">${level}</h3>
+                <section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${levelRoman}">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/20">
+                        <h3 class="text-xl font-bold text-white">${level}</h3>
                         <div class="section-controls no-print flex items-center space-x-2">
                             <button class="edit-section-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-transform transform hover:scale-105 whitespace-nowrap flex items-center space-x-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
@@ -267,11 +262,11 @@
                     const classId = `${levelRoman}${rombel}`;
                     const count = data[classId] || 0;
                     html += `
-                        <div class="attendance-card bg-gray-50 rounded-xl border border-gray-200 p-3 text-center transition-all duration-300 hover:shadow-lg hover:border-${details.color}-400 hover:-translate-y-1" data-class-id="${classId}">
-                            <p class="text-base font-semibold text-gray-700">${levelRoman} ${rombel}</p>
-                            <span class="attendance-display block text-4xl font-bold text-${details.color}-600 my-2">${count}</span>
-                            <input type="number" class="attendance-input hidden w-full text-center text-4xl font-bold bg-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
-                            <p class="text-xs text-gray-500">Siswa Hadir</p>
+                        <div class="attendance-card bg-white/10 rounded-xl border border-white/20 p-3 text-center transition-all duration-300 hover:shadow-lg hover:border-${details.color}-400/50 hover:-translate-y-1" data-class-id="${classId}">
+                            <p class="text-base font-semibold text-gray-200">${levelRoman} ${rombel}</p>
+                            <span class="attendance-display block text-4xl font-bold text-${details.color}-300 my-2">${count}</span>
+                            <input type="number" class="attendance-input hidden w-full text-center text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
+                            <p class="text-xs text-gray-400">Siswa Hadir</p>
                         </div>`;
                 });
                 html += `</div></section>`;
@@ -383,13 +378,19 @@
 
         // --- Initialization & Real-time Listener ---
         displayCurrentDate();
-        renderSkeletonLoader();
+
+        let isInitialLoad = true;
+        renderSkeletonLoader(); 
 
         onSnapshot(attendanceDocRef, (doc) => {
             const todayString = getLocalDateString();
-            const data = doc.exists() ? doc.data() : {};
             
-            if (data.lastUpdated !== todayString) {
+            if (doc.exists() && doc.data().lastUpdated === todayString) {
+                currentData = doc.data();
+                renderAttendanceGrid(currentData);
+                updateSummary(currentData);
+            } else if (isInitialLoad) {
+                isInitialLoad = false;
                 const resetData = { lastUpdated: todayString };
                 Object.keys(CLASSES_CONFIG).forEach(level => {
                     const levelRoman = level.split(' ')[1];
@@ -402,7 +403,7 @@
                     showNotification("Gagal memulai sesi baru. Muat ulang halaman.", 'error');
                 });
             } else {
-                currentData = data;
+                 currentData = doc.data();
                 renderAttendanceGrid(currentData);
                 updateSummary(currentData);
             }
