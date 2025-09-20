@@ -3,161 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kehadiran Siswa - Makan Bergizi Gratis | SMPN 4 Pandak</title>
+    <title>Dasbor Kehadiran - Program Makan Bergizi | SMPN 4 Pandak</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
         }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
-          -webkit-appearance: none; 
-          margin: 0; 
+            -webkit-appearance: none; 
+            margin: 0; 
         }
-        input[type=number] {
-          -moz-appearance: textfield;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .logo-transparent-bg { mix-blend-mode: multiply; }
+
+        .skeleton-loader {
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        /* Trik untuk membuat background putih pada logo menjadi transparan */
-        .logo-transparent-bg {
-            mix-blend-mode: multiply;
+        @keyframes pulse {
+            50% { opacity: .5; }
+        }
+        
+        /* Animasi untuk berkedip */
+        .animate-blinking-opacity {
+            animation: blinking-opacity 1.5s ease-in-out infinite;
         }
 
-        /* Print Styles */
+        @keyframes blinking-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Animasi untuk berputar lalu berhenti 3 detik */
+        .animate-spin-pause {
+            /* Total durasi: 1.2s spin + 3s pause = 4.2s */
+            animation: spin-and-pause 4.2s linear infinite;
+        }
+
+        @keyframes spin-and-pause {
+            0% {
+                transform: rotate(0deg);
+            }
+            /* Selesai berputar dalam 1.2 detik (1.2s / 4.2s = ~28.6%) */
+            28.6% {
+                transform: rotate(360deg);
+            }
+            /* Tetap diam di posisi akhir selama sisa waktu (3 detik) */
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
         @media print {
-            body {
-                background-color: white !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .logo-transparent-bg {
-                mix-blend-mode: normal; /* Menonaktifkan efek transparan saat dicetak */
-            }
-            .container {
-                max-width: 100%;
-                padding: 0;
-                margin: 0;
-            }
-            section, .attendance-card, #summary-section {
-                box-shadow: none !important;
-                border: 1px solid #e5e7eb;
-                page-break-inside: avoid;
-            }
-            .attendance-card {
-                transform: none !important;
-            }
-            .attendance-input {
-                display: none !important;
-            }
-            .attendance-display {
-                display: block !important;
-            }
-            h1, h2, h3, p, span {
-                color: black !important;
-            }
-            .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-gray-100 {
-                background-color: #f9fafb !important;
-            }
+            body { background-color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .logo-transparent-bg { mix-blend-mode: normal; }
+            .container { max-width: 100%; padding: 0; margin: 0; }
+            section, .attendance-card, #summary-section { box-shadow: none !important; border: 1px solid #e5e7eb; page-break-inside: avoid; }
+            .attendance-card { transform: none !important; }
+            .attendance-input { display: none !important; }
+            .attendance-display { display: block !important; }
+            h1, h2, h3, p, span { color: black !important; }
+            .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-gray-100 { background-color: #f9fafb !important; }
+            .animate-blinking-opacity, .animate-pulse, .animate-spin-pause { animation: none !important; } /* Menonaktifkan animasi saat cetak */
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="text-gray-800">
 
-    <div class="container mx-auto px-4 py-6 md:py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <header class="text-center mb-6 flex flex-col items-center">
-            <!-- Wadah untuk semua logo -->
-            <div class="flex justify-center items-center space-x-4 mb-3">
-                <!-- Logo Kiri (Kabupaten) dengan efek transparan -->
-                <img src="https://github.com/atha-cyber/logo-/raw/main/logo%20kab.png" alt="Logo Kabupaten" class="h-20 w-20 object-contain logo-transparent-bg">
-                
-                <!-- Logo Tengah (Utama) -->
-                <img src="https://github.com/atha-cyber/logo-/raw/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-24 w-24 object-contain">
-                
-                <!-- Logo Kanan (Sekolah/Tut Wuri) dengan efek transparan -->
-                <img src="https://github.com/atha-cyber/logo-/raw/main/images.jfif" alt="Logo Tut Wuri Handayani" class="h-20 w-20 object-contain logo-transparent-bg">
+        <header class="text-center mb-8">
+            <div class="flex justify-center items-center space-x-4 mb-4">
+                <img src="https://github.com/atha-cyber/logo-/raw/main/logo%20kab.png" alt="Logo Kabupaten" class="h-16 w-16 sm:h-20 sm:w-20 object-contain logo-transparent-bg">
+                <img src="https://github.com/atha-cyber/logo-/raw/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-20 w-20 sm:h-24 sm:w-24 object-contain animate-spin-pause">
+                <img src="https://github.com/atha-cyber/logo-/raw/main/images.jfif" alt="Logo Tut Wuri Handayani" class="h-16 w-16 sm:h-20 sm:w-20 object-contain logo-transparent-bg">
             </div>
             
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">REKAP KEHADIRAN SISWA</h1>
-            <p class="text-lg md:text-xl text-blue-600 font-semibold mt-1">PROGRAM MAKAN BERGIZI GRATIS</p>
-            <h2 class="text-base md:text-lg text-gray-600 mt-1">SMP NEGERI 4 PANDAK</h2>
-            <p id="current-date" class="mt-2 text-gray-500"></p>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Dasbor Kehadiran Siswa</h1>
+            <p class="text-lg md:text-xl text-blue-600 font-semibold mt-1">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</p>
+            <p id="current-date" class="mt-3 text-gray-500 bg-gray-100 px-4 py-1 rounded-full inline-block text-sm"></p>
         </header>
 
-        <main id="attendance-grid" class="mt-8">
-            <div class="loader"></div>
-            <p class="text-center text-gray-500 mt-2">Memuat data...</p>
+        <main id="attendance-grid" class="space-y-8">
+            <!-- Skeleton Loader -->
+            <div id="skeleton-loader-container"></div>
         </main>
-
-        <section id="summary-section" class="bg-white p-4 rounded-xl shadow-md mt-8">
-            <div class="flex justify-between items-center mb-3">
+        
+        <!-- Bagian Rangkuman / Dasbor Mini -->
+        <section id="summary-section" class="bg-white p-5 rounded-2xl shadow-lg mt-8">
+            <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-gray-800">Rangkuman Hari Ini</h3>
                 <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
-                        <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"></path>
-                        <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"></path>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
                 </button>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                <div class="bg-blue-50 p-3 rounded-lg">
-                    <p class="text-xs text-blue-700 font-semibold">Hadir Kelas VII</p>
-                    <p id="total-vii" class="text-2xl font-bold text-blue-600">0</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <!-- Hadir Per Kelas -->
+                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-200">
+                    <p class="text-sm text-blue-800 font-semibold">Hadir Kelas VII</p>
+                    <p id="total-vii" class="text-3xl font-bold text-blue-600">0</p>
                 </div>
-                <div class="bg-green-50 p-3 rounded-lg">
-                    <p class="text-xs text-green-700 font-semibold">Hadir Kelas VIII</p>
-                    <p id="total-viii" class="text-2xl font-bold text-green-600">0</p>
+                <div class="bg-green-50/50 p-4 rounded-xl border border-green-200">
+                    <p class="text-sm text-green-800 font-semibold">Hadir Kelas VIII</p>
+                    <p id="total-viii" class="text-3xl font-bold text-green-600">0</p>
                 </div>
-                <div class="bg-purple-50 p-3 rounded-lg">
-                    <p class="text-xs text-purple-700 font-semibold">Hadir Kelas IX</p>
-                    <p id="total-ix" class="text-2xl font-bold text-purple-600">0</p>
+                <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-200">
+                    <p class="text-sm text-purple-800 font-semibold">Hadir Kelas IX</p>
+                    <p id="total-ix" class="text-3xl font-bold text-purple-600">0</p>
                 </div>
-                 <div class="bg-gray-100 p-3 rounded-lg col-span-2 md:col-span-4 grid grid-cols-2 gap-3">
-                    <div class="border-r border-gray-300">
+                <!-- Total & Sisa Porsi -->
+                <div class="bg-gray-100 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1">
+                    <div>
                         <p class="text-sm text-gray-700 font-bold">TOTAL HADIR</p>
                         <p id="total-present" class="text-4xl font-extrabold text-gray-800">0</p>
                     </div>
-                    <div>
+                    <div class="md:border-t md:border-gray-300 md:mt-1 md:pt-1">
                         <p class="text-sm text-gray-700 font-bold">SISA PORSI</p>
-                        <p id="remaining-portions" class="text-4xl font-extrabold text-red-600">472</p>
+                        <p id="remaining-portions" class="text-2xl font-extrabold text-red-600 animate-blinking-opacity">472</p>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <footer class="text-center mt-6 pt-4 border-t border-gray-300 no-print">
-            <p class="text-gray-600">&copy; 2025 SMP Negeri 4 Pandak. Didukung oleh Teknologi Digital.</p>
+
+        <footer class="text-center mt-10 pt-6 border-t border-gray-200 no-print">
+            <p class="text-sm text-gray-500">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
         </footer>
     </div>
 
-    <!-- Modal Notifikasi Sukses/Error -->
-    <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print">
-        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm text-center">
+    <!-- Modal Notifikasi -->
+    <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
+            <div id="notification-icon" class="mx-auto mb-4"></div>
             <p id="notification-message" class="text-lg text-gray-800 mb-6"></p>
-            <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition">OK</button>
+            <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
         </div>
     </div>
     
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -175,21 +166,18 @@
         const db = getFirestore(app);
         const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
 
-        // --- ELEMEN DOM ---
+        // --- DOM Elements ---
         const dateElement = document.getElementById('current-date');
         const attendanceGrid = document.getElementById('attendance-grid');
         const printBtn = document.getElementById('print-btn');
-        
         const notificationModal = document.getElementById('notification-modal');
+        const notificationContent = document.getElementById('notification-content');
         const notificationMessage = document.getElementById('notification-message');
         const notificationOkBtn = document.getElementById('notification-ok-btn');
+        const notificationIcon = document.getElementById('notification-icon');
+        const skeletonContainer = document.getElementById('skeleton-loader-container');
         
-        const totalViiEl = document.getElementById('total-vii');
-        const totalViiiEl = document.getElementById('total-viii');
-        const totalIxEl = document.getElementById('total-ix');
-        const totalPresentEl = document.getElementById('total-present');
-        const remainingPortionsEl = document.getElementById('remaining-portions');
-        
+        // --- State and Config ---
         let currentData = {};
         const TOTAL_SISWA_KESELURUHAN = 472;
         const CLASSES_CONFIG = {
@@ -198,39 +186,93 @@
             'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
         };
 
-        // --- FUNGSI RENDER & KALKULASI ---
+        // --- Audio Functions ---
+        let audioCtx;
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playTone(frequency, duration) {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.01); // Quick fade in -- VOLUME INCREASED
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+            oscillator.start(audioCtx.currentTime);
+
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSuccessSound() {
+            playTone(523.25, 0.1); // C5
+            setTimeout(() => playTone(659.25, 0.15), 100); // E5
+        }
+        
+        // --- UI Functions ---
+
+        function renderSkeletonLoader() {
+            let skeletonHtml = '';
+            for (const details of Object.values(CLASSES_CONFIG)) {
+                skeletonHtml += `
+                    <div class="mb-8 p-4 rounded-2xl bg-white shadow-md">
+                        <div class="h-8 w-32 skeleton-loader mb-4"></div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            ${Array(5).fill('').map(() => `<div class="h-28 w-full skeleton-loader"></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            skeletonContainer.innerHTML = skeletonHtml;
+            attendanceGrid.prepend(skeletonContainer);
+        }
+
         function renderAttendanceGrid(data) {
+            skeletonContainer.remove();
             let html = '';
             for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
                 const levelRoman = level.split(' ')[1];
                 html += `
-                <section class="mb-8" data-level="${levelRoman}">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold pb-2 border-b-2 border-${details.color}-500 text-${details.color}-700">${level}</h3>
+                <section class="bg-white p-4 sm:p-5 rounded-2xl shadow-lg" data-level="${levelRoman}">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800">${level}</h3>
                         <div class="section-controls no-print flex items-center space-x-2">
-                            <button class="edit-section-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-lg text-sm transition-transform transform hover:scale-105 whitespace-nowrap">Ubah Data ${level}</button>
+                            <button class="edit-section-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-transform transform hover:scale-105 whitespace-nowrap flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
+                                <span>Ubah</span>
+                            </button>
                             <div class="edit-mode-controls-section hidden flex items-center space-x-2">
-                                <button class="save-section-btn bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-lg text-sm flex items-center justify-center space-x-2">
+                                <button class="save-section-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg text-sm flex items-center justify-center space-x-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg>
                                     <span>Simpan</span>
-                                    <div class="save-spinner-section w-4 h-4 border-t-2 border-white rounded-full animate-spin hidden"></div>
                                 </button>
-                                <button class="cancel-section-btn bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-sm">Batal</button>
+                                <button class="cancel-section-btn bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-lg text-sm flex items-center space-x-2">
+                                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>
+                                   <span>Batal</span>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                `;
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">`;
                 details.rombels.forEach(rombel => {
                     const classId = `${levelRoman}${rombel}`;
                     const count = data[classId] || 0;
                     html += `
-                        <div class="attendance-card bg-white rounded-xl shadow-md p-3 text-center transition transform hover:-translate-y-1 hover:shadow-lg" data-class-id="${classId}">
-                            <p class="text-base font-semibold text-gray-700">${level} ${rombel}</p>
-                            <span class="attendance-display text-3xl font-bold text-${details.color}-600 mt-1">${count}</span>
-                            <input type="number" class="attendance-input hidden w-20 text-center text-3xl font-bold bg-gray-100 border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:border-${details.color}-500" value="${count}" min="0" max="50">
-                            <p class="text-xs text-gray-500 mt-1">Siswa Hadir</p>
-                        </div>
-                    `;
+                        <div class="attendance-card bg-gray-50 rounded-xl border border-gray-200 p-3 text-center transition-all duration-300 hover:shadow-lg hover:border-${details.color}-400 hover:-translate-y-1" data-class-id="${classId}">
+                            <p class="text-base font-semibold text-gray-700">${levelRoman} ${rombel}</p>
+                            <span class="attendance-display block text-4xl font-bold text-${details.color}-600 my-2">${count}</span>
+                            <input type="number" class="attendance-input hidden w-full text-center text-4xl font-bold bg-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
+                            <p class="text-xs text-gray-500">Siswa Hadir</p>
+                        </div>`;
                 });
                 html += `</div></section>`;
             }
@@ -238,134 +280,127 @@
         }
 
         function updateSummary(data) {
-            let totalVii = 0, totalViii = 0, totalIx = 0;
+            const totals = {};
+            let totalHadir = 0;
+            for(const [level, details] of Object.entries(CLASSES_CONFIG)) {
+                const levelRoman = level.split(' ')[1];
+                let levelTotal = 0;
+                details.rombels.forEach(rombel => levelTotal += parseInt(data[`${levelRoman}${rombel}`], 10) || 0);
+                totals[levelRoman] = levelTotal;
+                totalHadir += levelTotal;
+            }
 
-            CLASSES_CONFIG['Kelas VII'].rombels.forEach(rombel => totalVii += parseInt(data[`VII${rombel}`], 10) || 0);
-            CLASSES_CONFIG['Kelas VIII'].rombels.forEach(rombel => totalViii += parseInt(data[`VIII${rombel}`], 10) || 0);
-            CLASSES_CONFIG['Kelas IX'].rombels.forEach(rombel => totalIx += parseInt(data[`IX${rombel}`], 10) || 0);
-
-            const totalHadir = totalVii + totalViii + totalIx;
-            const sisaPorsi = TOTAL_SISWA_KESELURUHAN - totalHadir;
-
-            totalViiEl.textContent = totalVii;
-            totalViiiEl.textContent = totalViii;
-            totalIxEl.textContent = totalIx;
-            totalPresentEl.textContent = totalHadir;
-            remainingPortionsEl.textContent = sisaPorsi;
+            document.getElementById('total-vii').textContent = totals['VII'];
+            document.getElementById('total-viii').textContent = totals['VIII'];
+            document.getElementById('total-ix').textContent = totals['IX'];
+            document.getElementById('total-present').textContent = totalHadir;
+            document.getElementById('remaining-portions').textContent = TOTAL_SISWA_KESELURUHAN - totalHadir;
         }
 
-        // --- FUNGSI UTAMA ---
         function getLocalDateString() {
             const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         }
 
         function displayCurrentDate() {
-            const today = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateElement.textContent = `Data untuk Hari Ini: ${today.toLocaleDateString('id-ID', options)}`;
+            dateElement.textContent = new Date().toLocaleDateString('id-ID', options);
         }
 
-        function showNotification(message) {
+        function showNotification(message, status = 'success') {
+            const icons = {
+                success: `<svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+                error: `<svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+            };
+            notificationIcon.innerHTML = icons[status];
             notificationMessage.textContent = message;
             notificationModal.classList.remove('hidden');
+            setTimeout(() => {
+                notificationModal.style.opacity = '1';
+                notificationContent.style.transform = 'scale(1)';
+                notificationContent.style.opacity = '1';
+            }, 10);
         }
-
-        // --- EVENT LISTENERS ---
+        
+        // --- Event Listeners ---
+        document.body.addEventListener('click', initAudioContext, { once: true });
         printBtn.addEventListener('click', () => window.print());
-
         notificationOkBtn.addEventListener('click', () => {
-            notificationModal.classList.add('hidden');
+            notificationModal.style.opacity = '0';
+            notificationContent.style.transform = 'scale(0.95)';
+            notificationContent.style.opacity = '0';
+            setTimeout(() => notificationModal.classList.add('hidden'), 300);
         });
 
         attendanceGrid.addEventListener('click', async (e) => {
             const target = e.target.closest('button');
             if (!target) return;
-
             const section = target.closest('section');
             if (!section) return;
 
-            // --- Ubah Button Clicked ---
+            const toggleEditMode = (isEditing) => {
+                section.querySelector('.edit-section-btn').classList.toggle('hidden', isEditing);
+                section.querySelector('.edit-mode-controls-section').classList.toggle('hidden', !isEditing);
+                section.querySelectorAll('.attendance-card').forEach(card => {
+                    card.querySelector('.attendance-display').classList.toggle('hidden', isEditing);
+                    card.querySelector('.attendance-input').classList.toggle('hidden', !isEditing);
+                });
+            };
+
             if (target.classList.contains('edit-section-btn')) {
-                section.querySelector('.edit-section-btn').classList.add('hidden');
-                section.querySelector('.edit-mode-controls-section').classList.remove('hidden');
+                playTone(440, 0.1); // Play edit sound
+                toggleEditMode(true);
+            } else if (target.classList.contains('cancel-section-btn')) {
+                toggleEditMode(false);
                 section.querySelectorAll('.attendance-card').forEach(card => {
-                    card.querySelector('.attendance-display').classList.add('hidden');
-                    card.querySelector('.attendance-input').classList.remove('hidden');
+                    card.querySelector('.attendance-input').value = currentData[card.dataset.classId] || 0;
                 });
-            }
-
-            // --- Batal Button Clicked ---
-            if (target.classList.contains('cancel-section-btn')) {
-                section.querySelector('.edit-section-btn').classList.remove('hidden');
-                section.querySelector('.edit-mode-controls-section').classList.add('hidden');
-                section.querySelectorAll('.attendance-card').forEach(card => {
-                    card.querySelector('.attendance-display').classList.remove('hidden');
-                    card.querySelector('.attendance-input').classList.add('hidden');
-                    const classId = card.dataset.classId;
-                    card.querySelector('.attendance-input').value = currentData[classId] || 0;
-                });
-            }
-
-            // --- Simpan Button Clicked ---
-            if (target.classList.contains('save-section-btn')) {
-                const newData = { lastUpdated: getLocalDateString() };
+            } else if (target.classList.contains('save-section-btn')) {
+                const newData = {};
                 section.querySelectorAll('.attendance-card').forEach(card => {
                     const classId = card.dataset.classId;
-                    const inputElement = card.querySelector('.attendance-input');
-                    const value = parseInt(inputElement.value);
+                    const value = parseInt(card.querySelector('.attendance-input').value);
                     newData[classId] = isNaN(value) || value < 0 ? 0 : value;
                 });
-
-                const saveBtnTextSpan = target.querySelector('span');
-                const saveSpinner = target.querySelector('.save-spinner-section');
                 
-                saveBtnTextSpan.textContent = 'Menyimpan...';
-                saveSpinner.classList.remove('hidden');
                 target.disabled = true;
+                target.querySelector('span').textContent = 'Menyimpan...';
 
                 try {
                     await updateDoc(attendanceDocRef, newData);
-                    showNotification("Data berhasil diperbarui!");
-                    section.querySelector('.edit-section-btn').classList.remove('hidden');
-                    section.querySelector('.edit-mode-controls-section').classList.add('hidden');
+                    playSuccessSound(); // Play success sound
+                    showNotification("Data kehadiran berhasil diperbarui!", 'success');
                 } catch (error) {
                     console.error("Error updating document: ", error);
-                    showNotification("Gagal menyimpan data. Coba lagi.");
+                    showNotification("Gagal menyimpan data. Silakan coba lagi.", 'error');
                 } finally {
-                    saveBtnTextSpan.textContent = 'Simpan';
-                    saveSpinner.classList.add('hidden');
                     target.disabled = false;
+                    target.querySelector('span').textContent = 'Simpan';
+                    toggleEditMode(false);
                 }
             }
         });
 
-        // --- INISIALISASI & REAL-TIME LISTENER ---
+        // --- Initialization & Real-time Listener ---
         displayCurrentDate();
+        renderSkeletonLoader();
 
         onSnapshot(attendanceDocRef, (doc) => {
-            console.log("Menerima pembaruan data dari Firestore...");
             const todayString = getLocalDateString();
             const data = doc.exists() ? doc.data() : {};
-            const savedDate = data.lastUpdated;
-
-            if (savedDate !== todayString) {
-                console.log(`Tanggal berbeda (tersimpan: ${savedDate}, hari ini: ${todayString}). Data akan di-reset.`);
+            
+            if (data.lastUpdated !== todayString) {
                 const resetData = { lastUpdated: todayString };
-                for (const level in CLASSES_CONFIG) {
+                Object.keys(CLASSES_CONFIG).forEach(level => {
                     const levelRoman = level.split(' ')[1];
                     CLASSES_CONFIG[level].rombels.forEach(rombel => {
                         resetData[`${levelRoman}${rombel}`] = 0;
                     });
-                }
+                });
                 setDoc(attendanceDocRef, resetData).catch(error => {
                     console.error("Gagal mereset data otomatis:", error);
-                    attendanceGrid.innerHTML = '<p class="text-center text-red-500">Gagal memulai sesi baru. Coba muat ulang halaman.</p>';
+                    showNotification("Gagal memulai sesi baru. Muat ulang halaman.", 'error');
                 });
-                attendanceGrid.innerHTML = `<div class="loader"></div><p class="text-center text-gray-500 mt-2">Memulai rekap untuk hari ini...</p>`;
             } else {
                 currentData = data;
                 renderAttendanceGrid(currentData);
@@ -373,9 +408,8 @@
             }
         }, (error) => {
             console.error("Gagal memuat data dari Firestore:", error);
-            attendanceGrid.innerHTML = '<p class="text-center text-red-500 font-semibold">Gagal terhubung ke database. Pastikan konfigurasi Firebase sudah benar.</p>';
+            attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan konfigurasi Firebase sudah benar dan coba muat ulang halaman.</p>`;
         });
-
     </script>
 </body>
 </html>
