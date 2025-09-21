@@ -66,7 +66,7 @@
 <body class="text-gray-800">
 
     <!-- Elemen audio untuk efek suara scroll -->
-    <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/futuristic-transition-390304.mp3" preload="auto"></audio>
+    <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
@@ -147,6 +147,20 @@
             <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
         </div>
     </div>
+
+    <!-- Tombol Mute -->
+    <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
+        <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
+            <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
+                <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89z"/>
+                <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+            </svg>
+            <svg id="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hidden" viewBox="0 0 16 16">
+                <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
+            </svg>
+        </button>
+    </div>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -185,7 +199,9 @@
         let isCurrentlyScrolling = false;
 
         window.addEventListener('scroll', () => {
-            // Hanya putar suara jika pengguna sudah berinteraksi
+            // Hanya putar suara jika pengguna sudah berinteraksi dan tidak di-mute
+            if (isMuted) return; // <-- Tambahan: Cek status mute
+            
             if (hasUserInteracted && scrollSound) {
                 // Jika belum dalam mode scrolling, mainkan suara dan set mode scrolling
                 if (!isCurrentlyScrolling) {
@@ -205,7 +221,6 @@
         });
 
         // Konfigurasi Firebase diletakkan di sini agar pratinjau berfungsi.
-        // UNTUK PROYEK LOKAL ANDA: Tetap gunakan file firebase-config.js yang terpisah dan .gitignore
         const firebaseConfig = {
             apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
             authDomain: "mbg4-329e3.firebaseapp.com",
@@ -228,9 +243,13 @@
         const notificationMessage = document.getElementById('notification-message');
         const notificationOkBtn = document.getElementById('notification-ok-btn');
         const notificationIcon = document.getElementById('notification-icon');
+        const muteBtn = document.getElementById('mute-btn');
+        const soundOnIcon = document.getElementById('sound-on-icon');
+        const soundOffIcon = document.getElementById('sound-off-icon');
         
         // --- State and Config ---
         let currentData = {};
+        let isMuted = false; // <-- Tambahan: State untuk mute
         const TOTAL_SISWA_KESELURUHAN = 472;
         const CLASSES_CONFIG = {
             'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'] },
@@ -247,6 +266,7 @@
         }
 
         function playTone(frequency, duration) {
+            if (isMuted) return; // <-- Tambahan: Cek status mute
             initAudioContext();
             if (!audioCtx) return;
             const oscillator = audioCtx.createOscillator();
@@ -381,6 +401,17 @@
             notificationContent.style.transform = 'scale(0.95)';
             notificationContent.style.opacity = '0';
             setTimeout(() => notificationModal.classList.add('hidden'), 300);
+        });
+
+        // <-- Tambahan: Event Listener untuk tombol Mute -->
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            scrollSound.muted = isMuted;
+            soundOnIcon.classList.toggle('hidden', isMuted);
+            soundOffIcon.classList.toggle('hidden', !isMuted);
+            if (isMuted && !scrollSound.paused) {
+                scrollSound.pause();
+            }
         });
 
         attendanceGrid.addEventListener('click', async (e) => {
