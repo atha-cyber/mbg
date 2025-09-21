@@ -65,6 +65,9 @@
 </head>
 <body class="text-gray-800">
 
+    <!-- Elemen audio untuk efek suara scroll -->
+    <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/futuristic-transition-390304.mp3" preload="auto"></audio>
+
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <header class="relative mb-8 rounded-2xl shadow-lg p-6 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
@@ -100,7 +103,7 @@
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-white">Rangkuman Hari Ini</h3>
                 <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zM0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
                 </button>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -149,6 +152,58 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
+        // --- Sound on Scroll Logic ---
+        const scrollSound = document.getElementById('scroll-sound');
+        let hasUserInteracted = false; // Penanda untuk melacak interaksi pengguna
+
+        // Fungsi untuk menangani interaksi pertama pengguna
+        function handleFirstInteraction() {
+            if (hasUserInteracted) return;
+            hasUserInteracted = true;
+            // Coba putar dan jeda audio untuk "membuka kunci"
+            if (scrollSound) {
+                const playPromise = scrollSound.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        scrollSound.pause();
+                        console.log("Audio diaktifkan oleh interaksi pengguna.");
+                    }).catch(error => {
+                        console.error("Gagal membuka kunci audio:", error);
+                    });
+                }
+            }
+            // Hapus listener setelah interaksi pertama
+            document.body.removeEventListener('click', handleFirstInteraction);
+            document.body.removeEventListener('scroll', handleFirstInteraction);
+        }
+
+        // Tambahkan listener untuk interaksi pertama
+        document.body.addEventListener('click', handleFirstInteraction, { once: true });
+        document.body.addEventListener('scroll', handleFirstInteraction, { once: true });
+
+        let scrollTimeout = null;
+        let isCurrentlyScrolling = false;
+
+        window.addEventListener('scroll', () => {
+            // Hanya putar suara jika pengguna sudah berinteraksi
+            if (hasUserInteracted && scrollSound) {
+                // Jika belum dalam mode scrolling, mainkan suara dan set mode scrolling
+                if (!isCurrentlyScrolling) {
+                    scrollSound.currentTime = 0;
+                    scrollSound.play().catch(e => console.error("Gagal memutar audio:", e));
+                    isCurrentlyScrolling = true;
+                }
+
+                // Hapus timeout yang ada untuk di-reset
+                clearTimeout(scrollTimeout);
+
+                // Set timeout baru. Jika tidak ada scroll setelah periode ini, reset flag.
+                scrollTimeout = setTimeout(() => {
+                    isCurrentlyScrolling = false;
+                }, 200); // Penundaan 200ms setelah scroll berhenti
+            }
+        });
+
         // Konfigurasi Firebase diletakkan di sini agar pratinjau berfungsi.
         // UNTUK PROYEK LOKAL ANDA: Tetap gunakan file firebase-config.js yang terpisah dan .gitignore
         const firebaseConfig = {
@@ -186,12 +241,13 @@
         // --- Audio Functions ---
         let audioCtx;
         function initAudioContext() {
-            if (!audioCtx) {
+            if (hasUserInteracted && !audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
 
         function playTone(frequency, duration) {
+            initAudioContext();
             if (!audioCtx) return;
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
