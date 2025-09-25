@@ -44,6 +44,18 @@
             50% { opacity: 0.3; }
         }
         
+        /* Animasi untuk shake effect pada login salah */
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
         @media print {
             body { 
                 background-image: none !important;
@@ -52,6 +64,8 @@
                 print-color-adjust: exact; 
             }
             .no-print { display: none !important; }
+            #login-modal { display: none !important; }
+            #main-dashboard { display: block !important; }
             .container { max-width: 100%; padding: 0; margin: 0; }
             section, .attendance-card, #summary-section { box-shadow: none !important; border: 1px solid #e5e7eb; page-break-inside: avoid; }
             .attendance-card { transform: none !important; }
@@ -65,101 +79,120 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- Elemen audio untuk efek suara scroll -->
-    <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
-
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <header class="relative mb-8 rounded-2xl shadow-lg p-6 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
-            <!-- Header Content -->
-            <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
-                <!-- Logo Kiri (SMP) -->
-                <div class="flex justify-start">
-                    <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full shadow-lg border border-white/30 flex-shrink-0" 
-                         style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: cover; background-position: center;">
-                    </div>
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
+            <h2 class="text-2xl font-bold text-center mb-2">Autentikasi Diperlukan</h2>
+            <p class="text-center text-gray-300 mb-6">Masukkan kode akses untuk melanjutkan.</p>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="password-input" class="sr-only">Password</label>
+                    <input type="password" id="password-input" placeholder="****" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition" autocomplete="off">
                 </div>
-
-                <!-- Konten Teks Tengah -->
-                <div class="text-center min-w-0">
-                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran Siswa</h1>
-                    <marquee class="text-base md:text-lg text-gray-200 font-semibold mt-1 drop-shadow-md">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</marquee>
-                    <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-sm"></p>
-                </div>
-
-                <!-- Konten Kanan (Logo BGN) -->
-                <div class="flex justify-end">
-                    <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
-                </div>
-            </div>
-        </header>
-
-        <main id="attendance-grid" class="space-y-8">
-            <!-- Konten akan dimuat oleh JavaScript -->
-        </main>
-        
-        <!-- Bagian Rangkuman / Dasbor Mini -->
-        <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-white">Rangkuman Hari Ini</h3>
-                <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
-                </button>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <!-- Hadir Per Kelas -->
-                <div class="bg-blue-900/30 p-4 rounded-xl border border-blue-400/50">
-                    <p class="text-sm text-blue-200 font-semibold">Hadir Kelas VII</p>
-                    <p id="total-vii" class="text-3xl font-bold text-blue-300">0</p>
-                </div>
-                <div class="bg-green-900/30 p-4 rounded-xl border border-green-400/50">
-                    <p class="text-sm text-green-200 font-semibold">Hadir Kelas VIII</p>
-                    <p id="total-viii" class="text-3xl font-bold text-green-300">0</p>
-                </div>
-                <div class="bg-purple-900/30 p-4 rounded-xl border border-purple-400/50">
-                    <p class="text-sm text-purple-200 font-semibold">Hadir Kelas IX</p>
-                    <p id="total-ix" class="text-3xl font-bold text-purple-300">0</p>
-                </div>
-                <!-- Total & Sisa Porsi -->
-                <div class="bg-gray-700/30 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
-                    <div>
-                        <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
-                        <p id="total-present" class="text-4xl font-extrabold text-white">0</p>
-                    </div>
-                    <div class="md:border-t md:border-gray-300/30 md:mt-1 md:pt-1">
-                        <p class="text-sm text-gray-200 font-bold">SISA PORSI</p>
-                        <p id="remaining-portions" class="text-2xl font-extrabold text-red-400 animate-blinking-opacity">472</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <footer class="text-center mt-10 pt-6 border-t border-white/20 no-print">
-            <p class="text-sm text-gray-200">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
-        </footer>
-    </div>
-
-    <!-- Modal Notifikasi -->
-    <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
-            <div id="notification-icon" class="mx-auto mb-4"></div>
-            <p id="notification-message" class="text-lg text-gray-800 mb-6"></p>
-            <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">Masuk</button>
+            </form>
+            <p id="error-message" class="text-red-400 text-center mt-4 h-5"></p>
         </div>
     </div>
 
-    <!-- Tombol Mute -->
-    <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
-        <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
-            <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
-                <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89z"/>
-                <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
-            </svg>
-            <svg id="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hidden" viewBox="0 0 16 16">
-                <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
-            </svg>
-        </button>
+    <!-- Main Dashboard Content (Hidden by default) -->
+    <div id="main-dashboard" class="hidden">
+        <!-- Elemen audio untuk efek suara scroll -->
+        <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
+
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <header class="relative mb-8 rounded-2xl shadow-lg p-6 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
+                <!-- Header Content -->
+                <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
+                    <!-- Logo Kiri (SMP) -->
+                    <div class="flex justify-start">
+                        <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full shadow-lg border border-white/30 flex-shrink-0" 
+                             style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: cover; background-position: center;">
+                        </div>
+                    </div>
+
+                    <!-- Konten Teks Tengah -->
+                    <div class="text-center min-w-0">
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran Siswa</h1>
+                        <marquee class="text-base md:text-lg text-gray-200 font-semibold mt-1 drop-shadow-md">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</marquee>
+                        <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-sm"></p>
+                    </div>
+
+                    <!-- Konten Kanan (Logo BGN) -->
+                    <div class="flex justify-end">
+                        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
+                    </div>
+                </div>
+            </header>
+
+            <main id="attendance-grid" class="space-y-8">
+                <!-- Konten akan dimuat oleh JavaScript -->
+            </main>
+            
+            <!-- Bagian Rangkuman / Dasbor Mini -->
+            <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-white">Rangkuman Hari Ini</h3>
+                    <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <!-- Hadir Per Kelas -->
+                    <div class="bg-blue-900/30 p-4 rounded-xl border border-blue-400/50">
+                        <p class="text-sm text-blue-200 font-semibold">Hadir Kelas VII</p>
+                        <p id="total-vii" class="text-3xl font-bold text-blue-300">0</p>
+                    </div>
+                    <div class="bg-green-900/30 p-4 rounded-xl border border-green-400/50">
+                        <p class="text-sm text-green-200 font-semibold">Hadir Kelas VIII</p>
+                        <p id="total-viii" class="text-3xl font-bold text-green-300">0</p>
+                    </div>
+                    <div class="bg-purple-900/30 p-4 rounded-xl border border-purple-400/50">
+                        <p class="text-sm text-purple-200 font-semibold">Hadir Kelas IX</p>
+                        <p id="total-ix" class="text-3xl font-bold text-purple-300">0</p>
+                    </div>
+                    <!-- Total & Sisa Porsi -->
+                    <div class="bg-gray-700/30 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
+                        <div>
+                            <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
+                            <p id="total-present" class="text-4xl font-extrabold text-white">0</p>
+                        </div>
+                        <div class="md:border-t md:border-gray-300/30 md:mt-1 md:pt-1">
+                            <p class="text-sm text-gray-200 font-bold">SISA PORSI</p>
+                            <p id="remaining-portions" class="text-2xl font-extrabold text-red-400 animate-blinking-opacity">472</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="text-center mt-10 pt-6 border-t border-white/20 no-print">
+                <p class="text-sm text-gray-200">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
+            </footer>
+        </div>
+
+        <!-- Modal Notifikasi -->
+        <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
+                <div id="notification-icon" class="mx-auto mb-4"></div>
+                <p id="notification-message" class="text-lg text-gray-800 mb-6"></p>
+                <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
+            </div>
+        </div>
+
+        <!-- Tombol Mute -->
+        <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
+            <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
+                <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
+                    <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89z"/>
+                    <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+                </svg>
+                <svg id="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hidden" viewBox="0 0 16 16">
+                    <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+        </div>
     </div>
     
     <script type="module">
@@ -235,6 +268,12 @@
         const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
 
         // --- DOM Elements ---
+        const loginModal = document.getElementById('login-modal');
+        const loginForm = document.getElementById('login-form');
+        const passwordInput = document.getElementById('password-input');
+        const errorMessage = document.getElementById('error-message');
+        const mainDashboard = document.getElementById('main-dashboard');
+
         const dateElement = document.getElementById('current-date');
         const attendanceGrid = document.getElementById('attendance-grid');
         const printBtn = document.getElementById('print-btn');
@@ -249,7 +288,7 @@
         
         // --- State and Config ---
         let currentData = {};
-        let isMuted = false; // <-- Tambahan: State untuk mute
+        let isMuted = false;
         const TOTAL_SISWA_KESELURUHAN = 472;
         const CLASSES_CONFIG = {
             'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'] },
@@ -266,7 +305,7 @@
         }
 
         function playTone(frequency, duration) {
-            if (isMuted) return; // <-- Tambahan: Cek status mute
+            if (isMuted) return;
             initAudioContext();
             if (!audioCtx) return;
             const oscillator = audioCtx.createOscillator();
@@ -276,7 +315,7 @@
             gainNode.connect(audioCtx.destination);
 
             gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.01); // Quick fade in -- VOLUME INCREASED
+            gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.01);
 
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
@@ -403,13 +442,12 @@
             setTimeout(() => notificationModal.classList.add('hidden'), 300);
         });
 
-        // <-- Tambahan: Event Listener untuk tombol Mute -->
         muteBtn.addEventListener('click', () => {
             isMuted = !isMuted;
-            scrollSound.muted = isMuted;
+            if (scrollSound) scrollSound.muted = isMuted;
             soundOnIcon.classList.toggle('hidden', isMuted);
             soundOffIcon.classList.toggle('hidden', !isMuted);
-            if (isMuted && !scrollSound.paused) {
+            if (isMuted && scrollSound && !scrollSound.paused) {
                 scrollSound.pause();
             }
         });
@@ -463,42 +501,71 @@
             }
         });
 
-        // --- Initialization & Real-time Listener ---
-        displayCurrentDate();
+        // --- LOGIN LOGIC ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const enteredPassword = passwordInput.value;
 
-        let isInitialLoad = true;
-        renderSkeletonLoader(); 
-
-        onSnapshot(attendanceDocRef, (doc) => {
-            const todayString = getLocalDateString();
-            
-            if (doc.exists() && doc.data().lastUpdated === todayString) {
-                currentData = doc.data();
-                renderAttendanceGrid(currentData);
-                updateSummary(currentData);
-            } else if (isInitialLoad) {
-                isInitialLoad = false;
-                const resetData = { lastUpdated: todayString };
-                Object.keys(CLASSES_CONFIG).forEach(level => {
-                    const levelRoman = level.split(' ')[1];
-                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                        resetData[`${levelRoman}${rombel}`] = 0;
-                    });
-                });
-                setDoc(attendanceDocRef, resetData).catch(error => {
-                    console.error("Gagal mereset data otomatis:", error);
-                    showNotification("Gagal memulai sesi baru. Muat ulang halaman.", 'error');
-                });
+            if (enteredPassword === '4455') {
+                // Correct password
+                playSuccessSound();
+                loginModal.classList.add('transition-opacity', 'duration-500', 'opacity-0');
+                setTimeout(() => {
+                    loginModal.classList.add('hidden');
+                    mainDashboard.classList.remove('hidden');
+                    // Initialize the dashboard after successful login
+                    initializeDashboard();
+                }, 500);
             } else {
-                 currentData = doc.data();
-                renderAttendanceGrid(currentData);
-                updateSummary(currentData);
+                // Incorrect password
+                playTone(220, 0.2);
+                errorMessage.textContent = 'Kode akses salah. Coba lagi.';
+                const loginBox = loginModal.querySelector('div');
+                loginBox.classList.add('animate-shake');
+                passwordInput.value = '';
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                    loginBox.classList.remove('animate-shake');
+                }, 2000);
             }
-        }, (error) => {
-            console.error("Gagal memuat data dari Firestore:", error);
-            attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan konfigurasi Firebase sudah benar dan coba muat ulang halaman.</p>`;
         });
+
+        // --- Initialization & Real-time Listener (wrapped in a function) ---
+        function initializeDashboard() {
+            displayCurrentDate();
+            let isInitialLoad = true;
+            renderSkeletonLoader(); 
+
+            onSnapshot(attendanceDocRef, (doc) => {
+                const todayString = getLocalDateString();
+                
+                if (doc.exists() && doc.data().lastUpdated === todayString) {
+                    currentData = doc.data();
+                    renderAttendanceGrid(currentData);
+                    updateSummary(currentData);
+                } else if (isInitialLoad) {
+                    isInitialLoad = false;
+                    const resetData = { lastUpdated: todayString };
+                    Object.keys(CLASSES_CONFIG).forEach(level => {
+                        const levelRoman = level.split(' ')[1];
+                        CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                            resetData[`${levelRoman}${rombel}`] = 0;
+                        });
+                    });
+                    setDoc(attendanceDocRef, resetData).catch(error => {
+                        console.error("Gagal mereset data otomatis:", error);
+                        showNotification("Gagal memulai sesi baru. Muat ulang halaman.", 'error');
+                    });
+                } else {
+                     currentData = doc.data() || {};
+                     renderAttendanceGrid(currentData);
+                     updateSummary(currentData);
+                }
+            }, (error) => {
+                console.error("Gagal memuat data dari Firestore:", error);
+                attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan konfigurasi Firebase sudah benar dan coba muat ulang halaman.</p>`;
+            });
+        }
     </script>
 </body>
 </html>
-
