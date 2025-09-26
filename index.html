@@ -353,24 +353,27 @@
                 <section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${levelRoman}">
                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/20">
                         <h3 class="text-xl font-bold text-white">${level}</h3>
-                        <div class="section-controls no-print flex items-center space-x-2">
-                             <button class="edit-section-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 transition-colors">Ubah Data</button>
-                             <div class="edit-mode-controls-section hidden flex items-center space-x-2">
-                                <button class="save-section-btn text-white px-2 py-1 text-xs rounded-md bg-green-600/80 hover:bg-green-600 transition-colors">Simpan</button>
-                                <button class="cancel-section-btn text-white px-2 py-1 text-xs rounded-md bg-gray-600/80 hover:bg-gray-600 transition-colors">Batal</button>
-                             </div>
-                        </div>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">`;
                 details.rombels.forEach(rombel => {
                     const classId = `${levelRoman}${rombel}`;
                     const count = data[classId] || 0;
                     html += `
-                        <div class="attendance-card relative bg-white/10 rounded-xl border border-white/20 p-3 text-center transition-all duration-300 hover:shadow-lg hover:border-${details.color}-400/50 hover:-translate-y-1" data-class-id="${classId}">
-                            <p class="text-base font-semibold text-gray-200">${levelRoman} ${rombel}</p>
-                            <span class="attendance-display block text-4xl font-bold text-${details.color}-300 my-2">${count}</span>
-                            <input type="number" class="attendance-input hidden w-full text-center text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
-                            <p class="text-xs text-gray-400">Siswa Hadir</p>
+                        <div class="attendance-card relative bg-white/10 rounded-xl border border-white/20 p-3 text-center flex flex-col justify-between transition-all duration-300" data-class-id="${classId}">
+                            <div>
+                                <p class="text-base font-semibold text-gray-200">${levelRoman} ${rombel}</p>
+                                <span class="attendance-display block text-4xl font-bold text-${details.color}-300 my-2">${count}</span>
+                                <input type="number" class="attendance-input hidden w-full text-center text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
+                                <p class="text-xs text-gray-400">Siswa Hadir</p>
+                            </div>
+                            <div class="card-controls mt-3 no-print h-6 flex items-center justify-center">
+                                <button class="edit-class-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 transition-colors">Ubah</button>
+                                <div class="edit-mode-controls-card hidden flex space-x-2">
+                                    <button class="save-class-btn text-white px-2 py-1 text-xs rounded-md bg-green-600/80 hover:bg-green-600 transition-colors">Simpan</button>
+                                    <button class="cancel-class-btn text-white px-2 py-1 text-xs rounded-md bg-gray-600/80 hover:bg-gray-600 transition-colors">Batal</button>
+                                </div>
+                                <div class="locked-indicator hidden text-sm text-gray-400 font-semibold">Terkunci</div>
+                            </div>
                         </div>`;
                 });
                 html += `</div></section>`;
@@ -440,8 +443,8 @@
             }
         });
 
-        function getLockKey(levelRoman) {
-            return `lock_level_${levelRoman}_${getLocalDateString()}`;
+        function getLockKey(classId) {
+            return `lock_${classId}_${getLocalDateString()}`;
         }
         
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -455,33 +458,31 @@
             return R * c;
         }
 
-        function lockSection(section) {
-            const editBtn = section.querySelector('.edit-section-btn');
-            editBtn.disabled = true;
-            editBtn.classList.remove('bg-blue-600/80', 'hover:bg-blue-600');
-            editBtn.classList.add('bg-gray-500', 'cursor-not-allowed');
-            editBtn.textContent = 'Tersimpan';
+        function lockCard(card) {
+            card.querySelector('.edit-class-btn').classList.add('hidden');
+            card.querySelector('.edit-mode-controls-card').classList.add('hidden');
+            card.querySelector('.locked-indicator').classList.remove('hidden');
         }
 
         function checkAndApplyLocks() {
-            document.querySelectorAll('section[data-level]').forEach(section => {
-                const levelRoman = section.dataset.level;
-                if (localStorage.getItem(getLockKey(levelRoman)) === 'true') {
-                    lockSection(section);
+            document.querySelectorAll('.attendance-card').forEach(card => {
+                const classId = card.dataset.classId;
+                if (localStorage.getItem(getLockKey(classId)) === 'true') {
+                    lockCard(card);
                 }
             });
         }
         
         attendanceGrid.addEventListener('click', async (e) => {
-            const section = e.target.closest('section[data-level]');
-            if (!section) return;
+            const card = e.target.closest('.attendance-card');
+            if (!card) return;
 
-            const editBtn = e.target.closest('.edit-section-btn');
-            const saveBtn = e.target.closest('.save-section-btn');
-            const cancelBtn = e.target.closest('.cancel-section-btn');
+            const editBtn = e.target.closest('.edit-class-btn');
+            const saveBtn = e.target.closest('.save-class-btn');
+            const cancelBtn = e.target.closest('.cancel-class-btn');
 
             if (editBtn) {
-                 const originalButtonText = editBtn.textContent;
+                const originalButtonText = editBtn.textContent;
                 editBtn.disabled = true;
                 editBtn.textContent = '...';
 
@@ -492,10 +493,10 @@
 
                         if (distance <= MAX_DISTANCE_METERS) {
                             playTone(440, 0.1);
-                            section.querySelectorAll('.attendance-display').forEach(el => el.classList.add('hidden'));
-                            section.querySelectorAll('.attendance-input').forEach(el => el.classList.remove('hidden'));
-                            section.querySelector('.edit-section-btn').classList.add('hidden');
-                            section.querySelector('.edit-mode-controls-section').classList.remove('hidden');
+                            card.querySelector('.attendance-display').classList.add('hidden');
+                            card.querySelector('.attendance-input').classList.remove('hidden');
+                            card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
+                            card.querySelector('.edit-class-btn').classList.add('hidden');
                         } else {
                             showNotification(`Anda berada ${Math.round(distance)}m dari lokasi. Akses ditolak.`, "error");
                         }
@@ -508,54 +509,39 @@
                         editBtn.textContent = originalButtonText;
                     }
                 );
+
             } else if (cancelBtn) {
-                localStorage.setItem(getLockKey(section.dataset.level), 'true');
-                lockSection(section);
-                section.querySelectorAll('.attendance-card').forEach(card => {
-                    card.querySelector('.attendance-input').value = currentData[card.dataset.classId] || 0;
-                });
-                section.querySelectorAll('.attendance-display').forEach(el => el.classList.remove('hidden'));
-                section.querySelectorAll('.attendance-input').forEach(el => el.classList.add('hidden'));
-                section.querySelector('.edit-mode-controls-section').classList.add('hidden');
-                showNotification(`Perubahan untuk ${section.querySelector('h3').textContent} dibatalkan & dikunci.`, 'success');
+                localStorage.setItem(getLockKey(card.dataset.classId), 'true');
+                card.querySelector('.attendance-input').value = currentData[card.dataset.classId] || 0;
+                card.querySelector('.attendance-display').classList.remove('hidden');
+                card.querySelector('.attendance-input').classList.add('hidden');
+                lockCard(card);
+                showNotification(`Perubahan untuk kelas ${card.dataset.classId} dibatalkan & dikunci.`, 'success');
             } else if (saveBtn) {
-                const levelRoman = section.dataset.level;
-                const updatePayload = { ...currentData };
-                let hasChanges = false;
-                section.querySelectorAll('.attendance-card').forEach(card => {
-                    const classId = card.dataset.classId;
-                    const input = card.querySelector('.attendance-input');
-                    const value = parseInt(input.value, 10);
-                    const finalValue = isNaN(value) || value < 0 ? 0 : value;
-                    if (updatePayload[classId] !== finalValue) {
-                        updatePayload[classId] = finalValue;
-                        hasChanges = true;
-                    }
-                });
+                const classId = card.dataset.classId;
+                const value = parseInt(card.querySelector('.attendance-input').value, 10);
+                const updatePayload = { ...currentData, [classId]: isNaN(value) || value < 0 ? 0 : value };
                 
-                if (hasChanges) {
-                    saveBtn.disabled = true;
-                    saveBtn.textContent = '...';
-                    try {
-                        localStorage.setItem(getLockKey(levelRoman), 'true');
-                        await updateDoc(attendanceDocRef, updatePayload);
-                        playSuccessSound();
-                        showNotification(`Data ${section.querySelector('h3').textContent} berhasil disimpan & dikunci!`, 'success');
-                    } catch (error) {
-                        console.error("Error updating document:", error);
-                        showNotification("Gagal menyimpan data. Coba lagi.", 'error');
-                        localStorage.removeItem(getLockKey(levelRoman)); // Hapus kunci jika gagal
-                    } finally {
-                        saveBtn.disabled = false;
-                        saveBtn.textContent = 'Simpan';
-                    }
+                saveBtn.disabled = true;
+
+                try {
+                    localStorage.setItem(getLockKey(classId), 'true');
+                    await updateDoc(attendanceDocRef, updatePayload);
+                    playSuccessSound();
+                    showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
+                    
+                    card.querySelector('.attendance-display').classList.remove('hidden');
+                    card.querySelector('.attendance-input').classList.add('hidden');
+                    lockCard(card);
+                } catch (error) {
+                    console.error("Error updating document:", error);
+                    showNotification("Gagal menyimpan data. Coba lagi.", 'error');
+                    localStorage.removeItem(getLockKey(classId));
+                    card.querySelector('.locked-indicator').classList.add('hidden');
+                    card.querySelector('.edit-class-btn').classList.remove('hidden');
+                } finally {
+                    saveBtn.disabled = false;
                 }
-                
-                // Selalu kembali ke mode display dan kunci
-                lockSection(section);
-                section.querySelectorAll('.attendance-display').forEach(el => el.classList.remove('hidden'));
-                section.querySelectorAll('.attendance-input').forEach(el => el.classList.add('hidden'));
-                section.querySelector('.edit-mode-controls-section').classList.add('hidden');
             }
         });
 
@@ -606,14 +592,11 @@
             const enteredPassword = unlockPasswordInput.value;
             if (enteredPassword === 'PPP') {
                 playSuccessSound();
-                 document.querySelectorAll('section[data-level]').forEach(section => {
-                    const levelRoman = section.dataset.level;
-                    localStorage.removeItem(getLockKey(levelRoman));
-                    const editBtn = section.querySelector('.edit-section-btn');
-                    editBtn.disabled = false;
-                    editBtn.classList.add('bg-blue-600/80', 'hover:bg-blue-600');
-                    editBtn.classList.remove('bg-gray-500', 'cursor-not-allowed');
-                    editBtn.textContent = 'Ubah Data';
+                 document.querySelectorAll('.attendance-card').forEach(card => {
+                    const classId = card.dataset.classId;
+                    localStorage.removeItem(getLockKey(classId));
+                    card.querySelector('.locked-indicator').classList.add('hidden');
+                    card.querySelector('.edit-class-btn').classList.remove('hidden');
                 });
                 unlockModal.classList.add('hidden');
                 unlockPasswordInput.value = '';
