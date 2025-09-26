@@ -34,7 +34,6 @@
             50% { opacity: .5; }
         }
         
-        /* Animasi untuk berkedip */
         .animate-blinking-opacity {
             animation: blinking-opacity 1.5s ease-in-out infinite;
         }
@@ -44,7 +43,6 @@
             50% { opacity: 0.3; }
         }
         
-        /* Animasi untuk shake effect pada login salah */
         .animate-shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
@@ -56,7 +54,6 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-        /* Animasi untuk running text (pengganti marquee) */
         @keyframes marquee {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -74,7 +71,7 @@
                 print-color-adjust: exact; 
             }
             .no-print { display: none !important; }
-            #login-modal { display: none !important; }
+            #login-modal, #unlock-modal { display: none !important; }
             #main-dashboard { display: block !important; }
             .container { max-width: 100%; padding: 0; margin: 0; }
             section, .attendance-card, #summary-section { box-shadow: none !important; border: 1px solid #e5e7eb; page-break-inside: avoid; }
@@ -104,28 +101,38 @@
             <p id="error-message" class="text-red-400 text-center mt-4 h-5"></p>
         </div>
     </div>
+    
+    <!-- Unlock Modal -->
+    <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+        <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
+            <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
+            <p class="text-center text-gray-300 mb-6">Masukkan kata sandi superuser.</p>
+            <form id="unlock-form">
+                <div class="mb-4">
+                    <label for="unlock-password-input" class="sr-only">Password</label>
+                    <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" autocomplete="off">
+                </div>
+                <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">Buka Kunci</button>
+                 <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
+            </form>
+            <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
+        </div>
+    </div>
+
 
     <!-- Main Dashboard Content (Hidden by default) -->
     <div id="main-dashboard" class="hidden">
-        <!-- Elemen audio untuk efek suara scroll -->
         <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
-
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            
             <header class="relative mb-8 rounded-2xl shadow-lg p-6 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
-                <!-- Header Content -->
                 <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
-                    <!-- Logo Kiri (SMP) -->
                     <div class="flex justify-start">
                         <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full shadow-lg border border-white/30 flex-shrink-0" 
                              style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: cover; background-position: center;">
                         </div>
                     </div>
-
-                    <!-- Konten Teks Tengah -->
                     <div class="text-center min-w-0">
                         <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran Siswa</h1>
-                        <!-- Running Text Modern dengan CSS -->
                         <div class="relative flex overflow-x-hidden mt-1">
                             <div class="animate-marquee">
                                 <span class="text-base md:text-lg text-gray-200 font-semibold drop-shadow-md whitespace-nowrap flex-shrink-0 px-8">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</span>
@@ -134,19 +141,14 @@
                         </div>
                         <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-sm"></p>
                     </div>
-
-                    <!-- Konten Kanan (Logo BGN) -->
                     <div class="flex justify-end">
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
                     </div>
                 </div>
             </header>
 
-            <main id="attendance-grid" class="space-y-8">
-                <!-- Konten akan dimuat oleh JavaScript -->
-            </main>
+            <main id="attendance-grid" class="space-y-8"></main>
             
-            <!-- Bagian Rangkuman / Dasbor Mini -->
             <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-white">Rangkuman Hari Ini</h3>
@@ -155,7 +157,6 @@
                     </button>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <!-- Hadir Per Kelas -->
                     <div class="bg-blue-900/30 p-4 rounded-xl border border-blue-400/50">
                         <p class="text-sm text-blue-200 font-semibold">Hadir Kelas VII</p>
                         <p id="total-vii" class="text-3xl font-bold text-blue-300">0</p>
@@ -168,7 +169,6 @@
                         <p class="text-sm text-purple-200 font-semibold">Hadir Kelas IX</p>
                         <p id="total-ix" class="text-3xl font-bold text-purple-300">0</p>
                     </div>
-                    <!-- Total & Sisa Porsi -->
                     <div class="bg-gray-700/30 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
                         <div>
                             <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
@@ -187,7 +187,6 @@
             </footer>
         </div>
 
-        <!-- Modal Notifikasi -->
         <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
             <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
                 <div id="notification-icon" class="mx-auto mb-4"></div>
@@ -196,7 +195,6 @@
             </div>
         </div>
 
-        <!-- Tombol Mute -->
         <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
             <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
                 <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
@@ -214,62 +212,39 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        
-        // --- Sound on Scroll Logic ---
-        const scrollSound = document.getElementById('scroll-sound');
-        let hasUserInteracted = false; // Penanda untuk melacak interaksi pengguna
 
-        // Fungsi untuk menangani interaksi pertama pengguna
+        const scrollSound = document.getElementById('scroll-sound');
+        let hasUserInteracted = false; 
+
         function handleFirstInteraction() {
             if (hasUserInteracted) return;
             hasUserInteracted = true;
-            // Coba putar dan jeda audio untuk "membuka kunci"
             if (scrollSound) {
                 const playPromise = scrollSound.play();
                 if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        scrollSound.pause();
-                        console.log("Audio diaktifkan oleh interaksi pengguna.");
-                    }).catch(error => {
-                        console.error("Gagal membuka kunci audio:", error);
-                    });
+                    playPromise.then(_ => { scrollSound.pause(); }).catch(error => { console.error("Audio unlock failed:", error); });
                 }
             }
-            // Hapus listener setelah interaksi pertama
             document.body.removeEventListener('click', handleFirstInteraction);
             document.body.removeEventListener('scroll', handleFirstInteraction);
         }
 
-        // Tambahkan listener untuk interaksi pertama
         document.body.addEventListener('click', handleFirstInteraction, { once: true });
         document.body.addEventListener('scroll', handleFirstInteraction, { once: true });
 
         let scrollTimeout = null;
         let isCurrentlyScrolling = false;
-
         window.addEventListener('scroll', () => {
-            // Hanya putar suara jika pengguna sudah berinteraksi dan tidak di-mute
-            if (isMuted) return; // <-- Tambahan: Cek status mute
-            
-            if (hasUserInteracted && scrollSound) {
-                // Jika belum dalam mode scrolling, mainkan suara dan set mode scrolling
-                if (!isCurrentlyScrolling) {
-                    scrollSound.currentTime = 0;
-                    scrollSound.play().catch(e => console.error("Gagal memutar audio:", e));
-                    isCurrentlyScrolling = true;
-                }
-
-                // Hapus timeout yang ada untuk di-reset
-                clearTimeout(scrollTimeout);
-
-                // Set timeout baru. Jika tidak ada scroll setelah periode ini, reset flag.
-                scrollTimeout = setTimeout(() => {
-                    isCurrentlyScrolling = false;
-                }, 200); // Penundaan 200ms setelah scroll berhenti
+            if (isMuted || !hasUserInteracted || !scrollSound) return;
+            if (!isCurrentlyScrolling) {
+                scrollSound.currentTime = 0;
+                scrollSound.play().catch(e => console.error("Audio play failed:", e));
+                isCurrentlyScrolling = true;
             }
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => { isCurrentlyScrolling = false; }, 200); 
         });
 
-        // Konfigurasi Firebase diletakkan di sini agar pratinjau berfungsi.
         const firebaseConfig = {
             apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
             authDomain: "mbg4-329e3.firebaseapp.com",
@@ -279,17 +254,23 @@
             appId: "1:13330785414:web:99505859877a60a2311d07"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        let app, db;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+            document.body.innerHTML = '<div class="h-screen w-screen flex items-center justify-center bg-red-100 text-red-700 p-4">Gagal menginisialisasi Firebase. Periksa konfigurasi.</div>';
+        }
+        
         const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
 
-        // --- DOM Elements ---
         const loginModal = document.getElementById('login-modal');
         const loginForm = document.getElementById('login-form');
         const passwordInput = document.getElementById('password-input');
         const errorMessage = document.getElementById('error-message');
         const mainDashboard = document.getElementById('main-dashboard');
-
         const dateElement = document.getElementById('current-date');
         const attendanceGrid = document.getElementById('attendance-grid');
         const printBtn = document.getElementById('print-btn');
@@ -301,8 +282,13 @@
         const muteBtn = document.getElementById('mute-btn');
         const soundOnIcon = document.getElementById('sound-on-icon');
         const soundOffIcon = document.getElementById('sound-off-icon');
+
+        const unlockModal = document.getElementById('unlock-modal');
+        const unlockForm = document.getElementById('unlock-form');
+        const unlockPasswordInput = document.getElementById('unlock-password-input');
+        const unlockErrorMessage = document.getElementById('unlock-error-message');
+        const cancelUnlockBtn = document.getElementById('cancel-unlock-btn');
         
-        // --- State and Config ---
         let currentData = {};
         let isMuted = false;
         const TOTAL_SISWA_KESELURUHAN = 472;
@@ -311,8 +297,11 @@
             'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'] },
             'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
         };
+        
+        const TARGET_LATITUDE = -7.926021;
+        const TARGET_LONGITUDE = 110.298982;
+        const MAX_DISTANCE_METERS = 400; // Radius 400 meter
 
-        // --- Audio Functions ---
         let audioCtx;
         function initAudioContext() {
             if (hasUserInteracted && !audioCtx) {
@@ -321,33 +310,27 @@
         }
 
         function playTone(frequency, duration) {
-            if (isMuted) return;
+            if (isMuted || !hasUserInteracted) return;
             initAudioContext();
             if (!audioCtx) return;
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-
             gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
             gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.01);
-
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
             oscillator.start(audioCtx.currentTime);
-
             gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
             oscillator.stop(audioCtx.currentTime + duration);
         }
 
         function playSuccessSound() {
-            playTone(523.25, 0.1); // C5
-            setTimeout(() => playTone(659.25, 0.15), 100); // E5
+            playTone(523.25, 0.1); 
+            setTimeout(() => playTone(659.25, 0.15), 100);
         }
         
-        // --- UI Functions ---
-
         function renderSkeletonLoader() {
             let skeletonHtml = '';
             for (const details of Object.values(CLASSES_CONFIG)) {
@@ -357,8 +340,7 @@
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             ${Array(5).fill('').map(() => `<div class="h-28 w-full skeleton-loader"></div>`).join('')}
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
             attendanceGrid.innerHTML = skeletonHtml;
         }
@@ -371,29 +353,29 @@
                 <section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${levelRoman}">
                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/20">
                         <h3 class="text-xl font-bold text-white">${level}</h3>
-                        <div class="section-controls no-print flex items-center space-x-2">
-                            <button class="edit-section-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-transform transform hover:scale-105 whitespace-nowrap flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
-                                <span>Ubah</span>
-                            </button>
-                            <div class="edit-mode-controls-section hidden flex items-center space-x-2">
-                                <button class="save-section-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg text-sm flex items-center justify-center space-x-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg>
-                                    <span>Simpan</span>
-                                </button>
-                                <button class="cancel-section-btn bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-lg text-sm flex items-center space-x-2">
-                                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>
-                                   <span>Batal</span>
-                                </button>
-                            </div>
-                        </div>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">`;
                 details.rombels.forEach(rombel => {
                     const classId = `${levelRoman}${rombel}`;
                     const count = data[classId] || 0;
                     html += `
-                        <div class="attendance-card bg-white/10 rounded-xl border border-white/20 p-3 text-center transition-all duration-300 hover:shadow-lg hover:border-${details.color}-400/50 hover:-translate-y-1" data-class-id="${classId}">
+                        <div class="attendance-card relative bg-white/10 rounded-xl border border-white/20 p-3 text-center transition-all duration-300 hover:shadow-lg hover:border-${details.color}-400/50 hover:-translate-y-1" data-class-id="${classId}">
+                             <div class="card-controls absolute top-2 right-2 flex space-x-1 no-print">
+                                <button class="edit-class-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 transition-colors">
+                                    Ubah
+                                </button>
+                                <div class="edit-mode-controls-card hidden flex space-x-1">
+                                    <button class="save-class-btn text-white px-2 py-1 text-xs rounded-md bg-green-600/80 hover:bg-green-600 transition-colors">
+                                        Simpan
+                                    </button>
+                                    <button class="cancel-class-btn text-white px-2 py-1 text-xs rounded-md bg-gray-600/80 hover:bg-gray-600 transition-colors">
+                                       Batal
+                                    </button>
+                                </div>
+                                <div class="locked-indicator hidden p-1 rounded-md bg-gray-500/50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="text-gray-300" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2M5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1"/></svg>
+                                </div>
+                            </div>
                             <p class="text-base font-semibold text-gray-200">${levelRoman} ${rombel}</p>
                             <span class="attendance-display block text-4xl font-bold text-${details.color}-300 my-2">${count}</span>
                             <input type="number" class="attendance-input hidden w-full text-center text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
@@ -403,6 +385,7 @@
                 html += `</div></section>`;
             }
             attendanceGrid.innerHTML = html;
+            checkAndApplyLocks();
         }
 
         function updateSummary(data) {
@@ -415,7 +398,6 @@
                 totals[levelRoman] = levelTotal;
                 totalHadir += levelTotal;
             }
-
             document.getElementById('total-vii').textContent = totals['VII'];
             document.getElementById('total-viii').textContent = totals['VIII'];
             document.getElementById('total-ix').textContent = totals['IX'];
@@ -448,7 +430,6 @@
             }, 10);
         }
         
-        // --- Event Listeners ---
         document.body.addEventListener('click', initAudioContext, { once: true });
         printBtn.addEventListener('click', () => window.print());
         notificationOkBtn.addEventListener('click', () => {
@@ -468,72 +449,132 @@
             }
         });
 
+        function getLockKey(classId) {
+            return `lock_${classId}_${getLocalDateString()}`;
+        }
+        
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function lockCard(card) {
+            card.querySelector('.edit-class-btn').classList.add('hidden');
+            card.querySelector('.edit-mode-controls-card').classList.add('hidden');
+            card.querySelector('.locked-indicator').classList.remove('hidden');
+        }
+
+        function checkAndApplyLocks() {
+            document.querySelectorAll('.attendance-card').forEach(card => {
+                const classId = card.dataset.classId;
+                if (localStorage.getItem(getLockKey(classId)) === 'true') {
+                    lockCard(card);
+                }
+            });
+        }
+        
         attendanceGrid.addEventListener('click', async (e) => {
-            const target = e.target.closest('button');
-            if (!target) return;
-            const section = target.closest('section');
-            if (!section) return;
+            const card = e.target.closest('.attendance-card');
+            if (!card) return;
 
-            const toggleEditMode = (isEditing) => {
-                section.querySelector('.edit-section-btn').classList.toggle('hidden', isEditing);
-                section.querySelector('.edit-mode-controls-section').classList.toggle('hidden', !isEditing);
-                section.querySelectorAll('.attendance-card').forEach(card => {
-                    card.querySelector('.attendance-display').classList.toggle('hidden', isEditing);
-                    card.querySelector('.attendance-input').classList.toggle('hidden', !isEditing);
-                });
-            };
+            const editBtn = e.target.closest('.edit-class-btn');
+            const saveBtn = e.target.closest('.save-class-btn');
+            const cancelBtn = e.target.closest('.cancel-class-btn');
 
-            if (target.classList.contains('edit-section-btn')) {
-                playTone(440, 0.1); // Play edit sound
-                toggleEditMode(true);
-            } else if (target.classList.contains('cancel-section-btn')) {
-                toggleEditMode(false);
-                section.querySelectorAll('.attendance-card').forEach(card => {
-                    card.querySelector('.attendance-input').value = currentData[card.dataset.classId] || 0;
-                });
-            } else if (target.classList.contains('save-section-btn')) {
-                const newData = {};
-                section.querySelectorAll('.attendance-card').forEach(card => {
-                    const classId = card.dataset.classId;
-                    const value = parseInt(card.querySelector('.attendance-input').value);
-                    newData[classId] = isNaN(value) || value < 0 ? 0 : value;
-                });
+            if (editBtn) {
+                const originalButtonText = editBtn.innerHTML;
+                editBtn.disabled = true;
+                editBtn.innerHTML = '...';
+
+                if (!navigator.geolocation) {
+                    showNotification("Browser Anda tidak mendukung geolokasi.", "error");
+                    editBtn.disabled = false;
+                    editBtn.innerHTML = originalButtonText;
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLat = position.coords.latitude;
+                        const userLon = position.coords.longitude;
+                        const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, userLat, userLon);
+
+                        if (distance <= MAX_DISTANCE_METERS) {
+                            playTone(440, 0.1);
+                            card.querySelector('.attendance-display').classList.add('hidden');
+                            card.querySelector('.attendance-input').classList.remove('hidden');
+                            card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
+                            card.querySelector('.edit-class-btn').classList.add('hidden');
+                        } else {
+                            showNotification(`Anda berada ${Math.round(distance)} meter dari lokasi. Akses ditolak.`, "error");
+                        }
+                        editBtn.disabled = false;
+                        editBtn.innerHTML = originalButtonText;
+                    },
+                    (error) => {
+                        let message = "Gagal mendapatkan lokasi Anda. Coba lagi.";
+                        if (error.code === error.PERMISSION_DENIED) {
+                            message = "Anda harus mengizinkan akses lokasi untuk mengubah data.";
+                        }
+                        showNotification(message, "error");
+                        editBtn.disabled = false;
+                        editBtn.innerHTML = originalButtonText;
+                    }
+                );
+
+            } else if (cancelBtn) {
+                card.querySelector('.attendance-input').value = currentData[card.dataset.classId] || 0;
+                card.querySelector('.attendance-display').classList.remove('hidden');
+                card.querySelector('.attendance-input').classList.add('hidden');
+                lockCard(card);
+                showNotification(`Perubahan untuk kelas ${card.dataset.classId} dibatalkan & dikunci.`, 'success');
+            } else if (saveBtn) {
+                const classId = card.dataset.classId;
+                const value = parseInt(card.querySelector('.attendance-input').value, 10);
+                const updatePayload = { ...currentData, [classId]: isNaN(value) || value < 0 ? 0 : value };
                 
-                target.disabled = true;
-                target.querySelector('span').textContent = 'Menyimpan...';
+                saveBtn.disabled = true;
 
                 try {
-                    await updateDoc(attendanceDocRef, newData);
-                    playSuccessSound(); // Play success sound
-                    showNotification("Data kehadiran berhasil diperbarui!", 'success');
+                    localStorage.setItem(getLockKey(classId), 'true');
+                    await updateDoc(attendanceDocRef, updatePayload);
+                    playSuccessSound();
+                    showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
+                    
+                    card.querySelector('.attendance-display').classList.remove('hidden');
+                    card.querySelector('.attendance-input').classList.add('hidden');
+                    lockCard(card);
                 } catch (error) {
-                    console.error("Error updating document: ", error);
-                    showNotification("Gagal menyimpan data. Silakan coba lagi.", 'error');
+                    console.error("Error updating document:", error);
+                    showNotification("Gagal menyimpan data. Coba lagi.", 'error');
+                    localStorage.removeItem(getLockKey(classId));
+                    card.querySelector('.locked-indicator').classList.add('hidden');
+                    card.querySelector('.edit-class-btn').classList.remove('hidden');
                 } finally {
-                    target.disabled = false;
-                    target.querySelector('span').textContent = 'Simpan';
-                    toggleEditMode(false);
+                    saveBtn.disabled = false;
                 }
             }
         });
 
-        // --- LOGIN LOGIC ---
+
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const enteredPassword = passwordInput.value;
-
             if (enteredPassword === '4455') {
-                // Correct password
                 playSuccessSound();
                 loginModal.classList.add('transition-opacity', 'duration-500', 'opacity-0');
                 setTimeout(() => {
                     loginModal.classList.add('hidden');
                     mainDashboard.classList.remove('hidden');
-                    // Initialize the dashboard after successful login
                     initializeDashboard();
                 }, 500);
             } else {
-                // Incorrect password
                 playTone(220, 0.2);
                 errorMessage.textContent = 'Kode akses salah. Coba lagi.';
                 const loginBox = loginModal.querySelector('div');
@@ -546,40 +587,88 @@
             }
         });
 
-        // --- Initialization & Real-time Listener (wrapped in a function) ---
+        let tapCount = 0;
+        let tapTimer = null;
+        function tripleTapHandler(event) {
+             if (event.target.closest('button') || event.target.closest('input')) return;
+            tapCount++;
+            if (tapCount === 1) {
+                tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+            }
+            if (tapCount === 3) {
+                clearTimeout(tapTimer);
+                tapCount = 0;
+                unlockModal.classList.remove('hidden');
+            }
+        }
+        document.body.addEventListener('touchend', tripleTapHandler);
+        document.body.addEventListener('click', tripleTapHandler);
+
+        unlockForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const enteredPassword = unlockPasswordInput.value;
+            if (enteredPassword === 'PPP') {
+                playSuccessSound();
+                document.querySelectorAll('.attendance-card').forEach(card => {
+                    const classId = card.dataset.classId;
+                    localStorage.removeItem(getLockKey(classId));
+                    card.querySelector('.locked-indicator').classList.add('hidden');
+                    card.querySelector('.edit-class-btn').classList.remove('hidden');
+                });
+                unlockModal.classList.add('hidden');
+                unlockPasswordInput.value = '';
+                showNotification("Semua kunci telah dibuka!", 'success');
+            } else {
+                playTone(220, 0.2);
+                unlockErrorMessage.textContent = 'Kata sandi salah.';
+                const unlockBox = unlockModal.querySelector('div');
+                unlockBox.classList.add('animate-shake');
+                unlockPasswordInput.value = '';
+                setTimeout(() => {
+                    unlockErrorMessage.textContent = '';
+                    unlockBox.classList.remove('animate-shake');
+                }, 2000);
+            }
+        });
+        cancelUnlockBtn.addEventListener('click', () => {
+            unlockModal.classList.add('hidden');
+            unlockPasswordInput.value = '';
+        });
+        
         function initializeDashboard() {
             displayCurrentDate();
-            let isInitialLoad = true;
-            renderSkeletonLoader(); 
+            renderSkeletonLoader();
 
+            let isInitialDocLoad = true;
             onSnapshot(attendanceDocRef, (doc) => {
                 const todayString = getLocalDateString();
-                
                 if (doc.exists() && doc.data().lastUpdated === todayString) {
                     currentData = doc.data();
                     renderAttendanceGrid(currentData);
                     updateSummary(currentData);
-                } else if (isInitialLoad) {
-                    isInitialLoad = false;
-                    const resetData = { lastUpdated: todayString };
-                    Object.keys(CLASSES_CONFIG).forEach(level => {
-                        const levelRoman = level.split(' ')[1];
-                        CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                            resetData[`${levelRoman}${rombel}`] = 0;
-                        });
-                    });
-                    setDoc(attendanceDocRef, resetData).catch(error => {
-                        console.error("Gagal mereset data otomatis:", error);
-                        showNotification("Gagal memulai sesi baru. Muat ulang halaman.", 'error');
-                    });
                 } else {
-                     currentData = doc.data() || {};
-                     renderAttendanceGrid(currentData);
-                     updateSummary(currentData);
+                    if (isInitialDocLoad) {
+                        isInitialDocLoad = false;
+                        const resetData = { lastUpdated: todayString };
+                        Object.keys(CLASSES_CONFIG).forEach(level => {
+                            const levelRoman = level.split(' ')[1];
+                            CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                                resetData[`${levelRoman}${rombel}`] = 0;
+                            });
+                        });
+                        setDoc(attendanceDocRef, resetData).catch(error => {
+                            console.error("Failed to automatically reset data:", error);
+                            showNotification("Gagal memulai sesi baru.", 'error');
+                        });
+                    } else {
+                        currentData = doc.data() || {};
+                        renderAttendanceGrid(currentData);
+                        updateSummary(currentData);
+                    }
                 }
             }, (error) => {
-                console.error("Gagal memuat data dari Firestore:", error);
-                attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan konfigurasi Firebase sudah benar dan coba muat ulang halaman.</p>`;
+                console.error("Firestore onSnapshot error:", error);
+                attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan Security Rules di Firebase sudah diatur ke mode publik.</p>`;
             });
         }
     </script>
