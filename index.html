@@ -643,7 +643,7 @@
             const newMessage = {
                 text: messageText,
                 sender: 'user',
-                timestamp: serverTimestamp()
+                timestamp: new Date() // FIX: Use client-side timestamp
             };
 
             try {
@@ -655,8 +655,8 @@
                 }, { merge: true });
                 chatInput.value = '';
             } catch (error) {
-                console.error("Error sending message: ", error);
-                showNotification("Gagal mengirim pesan.", 'error');
+                console.error("GAGAL MENGIRIM PESAN LIVE CHAT:", error);
+                showNotification("Gagal mengirim pesan. Periksa koneksi atau hubungi admin.", 'error');
             } finally {
                 chatInput.disabled = false;
                 chatInput.focus();
