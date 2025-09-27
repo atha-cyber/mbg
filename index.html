@@ -59,7 +59,7 @@
             100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-            animation: marquee 25s linear infinite;
+            animation: marquee 35s linear infinite;
             display: flex;
         }
 
@@ -71,7 +71,7 @@
                 print-color-adjust: exact; 
             }
             .no-print { display: none !important; }
-            #login-modal, #unlock-modal { display: none !important; }
+            #unlock-modal { display: none !important; }
             #main-dashboard { display: block !important; }
             .container { max-width: 100%; padding: 0; margin: 0; }
             section, .attendance-card, #summary-section { box-shadow: none !important; border: 1px solid #e5e7eb; page-break-inside: avoid; }
@@ -85,22 +85,6 @@
     </style>
 </head>
 <body class="text-gray-800">
-
-    <!-- Login Modal -->
-    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
-            <h2 class="text-2xl font-bold text-center mb-2">Autentikasi Diperlukan</h2>
-            <p class="text-center text-gray-300 mb-6">Masukkan kode akses untuk melanjutkan.</p>
-            <form id="login-form">
-                <div class="mb-4">
-                    <label for="password-input" class="sr-only">Password</label>
-                    <input type="password" id="password-input" placeholder="****" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition" autocomplete="off">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">Masuk</button>
-            </form>
-            <p id="error-message" class="text-red-400 text-center mt-4 h-5"></p>
-        </div>
-    </div>
     
     <!-- Unlock Modal -->
     <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
@@ -120,8 +104,8 @@
     </div>
 
 
-    <!-- Main Dashboard Content (Hidden by default) -->
-    <div id="main-dashboard" class="hidden">
+    <!-- Main Dashboard Content -->
+    <div id="main-dashboard">
         <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <header class="relative mb-8 rounded-2xl shadow-lg p-6 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
@@ -133,13 +117,18 @@
                     </div>
                     <div class="text-center min-w-0">
                         <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran Siswa</h1>
-                        <div class="relative flex overflow-x-hidden mt-1">
-                            <div class="animate-marquee">
-                                <span class="text-base md:text-lg text-gray-200 font-semibold drop-shadow-md whitespace-nowrap flex-shrink-0 px-8">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</span>
-                                <span class="text-base md:text-lg text-gray-200 font-semibold drop-shadow-md whitespace-nowrap flex-shrink-0 px-8" aria-hidden="true">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</span>
+                        <div class="relative flex justify-center mt-1">
+                            <div>
+                                <span class="text-base md:text-lg text-gray-200 font-semibold drop-shadow-md">PROGRAM MAKAN BERGIZI GRATIS - SMP NEGERI 4 PANDAK</span>
                             </div>
                         </div>
                         <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-sm"></p>
+                        <div class="relative flex overflow-x-hidden bg-yellow-500/20 backdrop-blur-md border border-yellow-400/50 text-yellow-200 py-2 rounded-lg mt-3 no-print">
+                            <div class="animate-marquee">
+                                <span class="font-semibold whitespace-nowrap px-12">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
+                                <span class="font-semibold whitespace-nowrap px-12" aria-hidden="true">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex justify-end">
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
@@ -207,11 +196,40 @@
                 </svg>
             </button>
         </div>
+
+        <!-- Live Chat Widget -->
+        <div id="chat-widget-container" class="no-print fixed bottom-5 left-5 z-50">
+            <button id="chat-toggle-btn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15"/>
+                </svg>
+            </button>
+        </div>
+
+        <div id="chat-window" class="hidden no-print fixed bottom-20 left-5 z-50 w-80 max-w-[90vw] h-96 bg-black/50 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg flex flex-col">
+            <div class="p-3 bg-white/10 border-b border-white/20 flex justify-between items-center flex-shrink-0">
+                <h3 class="text-white font-bold">Butuh Bantuan?</h3>
+                <button id="close-chat-btn" class="text-white text-2xl leading-none">&times;</button>
+            </div>
+            <div id="chat-messages" class="flex-1 p-3 overflow-y-auto">
+                <!-- Messages will be injected here -->
+            </div>
+            <form id="chat-form" class="p-3 border-t border-white/20 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="chat-input" placeholder="Ketik pesan..." class="w-full bg-gray-900/50 text-white border border-gray-500 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autocomplete="off">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const scrollSound = document.getElementById('scroll-sound');
         let hasUserInteracted = false; 
@@ -261,15 +279,14 @@
             db = getFirestore(app);
         } catch (e) {
             console.error("Firebase initialization failed:", e);
-            document.body.innerHTML = '<div class="h-screen w-screen flex items-center justify-center bg-red-100 text-red-700 p-4">Gagal menginisialisasi Firebase. Periksa konfigurasi.</div>';
+            const errorOverlay = document.createElement('div');
+            errorOverlay.className = "fixed inset-0 z-[100] flex items-center justify-center bg-red-100 text-red-700 p-4";
+            errorOverlay.textContent = 'Gagal menginisialisasi Firebase. Periksa konfigurasi.';
+            document.body.appendChild(errorOverlay);
         }
         
         const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
-
-        const loginModal = document.getElementById('login-modal');
-        const loginForm = document.getElementById('login-form');
-        const passwordInput = document.getElementById('password-input');
-        const errorMessage = document.getElementById('error-message');
+        
         const mainDashboard = document.getElementById('main-dashboard');
         const dateElement = document.getElementById('current-date');
         const attendanceGrid = document.getElementById('attendance-grid');
@@ -289,6 +306,14 @@
         const unlockErrorMessage = document.getElementById('unlock-error-message');
         const cancelUnlockBtn = document.getElementById('cancel-unlock-btn');
         
+        // Chat elements
+        const chatToggleBtn = document.getElementById('chat-toggle-btn');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChatBtn = document.getElementById('close-chat-btn');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+
         let currentData = {};
         let isMuted = false;
         const TOTAL_SISWA_KESELURUHAN = 472;
@@ -300,7 +325,7 @@
         
         const TARGET_LATITUDE = -7.926021;
         const TARGET_LONGITUDE = 110.298982;
-        const MAX_DISTANCE_METERS = 400;
+        const MAX_DISTANCE_METERS = 150;
 
         let audioCtx;
         function initAudioContext() {
@@ -498,7 +523,7 @@
                             card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
                             card.querySelector('.edit-class-btn').classList.add('hidden');
                         } else {
-                            showNotification(`Anda berada ${Math.round(distance)}m dari lokasi. Akses ditolak.`, "error");
+                            showNotification(`Akses Ditolak. Jarak Anda saat ini (${Math.round(distance)}m) berada di luar radius lokasi yang diizinkan (${MAX_DISTANCE_METERS}m).`, "error");
                         }
                         editBtn.disabled = false;
                         editBtn.textContent = originalButtonText;
@@ -507,6 +532,11 @@
                         showNotification(error.code === 1 ? "Izin lokasi ditolak." : "Gagal mendapatkan lokasi.", "error");
                         editBtn.disabled = false;
                         editBtn.textContent = originalButtonText;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
                     }
                 );
 
@@ -542,31 +572,6 @@
                 } finally {
                     saveBtn.disabled = false;
                 }
-            }
-        });
-
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const enteredPassword = passwordInput.value;
-            if (enteredPassword === '4455') {
-                playSuccessSound();
-                loginModal.classList.add('transition-opacity', 'duration-500', 'opacity-0');
-                setTimeout(() => {
-                    loginModal.classList.add('hidden');
-                    mainDashboard.classList.remove('hidden');
-                    initializeDashboard();
-                }, 500);
-            } else {
-                playTone(220, 0.2);
-                errorMessage.textContent = 'Kode akses salah. Coba lagi.';
-                const loginBox = loginModal.querySelector('div');
-                loginBox.classList.add('animate-shake');
-                passwordInput.value = '';
-                setTimeout(() => {
-                    errorMessage.textContent = '';
-                    loginBox.classList.remove('animate-shake');
-                }, 2000);
             }
         });
 
@@ -617,7 +622,85 @@
             unlockModal.classList.add('hidden');
             unlockPasswordInput.value = '';
         });
+
+        // --- Live Chat Logic ---
+        let chatUserId = localStorage.getItem('chatUserId');
+        if (!chatUserId) {
+            chatUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('chatUserId', chatUserId);
+        }
+        const chatDocRef = doc(db, "live_chat", chatUserId);
+
+        chatToggleBtn.addEventListener('click', () => chatWindow.classList.toggle('hidden'));
+        closeChatBtn.addEventListener('click', () => chatWindow.classList.add('hidden'));
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageText = chatInput.value.trim();
+            if (messageText === '') return;
+
+            chatInput.disabled = true;
+            const newMessage = {
+                text: messageText,
+                sender: 'user',
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                // Use setDoc with merge to create the doc if it doesn't exist
+                await setDoc(chatDocRef, { 
+                    messages: arrayUnion(newMessage),
+                    lastMessageAt: serverTimestamp(),
+                    userId: chatUserId
+                }, { merge: true });
+                chatInput.value = '';
+            } catch (error) {
+                console.error("Error sending message: ", error);
+                showNotification("Gagal mengirim pesan.", 'error');
+            } finally {
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        });
         
+        function renderMessages(messages) {
+            chatMessages.innerHTML = '';
+            if (!messages || messages.length === 0) {
+                chatMessages.innerHTML = `<div class="text-center text-sm text-gray-400 p-2">Selamat datang! Silakan ajukan pertanyaan Anda kepada admin.</div>`;
+                return;
+            }
+
+            messages.forEach(msg => {
+                const messageEl = document.createElement('div');
+                messageEl.classList.add('mb-2', 'p-2', 'rounded-lg', 'max-w-[80%]', 'break-words');
+                
+                let timeString = '';
+                if (msg.timestamp && typeof msg.timestamp.toDate === 'function') {
+                    timeString = msg.timestamp.toDate().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                }
+
+                if (msg.sender === 'user') {
+                    messageEl.classList.add('bg-blue-600', 'text-white', 'ml-auto');
+                    messageEl.innerHTML = `<p class="break-words">${msg.text}</p><div class="text-xs text-blue-200 text-right mt-1">${timeString}</div>`;
+                } else { // admin
+                    messageEl.classList.add('bg-gray-700', 'text-white', 'mr-auto');
+                     messageEl.innerHTML = `<p class="break-words">${msg.text}</p><div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>`;
+                }
+                chatMessages.appendChild(messageEl);
+            });
+            // Auto-scroll to the bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        onSnapshot(chatDocRef, (doc) => {
+            if (doc.exists()) {
+                renderMessages(doc.data().messages);
+            } else {
+                renderMessages([]); // Show welcome message
+            }
+        });
+        
+        // --- Dashboard Initialization ---
         function initializeDashboard() {
             displayCurrentDate();
             renderSkeletonLoader();
@@ -654,6 +737,9 @@
                 attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan Security Rules di Firebase sudah diatur ke mode publik.</p>`;
             });
         }
+        
+        // Directly initialize dashboard on page load
+        initializeDashboard();
     </script>
 </body>
 </html>
