@@ -116,14 +116,14 @@
                         </div>
                     </div>
                     <div class="text-center min-w-0">
-                        <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran</h1>
+                        <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran MBG</h1>
                         <div class="relative flex justify-center mt-1">
                             <div>
                                 <span class="text-sm sm:text-base md:text-lg text-gray-200 font-semibold drop-shadow-md">SMP NEGERI 4 PANDAK</span>
                             </div>
                         </div>
                         <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
-                        <div class="relative flex overflow-x-hidden bg-yellow-500/20 backdrop-blur-md border border-yellow-400/50 text-yellow-200 py-2 rounded-lg mt-3 no-print text-sm">
+                        <div class="relative flex overflow-x-hidden text-white mt-3 no-print text-sm">
                             <div class="animate-marquee">
                                 <span class="font-semibold whitespace-nowrap px-12">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
                                 <span class="font-semibold whitespace-nowrap px-12" aria-hidden="true">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
@@ -392,6 +392,8 @@
                 details.rombels.forEach(rombel => {
                     const classId = `${levelRoman}${rombel}`;
                     const count = data[classId] || 0;
+                    const isLocked = data.locks && data.locks[classId];
+
                     html += `
                         <div class="attendance-card relative bg-white/10 rounded-xl border border-white/20 p-3 text-center flex flex-col justify-between transition-all duration-300" data-class-id="${classId}">
                             <div>
@@ -401,19 +403,18 @@
                                 <p class="text-xs text-gray-400">Siswa Hadir</p>
                             </div>
                             <div class="card-controls mt-3 no-print h-6 flex items-center justify-center">
-                                <button class="edit-class-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 transition-colors">Ubah</button>
+                                <button class="edit-class-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 transition-colors ${isLocked ? 'hidden' : ''}">Ubah</button>
                                 <div class="edit-mode-controls-card hidden flex space-x-2">
                                     <button class="save-class-btn text-white px-2 py-1 text-xs rounded-md bg-green-600/80 hover:bg-green-600 transition-colors">Simpan</button>
                                     <button class="cancel-class-btn text-white px-2 py-1 text-xs rounded-md bg-gray-600/80 hover:bg-gray-600 transition-colors">Batal</button>
                                 </div>
-                                <div class="locked-indicator hidden text-sm text-gray-400 font-semibold">Terkunci</div>
+                                <div class="locked-indicator text-sm text-gray-400 font-semibold ${isLocked ? '' : 'hidden'}">Terkunci</div>
                             </div>
                         </div>`;
                 });
                 html += `</div></section>`;
             }
             attendanceGrid.innerHTML = html;
-            checkAndApplyLocks();
         }
 
         function updateSummary(data) {
@@ -477,10 +478,6 @@
             }
         });
 
-        function getLockKey(classId) {
-            return `lock_${classId}_${getLocalDateString()}`;
-        }
-        
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
             const φ1 = lat1 * Math.PI/180;
@@ -492,21 +489,6 @@
             return R * c;
         }
 
-        function lockCard(card) {
-            card.querySelector('.edit-class-btn').classList.add('hidden');
-            card.querySelector('.edit-mode-controls-card').classList.add('hidden');
-            card.querySelector('.locked-indicator').classList.remove('hidden');
-        }
-
-        function checkAndApplyLocks() {
-            document.querySelectorAll('.attendance-card').forEach(card => {
-                const classId = card.dataset.classId;
-                if (localStorage.getItem(getLockKey(classId)) === 'true') {
-                    lockCard(card);
-                }
-            });
-        }
-        
         attendanceGrid.addEventListener('click', async (e) => {
             const card = e.target.closest('.attendance-card');
             if (!card) return;
@@ -514,6 +496,7 @@
             const editBtn = e.target.closest('.edit-class-btn');
             const saveBtn = e.target.closest('.save-class-btn');
             const cancelBtn = e.target.closest('.cancel-class-btn');
+            const classId = card.dataset.classId;
 
             if (editBtn) {
                 const originalButtonText = editBtn.textContent;
@@ -550,34 +533,29 @@
                 );
 
             } else if (cancelBtn) {
-                localStorage.setItem(getLockKey(card.dataset.classId), 'true');
-                card.querySelector('.attendance-input').value = currentData[card.dataset.classId] || 0;
-                card.querySelector('.attendance-display').classList.remove('hidden');
-                card.querySelector('.attendance-input').classList.add('hidden');
-                lockCard(card);
-                showNotification(`Perubahan untuk kelas ${card.dataset.classId} dibatalkan & dikunci.`, 'success');
+                try {
+                    await updateDoc(attendanceDocRef, { [`locks.${classId}`]: true });
+                    showNotification(`Pengeditan untuk kelas ${classId} dibatalkan & dikunci.`, 'success');
+                } catch (error) {
+                    console.error("Gagal mengunci kartu saat batal:", error);
+                    showNotification("Gagal mengunci kartu.", 'error');
+                }
             } else if (saveBtn) {
-                const classId = card.dataset.classId;
                 const value = parseInt(card.querySelector('.attendance-input').value, 10);
-                const updatePayload = { ...currentData, [classId]: isNaN(value) || value < 0 ? 0 : value };
+                const updatePayload = { 
+                    [classId]: isNaN(value) || value < 0 ? 0 : value,
+                    [`locks.${classId}`]: true
+                };
                 
                 saveBtn.disabled = true;
 
                 try {
-                    localStorage.setItem(getLockKey(classId), 'true');
                     await updateDoc(attendanceDocRef, updatePayload);
                     playSuccessSound();
                     showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
-                    
-                    card.querySelector('.attendance-display').classList.remove('hidden');
-                    card.querySelector('.attendance-input').classList.add('hidden');
-                    lockCard(card);
                 } catch (error) {
                     console.error("Error updating document:", error);
                     showNotification("Gagal menyimpan data. Coba lagi.", 'error');
-                    localStorage.removeItem(getLockKey(classId));
-                    card.querySelector('.locked-indicator').classList.add('hidden');
-                    card.querySelector('.edit-class-btn').classList.remove('hidden');
                 } finally {
                     saveBtn.disabled = false;
                 }
@@ -601,20 +579,31 @@
         document.body.addEventListener('touchend', tripleTapHandler);
         document.body.addEventListener('click', tripleTapHandler);
 
-        unlockForm.addEventListener('submit', (e) => {
+        unlockForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const enteredPassword = unlockPasswordInput.value;
             if (enteredPassword === 'PPP') {
                 playSuccessSound();
-                 document.querySelectorAll('.attendance-card').forEach(card => {
-                    const classId = card.dataset.classId;
-                    localStorage.removeItem(getLockKey(classId));
-                    card.querySelector('.locked-indicator').classList.add('hidden');
-                    card.querySelector('.edit-class-btn').classList.remove('hidden');
+                
+                const unlockPayload = {};
+                Object.keys(CLASSES_CONFIG).forEach(level => {
+                    const levelRoman = level.split(' ')[1];
+                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                        const classId = `${levelRoman}${rombel}`;
+                        unlockPayload[`locks.${classId}`] = false;
+                    });
                 });
-                unlockModal.classList.add('hidden');
-                unlockPasswordInput.value = '';
-                showNotification("Semua kunci telah dibuka!", 'success');
+
+                try {
+                    await updateDoc(attendanceDocRef, unlockPayload);
+                    unlockModal.classList.add('hidden');
+                    unlockPasswordInput.value = '';
+                    showNotification("Semua kunci telah dibuka!", 'success');
+                } catch (error) {
+                    console.error("Gagal membuka kunci:", error);
+                    showNotification("Gagal membuka kunci. Coba lagi.", 'error');
+                }
+                
             } else {
                 playTone(220, 0.2);
                 unlockErrorMessage.textContent = 'Kata sandi salah.';
@@ -635,10 +624,12 @@
         // --- Live Chat Logic ---
         let chatUserId = localStorage.getItem('chatUserId');
         if (!chatUserId) {
-            chatUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            // Made the ID shorter
+            chatUserId = 'user_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('chatUserId', chatUserId);
         }
-        const chatDocRef = doc(db, "live_chat", chatUserId);
+        // All users will read from and write to the same "shared_room" document.
+        const chatDocRef = doc(db, "live_chat", "shared_room");
 
         chatToggleBtn.addEventListener('click', () => chatWindow.classList.toggle('hidden'));
         closeChatBtn.addEventListener('click', () => chatWindow.classList.add('hidden'));
@@ -649,17 +640,18 @@
             if (messageText === '') return;
 
             chatInput.disabled = true;
+            // The message now includes the sender's unique ID.
             const newMessage = {
                 text: messageText,
-                sender: 'user',
-                timestamp: new Date() // Use client-side timestamp
+                senderId: chatUserId, 
+                timestamp: new Date()
             };
 
             try {
+                // We merge this into the shared document's message array.
                 await setDoc(chatDocRef, { 
                     messages: arrayUnion(newMessage),
                     lastMessageAt: serverTimestamp(),
-                    userId: chatUserId
                 }, { merge: true });
                 chatInput.value = '';
             } catch (error) {
@@ -672,6 +664,7 @@
         });
         
         clearChatBtn.addEventListener('click', async () => {
+            // Warning: This clears the chat for EVERYONE.
             try {
                 await setDoc(chatDocRef, { 
                     messages: [] 
@@ -688,12 +681,14 @@
 
         function renderMessages(messages) {
             chatMessages.innerHTML = '';
+            const myChatUserId = localStorage.getItem('chatUserId');
+
             if (!messages || messages.length === 0) {
                 chatMessages.innerHTML = `
                     <div class="flex items-start mb-2 max-w-[90%] mr-auto space-x-2">
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/WhatsApp%20Image%202025-09-28%20at%2006.55.28.jpeg" class="h-8 w-8 rounded-full flex-shrink-0" alt="Admin">
                         <div class="bg-gray-700 text-white p-2 rounded-lg break-words">
-                             <p class="text-sm">Selamat datang! Ada yang bisa dibantu?</p>
+                             <p class="text-sm">Selamat datang di live chat! Semua pesan di sini dapat dilihat oleh pengguna lain.</p>
                         </div>
                     </div>
                 `;
@@ -708,19 +703,37 @@
                 if (msg.timestamp && typeof msg.timestamp.toDate === 'function') {
                     timeString = msg.timestamp.toDate().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 }
+                
+                // Handle both old ('sender') and new ('senderId') message formats.
+                const senderIdentifier = msg.senderId || msg.sender; 
 
-                if (msg.sender === 'user') {
-                    messageContainer.classList.add('ml-auto', 'justify-end');
-                    messageContainer.innerHTML = `
-                        <div class="bg-blue-600 text-white p-2 rounded-lg break-words">
-                            <p class="text-sm">${msg.text}</p>
-                            <div class="text-xs text-blue-200 text-right mt-1">${timeString}</div>
-                        </div>`;
-                } else { // admin
+                if (senderIdentifier === 'admin') {
+                    // Admin's message (left-aligned with specific style)
                     messageContainer.classList.add('mr-auto', 'space-x-2');
                     messageContainer.innerHTML = `
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/WhatsApp%20Image%202025-09-28%20at%2006.55.28.jpeg" class="h-8 w-8 rounded-full flex-shrink-0" alt="Admin">
                         <div class="bg-gray-700 text-white p-2 rounded-lg break-words">
+                             <p class="text-sm font-bold text-yellow-300">Admin</p>
+                             <p class="text-sm">${msg.text}</p>
+                             <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
+                        </div>`;
+                } else if (senderIdentifier === myChatUserId) {
+                    // Current user's message (right-aligned)
+                    messageContainer.classList.add('ml-auto', 'justify-end');
+                    messageContainer.innerHTML = `
+                        <div class="bg-blue-600 text-white p-2 rounded-lg break-words">
+                            <p class="text-sm font-bold">Anda</p>
+                            <p class="text-sm">${msg.text}</p>
+                            <div class="text-xs text-blue-200 text-right mt-1">${timeString}</div>
+                        </div>`;
+                } else {
+                    // Other users' messages (left-aligned)
+                    const displayName = `User...${(senderIdentifier || 'anon').slice(-6)}`;
+                    messageContainer.classList.add('mr-auto', 'space-x-2');
+                    messageContainer.innerHTML = `
+                        <div class="h-8 w-8 rounded-full flex-shrink-0 bg-purple-600 flex items-center justify-center text-white font-bold text-xs" title="${senderIdentifier}">${displayName.charAt(0).toUpperCase()}</div>
+                        <div class="bg-gray-800 text-white p-2 rounded-lg break-words">
+                             <p class="text-sm font-bold text-purple-300">${displayName}</p>
                              <p class="text-sm">${msg.text}</p>
                              <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
                         </div>`;
@@ -741,7 +754,7 @@
         }, error => {
             console.error("Error listening to chat snapshot:", error);
         });
-        
+
         // --- Dashboard Initialization ---
         function initializeDashboard() {
             displayCurrentDate();
@@ -757,11 +770,13 @@
                 } else {
                     if (isInitialDocLoad) {
                         isInitialDocLoad = false;
-                        const resetData = { lastUpdated: todayString };
+                        const resetData = { lastUpdated: todayString, locks: {} };
                         Object.keys(CLASSES_CONFIG).forEach(level => {
                             const levelRoman = level.split(' ')[1];
                             CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                                resetData[`${levelRoman}${rombel}`] = 0;
+                                const classId = `${levelRoman}${rombel}`;
+                                resetData[classId] = 0;
+                                resetData.locks[classId] = false;
                             });
                         });
                         setDoc(attendanceDocRef, resetData).catch(error => {
@@ -785,4 +800,6 @@
     </script>
 </body>
 </html>
+
+
 
