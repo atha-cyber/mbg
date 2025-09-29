@@ -535,6 +535,16 @@
             } else if (cancelBtn) {
                 try {
                     await updateDoc(attendanceDocRef, { [`locks.${classId}`]: true });
+                    
+                    // Revert UI immediately
+                    const input = card.querySelector('.attendance-input');
+                    input.value = currentData[classId] || 0; // Revert input value
+                    card.querySelector('.attendance-display').classList.remove('hidden');
+                    input.classList.add('hidden');
+                    card.querySelector('.edit-mode-controls-card').classList.add('hidden');
+                    card.querySelector('.locked-indicator').classList.remove('hidden');
+                    card.querySelector('.edit-class-btn').classList.add('hidden');
+
                     showNotification(`Pengeditan untuk kelas ${classId} dibatalkan & dikunci.`, 'success');
                 } catch (error) {
                     console.error("Gagal mengunci kartu saat batal:", error);
@@ -542,8 +552,9 @@
                 }
             } else if (saveBtn) {
                 const value = parseInt(card.querySelector('.attendance-input').value, 10);
+                const validValue = isNaN(value) || value < 0 ? 0 : value;
                 const updatePayload = { 
-                    [classId]: isNaN(value) || value < 0 ? 0 : value,
+                    [classId]: validValue,
                     [`locks.${classId}`]: true
                 };
                 
@@ -552,6 +563,15 @@
                 try {
                     await updateDoc(attendanceDocRef, updatePayload);
                     playSuccessSound();
+
+                    // Update UI immediately
+                    card.querySelector('.attendance-display').textContent = validValue;
+                    card.querySelector('.attendance-display').classList.remove('hidden');
+                    card.querySelector('.attendance-input').classList.add('hidden');
+                    card.querySelector('.edit-mode-controls-card').classList.add('hidden');
+                    card.querySelector('.locked-indicator').classList.remove('hidden');
+                    card.querySelector('.edit-class-btn').classList.add('hidden');
+                    
                     showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
                 } catch (error) {
                     console.error("Error updating document:", error);
@@ -800,6 +820,4 @@
     </script>
 </body>
 </html>
-
-
 
