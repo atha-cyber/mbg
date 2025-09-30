@@ -89,17 +89,28 @@
     <!-- Unlock Modal -->
     <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
         <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
-            <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
-            <p class="text-center text-gray-300 mb-6">Masukkan kata sandi superuser.</p>
             <form id="unlock-form">
+                <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
+                <p class="text-center text-gray-300 mb-6">Masukkan kata sandi superuser.</p>
                 <div class="mb-4">
                     <label for="unlock-password-input" class="sr-only">Password</label>
                     <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" autocomplete="off">
                 </div>
                 <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">Buka Kunci</button>
                  <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
+                <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
             </form>
-            <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
+
+            <div id="class-unlock-options" class="hidden text-center">
+                <h3 class="text-xl font-bold mb-4">Pilih Kelas untuk Dibuka</h3>
+                <div class="space-y-3">
+                    <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VII</button>
+                    <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VIII</button>
+                    <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas IX</button>
+                    <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Buka Semua Kunci</button>
+                </div>
+                 <button type="button" id="done-unlocking-btn" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Selesai</button>
+            </div>
         </div>
     </div>
 
@@ -313,6 +324,8 @@
         const unlockPasswordInput = document.getElementById('unlock-password-input');
         const unlockErrorMessage = document.getElementById('unlock-error-message');
         const cancelUnlockBtn = document.getElementById('cancel-unlock-btn');
+        const classUnlockOptions = document.getElementById('class-unlock-options');
+        const doneUnlockingBtn = document.getElementById('done-unlocking-btn');
         
         // Chat elements
         const chatToggleBtn = document.getElementById('chat-toggle-btn');
@@ -488,142 +501,189 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
         }
-
+        
         attendanceGrid.addEventListener('click', async (e) => {
             const card = e.target.closest('.attendance-card');
             if (!card) return;
-
-            const editBtn = e.target.closest('.edit-class-btn');
-            const saveBtn = e.target.closest('.save-class-btn');
-            const cancelBtn = e.target.closest('.cancel-class-btn');
+            
             const classId = card.dataset.classId;
 
-            if (editBtn) {
-                const originalButtonText = editBtn.textContent;
-                editBtn.disabled = true;
-                editBtn.textContent = '...';
+            if (e.target.closest('button')) {
+                const editBtn = e.target.closest('.edit-class-btn');
+                const saveBtn = e.target.closest('.save-class-btn');
+                const cancelBtn = e.target.closest('.cancel-class-btn');
 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
+                if (editBtn) {
+                    const originalButtonText = editBtn.textContent;
+                    editBtn.disabled = true;
+                    editBtn.textContent = '...';
 
-                        if (distance <= MAX_DISTANCE_METERS) {
-                            playTone(440, 0.1);
-                            card.querySelector('.attendance-display').classList.add('hidden');
-                            card.querySelector('.attendance-input').classList.remove('hidden');
-                            card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
-                            card.querySelector('.edit-class-btn').classList.add('hidden');
-                        } else {
-                            showNotification(`Akses Ditolak. Jarak Anda saat ini (${Math.round(distance)}m) berada di luar radius lokasi yang diizinkan (${MAX_DISTANCE_METERS}m).`, "error");
-                        }
-                        editBtn.disabled = false;
-                        editBtn.textContent = originalButtonText;
-                    },
-                    (error) => {
-                        showNotification(error.code === 1 ? "Izin lokasi ditolak." : "Gagal mendapatkan lokasi.", "error");
-                        editBtn.disabled = false;
-                        editBtn.textContent = originalButtonText;
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const { latitude, longitude } = position.coords;
+                            const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
+
+                            if (distance <= MAX_DISTANCE_METERS) {
+                                playTone(440, 0.1);
+                                card.querySelector('.attendance-display').classList.add('hidden');
+                                card.querySelector('.attendance-input').classList.remove('hidden');
+                                card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
+                                card.querySelector('.edit-class-btn').classList.add('hidden');
+                            } else {
+                                showNotification(`Akses Ditolak. Jarak Anda saat ini (${Math.round(distance)}m) berada di luar radius lokasi yang diizinkan (${MAX_DISTANCE_METERS}m).`, "error");
+                            }
+                            editBtn.disabled = false;
+                            editBtn.textContent = originalButtonText;
+                        },
+                        (error) => {
+                            showNotification(error.code === 1 ? "Izin lokasi ditolak." : "Gagal mendapatkan lokasi.", "error");
+                            editBtn.disabled = false;
+                            editBtn.textContent = originalButtonText;
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+                } else if (cancelBtn) {
+                    try {
+                        await updateDoc(attendanceDocRef, { [`locks.${classId}`]: true });
+                        showNotification(`Pengeditan untuk kelas ${classId} dibatalkan & dikunci.`, 'success');
+                    } catch (error) {
+                        console.error("Gagal mengunci kartu saat batal:", error);
+                        showNotification("Gagal mengunci kartu.", 'error');
                     }
-                );
-
-            } else if (cancelBtn) {
-                try {
-                    await updateDoc(attendanceDocRef, { [`locks.${classId}`]: true });
+                } else if (saveBtn) {
+                    const value = parseInt(card.querySelector('.attendance-input').value, 10);
+                    const validValue = isNaN(value) || value < 0 ? 0 : value;
+                    const updatePayload = { 
+                        [classId]: validValue,
+                        [`locks.${classId}`]: true
+                    };
                     
-                    // Revert UI immediately
-                    const input = card.querySelector('.attendance-input');
-                    input.value = currentData[classId] || 0; // Revert input value
-                    card.querySelector('.attendance-display').classList.remove('hidden');
-                    input.classList.add('hidden');
-                    card.querySelector('.edit-mode-controls-card').classList.add('hidden');
-                    card.querySelector('.locked-indicator').classList.remove('hidden');
-                    card.querySelector('.edit-class-btn').classList.add('hidden');
+                    saveBtn.disabled = true;
 
-                    showNotification(`Pengeditan untuk kelas ${classId} dibatalkan & dikunci.`, 'success');
-                } catch (error) {
-                    console.error("Gagal mengunci kartu saat batal:", error);
-                    showNotification("Gagal mengunci kartu.", 'error');
+                    try {
+                        await updateDoc(attendanceDocRef, updatePayload);
+                        playSuccessSound();
+                        showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
+                    } catch (error) {
+                        console.error("Error updating document:", error);
+                        showNotification("Gagal menyimpan data. Coba lagi.", 'error');
+                    } finally {
+                        saveBtn.disabled = false;
+                    }
                 }
-            } else if (saveBtn) {
-                const value = parseInt(card.querySelector('.attendance-input').value, 10);
-                const validValue = isNaN(value) || value < 0 ? 0 : value;
-                const updatePayload = { 
-                    [classId]: validValue,
-                    [`locks.${classId}`]: true
-                };
-                
-                saveBtn.disabled = true;
-
-                try {
-                    await updateDoc(attendanceDocRef, updatePayload);
-                    playSuccessSound();
-
-                    // Update UI immediately
-                    card.querySelector('.attendance-display').textContent = validValue;
-                    card.querySelector('.attendance-display').classList.remove('hidden');
-                    card.querySelector('.attendance-input').classList.add('hidden');
-                    card.querySelector('.edit-mode-controls-card').classList.add('hidden');
-                    card.querySelector('.locked-indicator').classList.remove('hidden');
-                    card.querySelector('.edit-class-btn').classList.add('hidden');
-                    
-                    showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
-                } catch (error) {
-                    console.error("Error updating document:", error);
-                    showNotification("Gagal menyimpan data. Coba lagi.", 'error');
-                } finally {
-                    saveBtn.disabled = false;
-                }
+                return;
             }
+
+            const isLocked = card.querySelector('.locked-indicator:not(.hidden)');
+            if (!isLocked) return;
+
+            handleCardTap(classId);
         });
 
-        let tapCount = 0;
-        let tapTimer = null;
-        function tripleTapHandler(event) {
-             if (event.target.closest('button') || event.target.closest('input')) return;
-            tapCount++;
-            if (tapCount === 1) {
-                tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+        // --- Superuser Unlock Logic ---
+        
+        let cardTapState = { count: 0, timer: null, classId: null };
+        function handleCardTap(classId) {
+            if (cardTapState.classId !== classId) {
+                clearTimeout(cardTapState.timer);
+                cardTapState = { count: 1, timer: null, classId: classId };
+            } else {
+                cardTapState.count++;
             }
-            if (tapCount === 3) {
-                clearTimeout(tapTimer);
-                tapCount = 0;
-                unlockModal.classList.remove('hidden');
+
+            if (cardTapState.count === 1) {
+                cardTapState.timer = setTimeout(() => {
+                    cardTapState = { count: 0, timer: null, classId: null };
+                }, 800);
+            }
+
+            if (cardTapState.count === 3) {
+                clearTimeout(cardTapState.timer);
+                triggerSuperuserUnlock(classId); // Check location before showing modal
+                cardTapState = { count: 0, timer: null, classId: null };
             }
         }
-        document.body.addEventListener('touchend', tripleTapHandler);
-        document.body.addEventListener('click', tripleTapHandler);
+
+        let headerTapCount = 0;
+        let headerTapTimer = null;
+        document.querySelector('header').addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            headerTapCount++;
+            if (headerTapCount === 1) {
+                headerTapTimer = setTimeout(() => { headerTapCount = 0; }, 1500);
+            }
+            if (headerTapCount === 5) {
+                clearTimeout(headerTapTimer);
+                headerTapCount = 0;
+                triggerSuperuserUnlock(); // Check location before showing modal
+            }
+        });
+        
+        function triggerSuperuserUnlock(targetClassId = null) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
+
+                    if (distance <= MAX_DISTANCE_METERS) {
+                        if (targetClassId) {
+                            unlockModal.dataset.unlockTarget = targetClassId;
+                            unlockModal.querySelector('h2').textContent = `Buka Kunci Kelas ${targetClassId}`;
+                            unlockModal.querySelector('p').textContent = `Masukkan sandi untuk membuka kunci ${targetClassId}.`;
+                        } else {
+                            delete unlockModal.dataset.unlockTarget;
+                            unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
+                            unlockModal.querySelector('p').textContent = 'Masukkan kata sandi superuser.';
+                        }
+                        unlockForm.classList.remove('hidden');
+                        classUnlockOptions.classList.add('hidden');
+                        unlockModal.classList.remove('hidden');
+                    } else {
+                        showNotification(`Akses Superuser Ditolak. Anda berada ${Math.round(distance)}m dari lokasi.`, "error");
+                    }
+                },
+                (error) => {
+                    showNotification(error.code === 1 ? "Akses Superuser butuh izin lokasi." : "Gagal mendapatkan lokasi.", "error");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        function resetUnlockModal() {
+            unlockModal.classList.add('hidden');
+            delete unlockModal.dataset.unlockTarget;
+            setTimeout(() => {
+                unlockForm.classList.remove('hidden');
+                classUnlockOptions.classList.add('hidden');
+                unlockPasswordInput.value = '';
+                unlockErrorMessage.textContent = '';
+                unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
+                unlockModal.querySelector('p').textContent = 'Masukkan kata sandi superuser.';
+            }, 300);
+        }
 
         unlockForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const enteredPassword = unlockPasswordInput.value;
+            const singleUnlockTarget = unlockModal.dataset.unlockTarget;
+
             if (enteredPassword === 'PPP') {
                 playSuccessSound();
-                
-                const unlockPayload = {};
-                Object.keys(CLASSES_CONFIG).forEach(level => {
-                    const levelRoman = level.split(' ')[1];
-                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                        const classId = `${levelRoman}${rombel}`;
-                        unlockPayload[`locks.${classId}`] = false;
-                    });
-                });
-
-                try {
-                    await updateDoc(attendanceDocRef, unlockPayload);
-                    unlockModal.classList.add('hidden');
-                    unlockPasswordInput.value = '';
-                    showNotification("Semua kunci telah dibuka!", 'success');
-                } catch (error) {
-                    console.error("Gagal membuka kunci:", error);
-                    showNotification("Gagal membuka kunci. Coba lagi.", 'error');
+                if (singleUnlockTarget) {
+                    const unlockPayload = { [`locks.${singleUnlockTarget}`]: false };
+                    try {
+                        await updateDoc(attendanceDocRef, unlockPayload);
+                        resetUnlockModal();
+                        showNotification(`Kunci untuk kelas ${singleUnlockTarget} telah dibuka!`, 'success');
+                    } catch (error) {
+                        console.error("Gagal membuka kunci:", error);
+                        showNotification("Gagal membuka kunci. Coba lagi.", 'error');
+                    }
+                } else {
+                    unlockForm.classList.add('hidden');
+                    classUnlockOptions.classList.remove('hidden');
+                    unlockErrorMessage.textContent = '';
                 }
-                
             } else {
                 playTone(220, 0.2);
                 unlockErrorMessage.textContent = 'Kata sandi salah.';
@@ -636,19 +696,53 @@
                 }, 2000);
             }
         });
-        cancelUnlockBtn.addEventListener('click', () => {
-            unlockModal.classList.add('hidden');
-            unlockPasswordInput.value = '';
+        
+        classUnlockOptions.addEventListener('click', async (e) => {
+            const target = e.target.closest('.unlock-level-btn');
+            if (!target) return;
+
+            const levelToUnlock = target.dataset.level;
+            const originalText = target.innerHTML;
+            target.disabled = true;
+            target.innerHTML = `<span class="animate-pulse">Membuka...</span>`;
+
+            const unlockPayload = {};
+            const matchingLevels = levelToUnlock === 'ALL'
+                ? Object.keys(CLASSES_CONFIG)
+                : Object.keys(CLASSES_CONFIG).filter(k => k.includes(levelToUnlock));
+
+            matchingLevels.forEach(levelKey => {
+                const levelRoman = levelKey.split(' ')[1];
+                CLASSES_CONFIG[levelKey].rombels.forEach(rombel => {
+                    const classId = `${levelRoman}${rombel}`;
+                    unlockPayload[`locks.${classId}`] = false;
+                });
+            });
+
+            try {
+                if (Object.keys(unlockPayload).length > 0) {
+                    await updateDoc(attendanceDocRef, unlockPayload);
+                    playSuccessSound();
+                    showNotification(`Kunci untuk ${levelToUnlock === 'ALL' ? 'Semua Kelas' : `Kelas ${levelToUnlock}`} telah dibuka!`, 'success');
+                }
+            } catch (error) {
+                console.error("Gagal membuka kunci:", error);
+                showNotification("Gagal membuka kunci. Coba lagi.", 'error');
+            } finally {
+                target.disabled = false;
+                target.innerHTML = originalText;
+            }
         });
+
+        cancelUnlockBtn.addEventListener('click', resetUnlockModal);
+        doneUnlockingBtn.addEventListener('click', resetUnlockModal);
 
         // --- Live Chat Logic ---
         let chatUserId = localStorage.getItem('chatUserId');
         if (!chatUserId) {
-            // Made the ID shorter
             chatUserId = 'user_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('chatUserId', chatUserId);
         }
-        // All users will read from and write to the same "shared_room" document.
         const chatDocRef = doc(db, "live_chat", "shared_room");
 
         chatToggleBtn.addEventListener('click', () => chatWindow.classList.toggle('hidden'));
@@ -660,7 +754,6 @@
             if (messageText === '') return;
 
             chatInput.disabled = true;
-            // The message now includes the sender's unique ID.
             const newMessage = {
                 text: messageText,
                 senderId: chatUserId, 
@@ -668,7 +761,6 @@
             };
 
             try {
-                // We merge this into the shared document's message array.
                 await setDoc(chatDocRef, { 
                     messages: arrayUnion(newMessage),
                     lastMessageAt: serverTimestamp(),
@@ -684,7 +776,6 @@
         });
         
         clearChatBtn.addEventListener('click', async () => {
-            // Warning: This clears the chat for EVERYONE.
             try {
                 await setDoc(chatDocRef, { 
                     messages: [] 
@@ -724,11 +815,9 @@
                     timeString = msg.timestamp.toDate().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 }
                 
-                // Handle both old ('sender') and new ('senderId') message formats.
                 const senderIdentifier = msg.senderId || msg.sender; 
 
                 if (senderIdentifier === 'admin') {
-                    // Admin's message (left-aligned with specific style)
                     messageContainer.classList.add('mr-auto', 'space-x-2');
                     messageContainer.innerHTML = `
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/WhatsApp%20Image%202025-09-28%20at%2006.55.28.jpeg" class="h-8 w-8 rounded-full flex-shrink-0" alt="Admin">
@@ -738,7 +827,6 @@
                              <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
                         </div>`;
                 } else if (senderIdentifier === myChatUserId) {
-                    // Current user's message (right-aligned)
                     messageContainer.classList.add('ml-auto', 'justify-end');
                     messageContainer.innerHTML = `
                         <div class="bg-blue-600 text-white p-2 rounded-lg break-words">
@@ -747,7 +835,6 @@
                             <div class="text-xs text-blue-200 text-right mt-1">${timeString}</div>
                         </div>`;
                 } else {
-                    // Other users' messages (left-aligned)
                     const displayName = `User...${(senderIdentifier || 'anon').slice(-6)}`;
                     messageContainer.classList.add('mr-auto', 'space-x-2');
                     messageContainer.innerHTML = `
