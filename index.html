@@ -447,22 +447,12 @@
             document.getElementById('remaining-portions').textContent = TOTAL_SISWA_KESELURUHAN - totalHadir;
         }
 
-        /**
-         * [SOLUSI] Fungsi ini menghasilkan string tanggal YYYY-MM-DD yang selalu berdasarkan
-         * zona waktu WIB (UTC+7), tidak peduli dari mana pengguna mengakses.
-         */
         function getWIBDateString() {
-            // Buat objek tanggal saat ini
             const now = new Date();
-            // Dapatkan waktu UTC dalam milidetik dan tambahkan 7 jam (offset WIB)
-            // 7 jam * 60 menit/jam * 60 detik/menit * 1000 milidetik/detik
             const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-            
-            // Ekstrak tahun, bulan, dan hari dari tanggal WIB dalam format UTC untuk menghindari konversi lokal lagi
             const year = wibTime.getUTCFullYear();
-            const month = String(wibTime.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() adalah 0-11
+            const month = String(wibTime.getUTCMonth() + 1).padStart(2, '0');
             const day = String(wibTime.getUTCDate()).padStart(2, '0');
-            
             return `${year}-${month}-${day}`;
         }
 
@@ -535,8 +525,17 @@
 
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
-                            const { latitude, longitude } = position.coords;
+                            const { latitude, longitude, accuracy } = position.coords;
                             const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
+                            console.log(`Jarak: ${distance.toFixed(2)}m, Akurasi GPS: ${accuracy.toFixed(2)}m`);
+
+                            // [PERBAIKAN] Cek akurasi sinyal GPS. Jika terlalu rendah, tolak.
+                            if (accuracy > 100) { // Angka 100 meter adalah ambang batas, bisa disesuaikan.
+                                showNotification(`Sinyal lokasi lemah (akurasi ${Math.round(accuracy)}m). Coba lagi di tempat yang lebih terbuka.`, "error");
+                                editBtn.disabled = false;
+                                editBtn.textContent = originalButtonText;
+                                return;
+                            }
 
                             if (distance <= MAX_DISTANCE_METERS) {
                                 playTone(440, 0.1);
@@ -545,7 +544,8 @@
                                 card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
                                 card.querySelector('.edit-class-btn').classList.add('hidden');
                             } else {
-                                showNotification(`Akses Ditolak. Jarak Anda saat ini (${Math.round(distance)}m) berada di luar radius lokasi yang diizinkan (${MAX_DISTANCE_METERS}m).`, "error");
+                                // [PERBAIKAN] Berikan notifikasi yang lebih informatif.
+                                showNotification(`Akses Ditolak. Jarak Anda (${Math.round(distance)}m) di luar radius (${MAX_DISTANCE_METERS}m). Akurasi sinyal: ${Math.round(accuracy)}m.`, "error");
                             }
                             editBtn.disabled = false;
                             editBtn.textContent = originalButtonText;
@@ -614,7 +614,7 @@
 
             if (cardTapState.count === 3) {
                 clearTimeout(cardTapState.timer);
-                triggerSuperuserUnlock(classId); // Check location before showing modal
+                triggerSuperuserUnlock(classId);
                 cardTapState = { count: 0, timer: null, classId: null };
             }
         }
@@ -630,15 +630,21 @@
             if (headerTapCount === 5) {
                 clearTimeout(headerTapTimer);
                 headerTapCount = 0;
-                triggerSuperuserUnlock(); // Check location before showing modal
+                triggerSuperuserUnlock();
             }
         });
         
         function triggerSuperuserUnlock(targetClassId = null) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const { latitude, longitude } = position.coords;
+                    const { latitude, longitude, accuracy } = position.coords;
                     const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
+                    console.log(`[Superuser] Jarak: ${distance.toFixed(2)}m, Akurasi GPS: ${accuracy.toFixed(2)}m`);
+
+                    if (accuracy > 100) {
+                         showNotification(`Sinyal lokasi lemah (akurasi ${Math.round(accuracy)}m). Gagal memverifikasi lokasi superuser.`, "error");
+                         return;
+                    }
 
                     if (distance <= MAX_DISTANCE_METERS) {
                         if (targetClassId) {
@@ -654,7 +660,7 @@
                         classUnlockOptions.classList.add('hidden');
                         unlockModal.classList.remove('hidden');
                     } else {
-                        showNotification(`Akses Superuser Ditolak. Anda berada ${Math.round(distance)}m dari lokasi.`, "error");
+                        showNotification(`Akses Superuser Ditolak. Anda berada ${Math.round(distance)}m dari lokasi (Akurasi: ${Math.round(accuracy)}m).`, "error");
                     }
                 },
                 (error) => {
@@ -882,36 +888,32 @@
             displayCurrentDate();
             renderSkeletonLoader();
 
-            let isInitialDocLoad = true;
             onSnapshot(attendanceDocRef, (doc) => {
-                const todayString = getWIBDateString(); // [SOLUSI] Menggunakan fungsi WIB
-                if (doc.exists() && doc.data().lastUpdated === todayString) {
-                    currentData = doc.data();
+                const todayString = getWIBDateString();
+                const docData = doc.exists() ? doc.data() : null;
+
+                if (docData && docData.lastUpdated === todayString) {
+                    // Hari masih sama, tampilkan data yang ada.
+                    currentData = docData;
                     renderAttendanceGrid(currentData);
                     updateSummary(currentData);
                 } else {
-                    // Hanya reset otomatis jika ini adalah pemuatan dokumen pertama setelah hari berganti
-                    if (isInitialDocLoad) { 
-                        isInitialDocLoad = false; // Mencegah reset berulang kali
-                        const resetData = { lastUpdated: todayString, locks: {} };
-                        Object.keys(CLASSES_CONFIG).forEach(level => {
-                            const levelRoman = level.split(' ')[1];
-                            CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                                const classId = `${levelRoman}${rombel}`;
-                                resetData[classId] = 0;
-                                resetData.locks[classId] = false;
-                            });
+                    // Hari telah berganti atau dokumen belum ada. Reset data.
+                    console.log(`Pergantian hari terdeteksi. Resetting data untuk ${todayString}.`);
+                    const resetData = { lastUpdated: todayString, locks: {} };
+                    Object.keys(CLASSES_CONFIG).forEach(level => {
+                        const levelRoman = level.split(' ')[1];
+                        CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                            const classId = `${levelRoman}${rombel}`;
+                            resetData[classId] = 0;
+                            resetData.locks[classId] = false;
                         });
-                        setDoc(attendanceDocRef, resetData).catch(error => {
-                            console.error("Failed to automatically reset data:", error);
-                            showNotification("Gagal memulai sesi baru.", 'error');
-                        });
-                    } else {
-                        // Jika bukan pemuatan awal (misalnya, dokumen dihapus manual), cukup render data yang ada
-                         currentData = doc.data() || {};
-                         renderAttendanceGrid(currentData);
-                         updateSummary(currentData);
-                    }
+                    });
+                    
+                    setDoc(attendanceDocRef, resetData).catch(error => {
+                        console.error("Gagal mereset data secara otomatis:", error);
+                        showNotification("Gagal memulai sesi baru untuk hari ini.", 'error');
+                    });
                 }
             }, (error) => {
                 console.error("Firestore onSnapshot error:", error);
