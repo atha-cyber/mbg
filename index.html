@@ -97,7 +97,7 @@
                     <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" autocomplete="off">
                 </div>
                 <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">Buka Kunci</button>
-                 <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
+                <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
                 <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
             </form>
 
@@ -109,7 +109,7 @@
                     <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas IX</button>
                     <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Buka Semua Kunci</button>
                 </div>
-                 <button type="button" id="done-unlocking-btn" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Selesai</button>
+                <button type="button" id="done-unlocking-btn" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Selesai</button>
             </div>
         </div>
     </div>
@@ -119,22 +119,22 @@
     <div id="main-dashboard">
         <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <header class="relative mb-8 rounded-2xl shadow-lg p-4 sm:p-8 bg-black/20 backdrop-blur-md border border-white/20">
+            <header class="relative mb-8 rounded-2xl shadow-xl p-4 sm:p-8 bg-white">
                 <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
                     <div class="flex justify-start">
-                        <div class="h-14 w-14 sm:h-20 sm:w-20 rounded-full shadow-lg border border-white/30 flex-shrink-0" 
-                             style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: cover; background-position: center;">
+                        <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0" 
+                             style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: contain; background-position: center; background-repeat: no-repeat;">
                         </div>
                     </div>
                     <div class="text-center min-w-0">
-                        <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Dasbor Kehadiran MBG</h1>
+                        <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Dasbor Kehadiran MBG</h1>
                         <div class="relative flex justify-center mt-1">
                             <div>
-                                <span class="text-sm sm:text-base md:text-lg text-gray-200 font-semibold drop-shadow-md">SMP NEGERI 4 PANDAK</span>
+                                <span class="text-sm sm:text-base md:text-lg text-gray-600 font-semibold">SMP NEGERI 4 PANDAK</span>
                             </div>
                         </div>
-                        <p id="current-date" class="mt-3 text-gray-200 bg-white/20 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
-                        <div class="relative flex overflow-x-hidden text-white mt-3 no-print text-sm">
+                        <p id="current-date" class="mt-3 text-gray-500 bg-gray-100 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
+                        <div class="relative flex overflow-x-hidden text-gray-700 mt-3 no-print text-sm">
                             <div class="animate-marquee">
                                 <span class="font-semibold whitespace-nowrap px-12">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
                                 <span class="font-semibold whitespace-nowrap px-12" aria-hidden="true">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
@@ -247,8 +247,8 @@
     </div>
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const scrollSound = document.getElementById('scroll-sound');
         let hasUserInteracted = false; 
@@ -447,13 +447,28 @@
             document.getElementById('remaining-portions').textContent = TOTAL_SISWA_KESELURUHAN - totalHadir;
         }
 
-        function getLocalDateString() {
+        /**
+         * [SOLUSI] Fungsi ini menghasilkan string tanggal YYYY-MM-DD yang selalu berdasarkan
+         * zona waktu WIB (UTC+7), tidak peduli dari mana pengguna mengakses.
+         */
+        function getWIBDateString() {
+            // Buat objek tanggal saat ini
             const now = new Date();
-            return new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            // Dapatkan waktu UTC dalam milidetik dan tambahkan 7 jam (offset WIB)
+            // 7 jam * 60 menit/jam * 60 detik/menit * 1000 milidetik/detik
+            const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+            
+            // Ekstrak tahun, bulan, dan hari dari tanggal WIB dalam format UTC untuk menghindari konversi lokal lagi
+            const year = wibTime.getUTCFullYear();
+            const month = String(wibTime.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() adalah 0-11
+            const day = String(wibTime.getUTCDate()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}`;
         }
 
+
         function displayCurrentDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
             dateElement.textContent = new Date().toLocaleDateString('id-ID', options);
         }
 
@@ -799,7 +814,7 @@
                     <div class="flex items-start mb-2 max-w-[90%] mr-auto space-x-2">
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/WhatsApp%20Image%202025-09-28%20at%2006.55.28.jpeg" class="h-8 w-8 rounded-full flex-shrink-0" alt="Admin">
                         <div class="bg-gray-700 text-white p-2 rounded-lg break-words">
-                             <p class="text-sm">Selamat datang di live chat! Semua pesan di sini dapat dilihat oleh pengguna lain.</p>
+                            <p class="text-sm">Selamat datang di live chat! Semua pesan di sini dapat dilihat oleh pengguna lain.</p>
                         </div>
                     </div>
                 `;
@@ -822,9 +837,9 @@
                     messageContainer.innerHTML = `
                         <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/WhatsApp%20Image%202025-09-28%20at%2006.55.28.jpeg" class="h-8 w-8 rounded-full flex-shrink-0" alt="Admin">
                         <div class="bg-gray-700 text-white p-2 rounded-lg break-words">
-                             <p class="text-sm font-bold text-yellow-300">Admin</p>
-                             <p class="text-sm">${msg.text}</p>
-                             <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
+                            <p class="text-sm font-bold text-yellow-300">Admin</p>
+                            <p class="text-sm">${msg.text}</p>
+                            <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
                         </div>`;
                 } else if (senderIdentifier === myChatUserId) {
                     messageContainer.classList.add('ml-auto', 'justify-end');
@@ -840,9 +855,9 @@
                     messageContainer.innerHTML = `
                         <div class="h-8 w-8 rounded-full flex-shrink-0 bg-purple-600 flex items-center justify-center text-white font-bold text-xs" title="${senderIdentifier}">${displayName.charAt(0).toUpperCase()}</div>
                         <div class="bg-gray-800 text-white p-2 rounded-lg break-words">
-                             <p class="text-sm font-bold text-purple-300">${displayName}</p>
-                             <p class="text-sm">${msg.text}</p>
-                             <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
+                            <p class="text-sm font-bold text-purple-300">${displayName}</p>
+                            <p class="text-sm">${msg.text}</p>
+                            <div class="text-xs text-gray-400 text-right mt-1">${timeString}</div>
                         </div>`;
                 }
                 chatMessages.appendChild(messageContainer);
@@ -869,14 +884,15 @@
 
             let isInitialDocLoad = true;
             onSnapshot(attendanceDocRef, (doc) => {
-                const todayString = getLocalDateString();
+                const todayString = getWIBDateString(); // [SOLUSI] Menggunakan fungsi WIB
                 if (doc.exists() && doc.data().lastUpdated === todayString) {
                     currentData = doc.data();
                     renderAttendanceGrid(currentData);
                     updateSummary(currentData);
                 } else {
-                    if (isInitialDocLoad) {
-                        isInitialDocLoad = false;
+                    // Hanya reset otomatis jika ini adalah pemuatan dokumen pertama setelah hari berganti
+                    if (isInitialDocLoad) { 
+                        isInitialDocLoad = false; // Mencegah reset berulang kali
                         const resetData = { lastUpdated: todayString, locks: {} };
                         Object.keys(CLASSES_CONFIG).forEach(level => {
                             const levelRoman = level.split(' ')[1];
@@ -891,9 +907,10 @@
                             showNotification("Gagal memulai sesi baru.", 'error');
                         });
                     } else {
-                        currentData = doc.data() || {};
-                        renderAttendanceGrid(currentData);
-                        updateSummary(currentData);
+                        // Jika bukan pemuatan awal (misalnya, dokumen dihapus manual), cukup render data yang ada
+                         currentData = doc.data() || {};
+                         renderAttendanceGrid(currentData);
+                         updateSummary(currentData);
                     }
                 }
             }, (error) => {
