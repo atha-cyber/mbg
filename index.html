@@ -63,189 +63,259 @@
             display: flex;
         }
 
+        /* Print-specific Styles */
+        .print-only {
+             display: none;
+        }
+
         @media print {
             body { 
                 background-image: none !important;
                 background-color: white !important; 
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact; 
+                padding: 0;
+                margin: 0;
             }
             .no-print { display: none !important; }
-            #unlock-modal { display: none !important; }
-            #main-dashboard { display: block !important; }
-            .container { max-width: 100%; padding: 0; margin: 0; }
-            section, .attendance-card, #summary-section { box-shadow: none !important; border: 1px solid #e5e7eb; page-break-inside: avoid; }
-            .attendance-card { transform: none !important; }
-            .attendance-input { display: none !important; }
-            .attendance-display { display: block !important; }
-            h1, h2, h3, p, span { color: black !important; }
-            .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-gray-100 { background-color: #f9fafb !important; }
-            .animate-blinking-opacity, .animate-pulse, .animate-marquee { animation: none !important; }
+            #main-dashboard-ui { display: none !important; }
+            .print-only { display: block !important; }
+
+            .print-container {
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                padding: 20px;
+                background: white;
+                color: #333;
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+            }
+            .header-print {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #000;
+                padding-bottom: 15px;
+                margin-bottom: 10px;
+            }
+            .header-print img { height: 70px; }
+            .header-print .title-block { text-align: center; flex-grow: 1; padding: 0 20px;}
+            .header-print h1 { margin: 0; font-size: 1.5em; font-weight: bold; }
+            .header-print h2 { margin: 0; font-size: 1.2em; font-weight: normal; }
+            .date-info-print { text-align: right; margin-bottom: 25px; font-size: 0.9em;}
+            .report-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+            .report-table th, .report-table td { border: 1px solid #cccccc; padding: 10px; text-align: center; }
+            .report-table th { background-color: #f2f2f2 !important; font-weight: bold; }
+            .report-table tfoot td { font-weight: bold; background-color: #f2f2f2 !important; }
+            .footer-print { margin-top: 40px; text-align: center; font-size: 0.8em; color: #888; }
         }
     </style>
 </head>
 <body class="text-gray-800">
     
-    <!-- Unlock Modal -->
-    <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
-        <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
-            <form id="unlock-form">
-                <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
-                <p class="text-center text-gray-300 mb-6">Masukkan kata sandi superuser.</p>
-                <div class="mb-4">
-                    <label for="unlock-password-input" class="sr-only">Password</label>
-                    <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" autocomplete="off">
-                </div>
-                <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">Buka Kunci</button>
-                <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
-                <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
-            </form>
+    <!-- This div wraps the entire interactive UI and will be hidden during print -->
+    <div id="main-dashboard-ui">
+        <!-- Unlock Modal -->
+        <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+            <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
+                <form id="unlock-form">
+                    <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
+                    <p class="text-center text-gray-300 mb-6">Masukkan kata sandi superuser.</p>
+                    <div class="mb-4">
+                        <label for="unlock-password-input" class="sr-only">Password</label>
+                        <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" autocomplete="off">
+                    </div>
+                    <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">Buka Kunci</button>
+                    <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
+                    <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
+                </form>
 
-            <div id="class-unlock-options" class="hidden text-center">
-                <h3 class="text-xl font-bold mb-4">Pilih Kelas untuk Dibuka</h3>
-                <div class="space-y-3">
-                    <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VII</button>
-                    <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VIII</button>
-                    <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas IX</button>
-                    <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Buka Semua Kunci</button>
+                <div id="class-unlock-options" class="hidden text-center">
+                    <h3 class="text-xl font-bold mb-4">Pilih Kelas untuk Dibuka</h3>
+                    <div class="space-y-3">
+                        <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VII</button>
+                        <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VIII</button>
+                        <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas IX</button>
+                        <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Buka Semua Kunci</button>
+                    </div>
+                    <button type="button" id="done-unlocking-btn" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Selesai</button>
                 </div>
-                <button type="button" id="done-unlocking-btn" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Selesai</button>
             </div>
         </div>
-    </div>
 
 
-    <!-- Main Dashboard Content -->
-    <div id="main-dashboard">
-        <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <header class="relative mb-8 rounded-2xl shadow-xl p-4 sm:p-8 bg-white">
-                <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
-                    <div class="flex justify-start">
-                        <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0" 
-                             style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: contain; background-position: center; background-repeat: no-repeat;">
+        <!-- Main Dashboard Content -->
+        <div id="main-dashboard">
+            <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <header class="relative mb-8 rounded-2xl shadow-xl p-4 sm:p-8 bg-white">
+                    <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
+                        <div class="flex justify-start">
+                            <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0" 
+                                 style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: contain; background-position: center; background-repeat: no-repeat;">
+                            </div>
+                        </div>
+                        <div class="text-center min-w-0">
+                            <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Dasbor Kehadiran MBG</h1>
+                            <div class="relative flex justify-center mt-1">
+                                <div>
+                                    <span class="text-sm sm:text-base md:text-lg text-gray-600 font-semibold">SMP NEGERI 4 PANDAK</span>
+                                </div>
+                            </div>
+                            <p id="current-date" class="mt-3 text-gray-500 bg-gray-100 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
+                            <div class="relative flex overflow-x-hidden text-gray-700 mt-3 no-print text-sm">
+                                <div class="animate-marquee">
+                                    <span class="font-semibold whitespace-nowrap px-12">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
+                                    <span class="font-semibold whitespace-nowrap px-12" aria-hidden="true">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-14 w-14 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
                         </div>
                     </div>
-                    <div class="text-center min-w-0">
-                        <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Dasbor Kehadiran MBG</h1>
-                        <div class="relative flex justify-center mt-1">
+                </header>
+
+                <main id="attendance-grid" class="space-y-8"></main>
+                
+                <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg sm:text-xl font-bold text-white">Rangkuman Hari Ini</h3>
+                        <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="bg-blue-900/30 p-4 rounded-xl border border-blue-400/50">
+                            <p class="text-xs sm:text-sm text-blue-200 font-semibold">Hadir Kelas VII</p>
+                            <p id="total-vii" class="text-2xl sm:text-3xl font-bold text-blue-300">0</p>
+                        </div>
+                        <div class="bg-green-900/30 p-4 rounded-xl border border-green-400/50">
+                            <p class="text-xs sm:text-sm text-green-200 font-semibold">Hadir Kelas VIII</p>
+                            <p id="total-viii" class="text-2xl sm:text-3xl font-bold text-green-300">0</p>
+                        </div>
+                        <div class="bg-purple-900/30 p-4 rounded-xl border border-purple-400/50">
+                            <p class="text-xs sm:text-sm text-purple-200 font-semibold">Hadir Kelas IX</p>
+                            <p id="total-ix" class="text-2xl sm:text-3xl font-bold text-purple-300">0</p>
+                        </div>
+                        <div class="bg-gray-700/30 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
                             <div>
-                                <span class="text-sm sm:text-base md:text-lg text-gray-600 font-semibold">SMP NEGERI 4 PANDAK</span>
+                                <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
+                                <p id="total-present" class="text-3xl sm:text-4xl font-extrabold text-white">0</p>
+                            </div>
+                            <div class="md:border-t md:border-gray-300/30 md:mt-1 md:pt-1">
+                                <p class="text-sm text-gray-200 font-bold">SISA PORSI</p>
+                                <p id="remaining-portions" class="text-xl sm:text-2xl font-extrabold text-red-400 animate-blinking-opacity">472</p>
                             </div>
                         </div>
-                        <p id="current-date" class="mt-3 text-gray-500 bg-gray-100 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
-                        <div class="relative flex overflow-x-hidden text-gray-700 mt-3 no-print text-sm">
-                            <div class="animate-marquee">
-                                <span class="font-semibold whitespace-nowrap px-12">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
-                                <span class="font-semibold whitespace-nowrap px-12" aria-hidden="true">Pengisian data hanya bisa dilakukan satu kali, pastikan anda mengisi dengan benar, hubungi admin jika ada masalah melalui fitur live chat yang ada.</span>
-                            </div>
-                        </div>
                     </div>
-                    <div class="flex justify-end">
-                        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-14 w-14 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
-                    </div>
-                </div>
-            </header>
+                </section>
 
-            <main id="attendance-grid" class="space-y-8"></main>
-            
-            <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg sm:text-xl font-bold text-white">Rangkuman Hari Ini</h3>
-                    <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div class="bg-blue-900/30 p-4 rounded-xl border border-blue-400/50">
-                        <p class="text-xs sm:text-sm text-blue-200 font-semibold">Hadir Kelas VII</p>
-                        <p id="total-vii" class="text-2xl sm:text-3xl font-bold text-blue-300">0</p>
-                    </div>
-                    <div class="bg-green-900/30 p-4 rounded-xl border border-green-400/50">
-                        <p class="text-xs sm:text-sm text-green-200 font-semibold">Hadir Kelas VIII</p>
-                        <p id="total-viii" class="text-2xl sm:text-3xl font-bold text-green-300">0</p>
-                    </div>
-                    <div class="bg-purple-900/30 p-4 rounded-xl border border-purple-400/50">
-                        <p class="text-xs sm:text-sm text-purple-200 font-semibold">Hadir Kelas IX</p>
-                        <p id="total-ix" class="text-2xl sm:text-3xl font-bold text-purple-300">0</p>
-                    </div>
-                    <div class="bg-gray-700/30 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
-                        <div>
-                            <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
-                            <p id="total-present" class="text-3xl sm:text-4xl font-extrabold text-white">0</p>
-                        </div>
-                        <div class="md:border-t md:border-gray-300/30 md:mt-1 md:pt-1">
-                            <p class="text-sm text-gray-200 font-bold">SISA PORSI</p>
-                            <p id="remaining-portions" class="text-xl sm:text-2xl font-extrabold text-red-400 animate-blinking-opacity">472</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="text-center mt-10 pt-6 border-t border-white/20 no-print">
-                <p class="text-sm text-gray-200">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
-            </footer>
-        </div>
-
-        <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
-            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
-                <div id="notification-icon" class="mx-auto mb-4"></div>
-                <p id="notification-message" class="text-lg text-gray-800 mb-6"></p>
-                <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
+                <footer class="text-center mt-10 pt-6 border-t border-white/20 no-print">
+                    <p class="text-sm text-gray-200">&copy; 2025 SMP Negeri 4 Pandak. Digitalisasi untuk Pendidikan.</p>
+                </footer>
             </div>
-        </div>
 
-        <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
-            <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
-                <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
-                    <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89z"/>
-                    <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
-                </svg>
-                <svg id="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hidden" viewBox="0 0 16 16">
-                    <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
-                </svg>
-            </button>
-        </div>
-
-        <!-- Live Chat Widget -->
-        <div id="chat-widget-container" class="no-print fixed bottom-5 left-5 z-50">
-            <button id="chat-toggle-btn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15"/>
-                </svg>
-            </button>
-        </div>
-
-        <div id="chat-window" class="hidden no-print fixed bottom-20 left-5 z-50 w-80 max-w-[90vw] h-[70vh] sm:h-96 bg-black/50 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg flex flex-col">
-            <div class="p-3 bg-white/10 border-b border-white/20 flex justify-between items-center flex-shrink-0">
-                <h3 class="text-white font-bold">Butuh Bantuan?</h3>
-                <div class="flex items-center space-x-3">
-                    <button id="clear-chat-btn" class="text-white hover:text-red-400 transition-colors" title="Hapus riwayat chat">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-                        </svg>
-                    </button>
-                    <button id="close-chat-btn" class="text-white text-2xl leading-none">&times;</button>
+            <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
+                <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
+                    <div id="notification-icon" class="mx-auto mb-4"></div>
+                    <p id="notification-message" class="text-lg text-gray-800 mb-6"></p>
+                    <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
                 </div>
             </div>
-            <div id="chat-messages" class="flex-1 p-3 overflow-y-auto">
-                <!-- Messages will be injected here -->
+
+            <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
+                <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
+                    <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
+                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89z"/>
+                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+                    </svg>
+                    <svg id="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hidden" viewBox="0 0 16 16">
+                        <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                </button>
             </div>
-            <form id="chat-form" class="p-3 border-t border-white/20 flex-shrink-0">
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="chat-input" placeholder="Ketik pesan..." class="w-full bg-gray-900/50 text-white border border-gray-500 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autocomplete="off">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
-                        </svg>
-                    </button>
+
+            <!-- Live Chat Widget -->
+            <div id="chat-widget-container" class="no-print fixed bottom-5 left-5 z-50">
+                <button id="chat-toggle-btn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="chat-window" class="hidden no-print fixed bottom-20 left-5 z-50 w-80 max-w-[90vw] h-[70vh] sm:h-96 bg-black/50 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg flex flex-col">
+                <div class="p-3 bg-white/10 border-b border-white/20 flex justify-between items-center flex-shrink-0">
+                    <h3 class="text-white font-bold">Butuh Bantuan?</h3>
+                    <div class="flex items-center space-x-3">
+                        <button id="clear-chat-btn" class="text-white hover:text-red-400 transition-colors" title="Hapus riwayat chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                            </svg>
+                        </button>
+                        <button id="close-chat-btn" class="text-white text-2xl leading-none">&times;</button>
+                    </div>
                 </div>
-            </form>
+                <div id="chat-messages" class="flex-1 p-3 overflow-y-auto">
+                    <!-- Messages will be injected here -->
+                </div>
+                <form id="chat-form" class="p-3 border-t border-white/20 flex-shrink-0">
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="chat-input" placeholder="Ketik pesan..." class="w-full bg-gray-900/50 text-white border border-gray-500 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-400" autocomplete="off">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     
+    <!-- This div is for the print output only -->
+    <div id="print-output" class="print-only">
+        <div class="print-container">
+            <div class="header-print">
+                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo SMPN 4 Pandak">
+                <div class="title-block">
+                    <h1>LAPORAN HARIAN</h1>
+                    <h2>PROGRAM MAKAN BERGIZI (MBG) SMP NEGERI 4 PANDAK</h2>
+                </div>
+                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional">
+            </div>
+    
+            <p id="date-info-print-id" class="date-info-print">
+                <strong>Tanggal:</strong> 
+            </p>
+    
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Kelas</th>
+                        <th rowspan="2">Jumlah Porsi<br>Hari Ini</th>
+                        <th colspan="2">Jumlah Tempat Makan Kembali</th>
+                        <th rowspan="2" style="width: 25%;">Keterangan</th>
+                    </tr>
+                    <tr>
+                        <th style="width: 15%;">Sesuai</th>
+                        <th style="width: 15%;">Tidak Sesuai</th>
+                    </tr>
+                </thead>
+                <tbody id="print-table-body">
+                    <!-- Rows will be dynamically injected by JavaScript -->
+                </tbody>
+            </table>
+            
+            <div class="footer-print">
+                Dokumen ini dibuat secara otomatis dari sistem Dasbor Kehadiran MBG.
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -456,10 +526,13 @@
             return `${year}-${month}-${day}`;
         }
 
+        function getFormattedDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
+            return new Date().toLocaleDateString('id-ID', options);
+        }
 
         function displayCurrentDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
-            dateElement.textContent = new Date().toLocaleDateString('id-ID', options);
+            dateElement.textContent = getFormattedDate();
         }
 
         function showNotification(message, status = 'success') {
@@ -478,7 +551,37 @@
         }
         
         document.body.addEventListener('click', initAudioContext, { once: true });
-        printBtn.addEventListener('click', () => window.print());
+        
+        printBtn.addEventListener('click', () => {
+            // Populate the print table before calling the print dialog
+            const printTableBody = document.getElementById('print-table-body');
+            const printDate = document.getElementById('date-info-print-id');
+            printTableBody.innerHTML = ''; // Clear previous entries
+            
+            // Set date
+            printDate.innerHTML = `<strong>Tanggal:</strong> ${getFormattedDate()}`;
+
+            for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
+                const levelRoman = level.split(' ')[1];
+                details.rombels.forEach(rombel => {
+                    const classId = `${levelRoman}${rombel}`;
+                    const count = currentData[classId] || 0;
+                    const row = `
+                        <tr>
+                            <td>${levelRoman} ${rombel}</td>
+                            <td>${count}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    `;
+                    printTableBody.innerHTML += row;
+                });
+            }
+            
+            window.print();
+        });
+
         notificationOkBtn.addEventListener('click', () => {
             notificationModal.style.opacity = '0';
             notificationContent.style.transform = 'scale(0.95)';
@@ -529,8 +632,7 @@
                             const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
                             console.log(`Jarak: ${distance.toFixed(2)}m, Akurasi GPS: ${accuracy.toFixed(2)}m`);
 
-                            // [PERBAIKAN] Cek akurasi sinyal GPS. Jika terlalu rendah, tolak.
-                            if (accuracy > 100) { // Angka 100 meter adalah ambang batas, bisa disesuaikan.
+                            if (accuracy > 100) {
                                 showNotification(`Sinyal lokasi lemah (akurasi ${Math.round(accuracy)}m). Coba lagi di tempat yang lebih terbuka.`, "error");
                                 editBtn.disabled = false;
                                 editBtn.textContent = originalButtonText;
@@ -544,7 +646,6 @@
                                 card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
                                 card.querySelector('.edit-class-btn').classList.add('hidden');
                             } else {
-                                // [PERBAIKAN] Berikan notifikasi yang lebih informatif.
                                 showNotification(`Akses Ditolak. Jarak Anda (${Math.round(distance)}m) di luar radius (${MAX_DISTANCE_METERS}m). Akurasi sinyal: ${Math.round(accuracy)}m.`, "error");
                             }
                             editBtn.disabled = false;
@@ -870,7 +971,6 @@
             });
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
 
         onSnapshot(chatDocRef, (doc) => {
             if (doc.exists()) {
