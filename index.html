@@ -445,10 +445,8 @@
             'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
         };
         
-        const TARGET_LATITUDE = -7.926021;
-        const TARGET_LONGITUDE = 110.298982;
-        const MAX_DISTANCE_METERS = 1000;
-
+        // REMOVED: Geolocation variables
+        
         let audioCtx;
         function initAudioContext() {
             if (hasUserInteracted && !audioCtx) {
@@ -655,16 +653,7 @@
             }
         });
 
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const φ1 = lat1 * Math.PI/180;
-            const φ2 = lat2 * Math.PI/180;
-            const Δφ = (lat2-lat1) * Math.PI/180;
-            const Δλ = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
+        // REMOVED: getDistance function
         
         attendanceGrid.addEventListener('click', async (e) => {
             const card = e.target.closest('.attendance-card');
@@ -678,42 +667,12 @@
                 const cancelBtn = e.target.closest('.cancel-class-btn');
 
                 if (editBtn) {
-                    const originalButtonText = editBtn.textContent;
-                    editBtn.disabled = true;
-                    editBtn.textContent = '...';
-
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const { latitude, longitude, accuracy } = position.coords;
-                            const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
-                            console.log(`Jarak: ${distance.toFixed(2)}m, Akurasi GPS: ${accuracy.toFixed(2)}m`);
-
-                            if (accuracy > 100) {
-                                showNotification(`Sinyal lokasi lemah (akurasi ${Math.round(accuracy)}m). Coba lagi di tempat yang lebih terbuka.`, "error");
-                                editBtn.disabled = false;
-                                editBtn.textContent = originalButtonText;
-                                return;
-                            }
-
-                            if (distance <= MAX_DISTANCE_METERS) {
-                                playTone(440, 0.1);
-                                card.querySelector('.attendance-display').classList.add('hidden');
-                                card.querySelector('.attendance-input').classList.remove('hidden');
-                                card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
-                                card.querySelector('.edit-class-btn').classList.add('hidden');
-                            } else {
-                                showNotification(`Akses Ditolak. Jarak Anda (${Math.round(distance)}m) di luar radius (${MAX_DISTANCE_METERS}m). Akurasi sinyal: ${Math.round(accuracy)}m.`, "error");
-                            }
-                            editBtn.disabled = false;
-                            editBtn.textContent = originalButtonText;
-                        },
-                        (error) => {
-                            showNotification(error.code === 1 ? "Izin lokasi ditolak." : "Gagal mendapatkan lokasi.", "error");
-                            editBtn.disabled = false;
-                            editBtn.textContent = originalButtonText;
-                        },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                    );
+                    // MODIFIED: Removed geolocation check, directly enable edit mode
+                    playTone(440, 0.1);
+                    card.querySelector('.attendance-display').classList.add('hidden');
+                    card.querySelector('.attendance-input').classList.remove('hidden');
+                    card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
+                    card.querySelector('.edit-class-btn').classList.add('hidden');
                 } else if (cancelBtn) {
                     try {
                         await updateDoc(attendanceDocRef, { [`locks.${classId}`]: true });
@@ -792,39 +751,19 @@
         });
         
         function triggerSuperuserUnlock(targetClassId = null) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
-                    const distance = getDistance(TARGET_LATITUDE, TARGET_LONGITUDE, latitude, longitude);
-                    console.log(`[Superuser] Jarak: ${distance.toFixed(2)}m, Akurasi GPS: ${accuracy.toFixed(2)}m`);
-
-                    if (accuracy > 100) {
-                         showNotification(`Sinyal lokasi lemah (akurasi ${Math.round(accuracy)}m). Gagal memverifikasi lokasi superuser.`, "error");
-                         return;
-                    }
-
-                    if (distance <= MAX_DISTANCE_METERS) {
-                        if (targetClassId) {
-                            unlockModal.dataset.unlockTarget = targetClassId;
-                            unlockModal.querySelector('h2').textContent = `Buka Kunci Kelas ${targetClassId}`;
-                            unlockModal.querySelector('p').textContent = `Masukkan sandi untuk membuka kunci ${targetClassId}.`;
-                        } else {
-                            delete unlockModal.dataset.unlockTarget;
-                            unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
-                            unlockModal.querySelector('p').textContent = 'Masukkan kata sandi superuser.';
-                        }
-                        unlockForm.classList.remove('hidden');
-                        classUnlockOptions.classList.add('hidden');
-                        unlockModal.classList.remove('hidden');
-                    } else {
-                        showNotification(`Akses Superuser Ditolak. Anda berada ${Math.round(distance)}m dari lokasi (Akurasi: ${Math.round(accuracy)}m).`, "error");
-                    }
-                },
-                (error) => {
-                    showNotification(error.code === 1 ? "Akses Superuser butuh izin lokasi." : "Gagal mendapatkan lokasi.", "error");
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
+            // MODIFIED: Removed geolocation check, directly show unlock modal
+            if (targetClassId) {
+                unlockModal.dataset.unlockTarget = targetClassId;
+                unlockModal.querySelector('h2').textContent = `Buka Kunci Kelas ${targetClassId}`;
+                unlockModal.querySelector('p').textContent = `Masukkan sandi untuk membuka kunci ${targetClassId}.`;
+            } else {
+                delete unlockModal.dataset.unlockTarget;
+                unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
+                unlockModal.querySelector('p').textContent = 'Masukkan kata sandi superuser.';
+            }
+            unlockForm.classList.remove('hidden');
+            classUnlockOptions.classList.add('hidden');
+            unlockModal.classList.remove('hidden');
         }
 
         function resetUnlockModal() {
@@ -958,4 +897,3 @@
     </script>
 </body>
 </html>
-
