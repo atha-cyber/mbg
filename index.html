@@ -53,6 +53,14 @@
             30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
+        
+        /* Splash Screen Styles */
+        #splash-screen {
+            transition: opacity 0.5s ease-out;
+        }
+        .splash-fade-out {
+            opacity: 0;
+        }
 
         /* Print-specific Styles - UPDATED FOR POSTER LAYOUT & SINGLE PAGE */
         .print-only {
@@ -72,7 +80,7 @@
                 padding: 0;
                 font-family: 'Arial Black', 'Impact', sans-serif; /* Bolder fonts for poster style */
             }
-            .no-print, #main-dashboard-ui { display: none !important; }
+            .no-print, #main-dashboard-ui, #splash-screen { display: none !important; }
             .print-only { display: block !important; }
 
             .print-container { text-align: center; }
@@ -181,8 +189,13 @@
 </head>
 <body class="text-gray-800">
     
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-[100]">
+        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/tengkorak.png" alt="Loading..." class="w-48 h-48 animate-pulse">
+    </div>
+
     <!-- This div wraps the entire interactive UI and will be hidden during print -->
-    <div id="main-dashboard-ui">
+    <div id="main-dashboard-ui" class="hidden">
         <!-- Unlock Modal -->
         <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
             <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
@@ -323,11 +336,11 @@
                     <span id="print-remaining-portions" class="summary-value-sisa">0</span>
                 </div>
             </div>
-    
+        
             <p id="date-info-print-id" class="date-info-print">
                 <strong>Tanggal:</strong> 
             </p>
-    
+        
             <table class="report-table">
                 <thead>
                     <tr>
@@ -358,6 +371,30 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Splash Screen Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const splashScreen = document.getElementById('splash-screen');
+            const mainUI = document.getElementById('main-dashboard-ui');
+            
+            setTimeout(() => {
+                if (splashScreen) {
+                    splashScreen.classList.add('splash-fade-out');
+                    setTimeout(() => {
+                        splashScreen.style.display = 'none';
+                        // Show the main content after the splash screen is hidden
+                        if (mainUI) {
+                            mainUI.classList.remove('hidden');
+                        }
+                    }, 500); // Wait for the fade-out animation to complete
+                } else {
+                    // Fallback in case the splash screen element is missing
+                     if (mainUI) {
+                        mainUI.classList.remove('hidden');
+                    }
+                }
+            }, 3000); // 3 seconds
+        });
 
         const scrollSound = document.getElementById('scroll-sound');
         let hasUserInteracted = false; 
@@ -897,3 +934,4 @@
     </script>
 </body>
 </html>
+
