@@ -190,16 +190,12 @@
 </head>
 <body class="text-gray-800">
     
-    <!-- Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-[100]">
-        <!-- MODIFICATION: Removed 'animate-pulse' class to prevent rendering issues -->
-        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/tengkorak.png" alt="Loading..." class="w-48 h-48">
+    <!-- Splash Screen --><div id="splash-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-[100]">
+        <!-- MODIFICATION: Removed 'animate-pulse' class to prevent rendering issues --><img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/tengkorak.png" alt="Loading..." class="w-48 h-48">
     </div>
 
-    <!-- This div wraps the entire interactive UI and will be hidden during print -->
-    <div id="main-dashboard-ui" class="hidden">
-        <!-- Unlock Modal -->
-        <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+    <!-- This div wraps the entire interactive UI and will be hidden during print --><div id="main-dashboard-ui" class="hidden">
+        <!-- Unlock Modal --><div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
             <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
                 <form id="unlock-form">
                     <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
@@ -227,15 +223,14 @@
         </div>
 
 
-        <!-- Main Dashboard Content -->
-        <div id="main-dashboard">
+        <!-- Main Dashboard Content --><div id="main-dashboard">
             <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/main/mixkit-fast-whoosh-transition-1490.wav" preload="auto"></audio>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <header class="relative mb-8 rounded-2xl shadow-xl p-4 sm:p-8 bg-white">
+                <header class="relative mb-8 rounded-2xl shadow-xl p-4 sm:p-8 bg-gradient-to-br from-blue-200 to-purple-200">
                     <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
                         <div class="flex justify-start">
-                            <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0" 
-                                 style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif'); background-size: contain; background-position: center; background-repeat: no-repeat;">
+                             <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center">
+                                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo SMPN 4 Pandak" class="h-full w-full object-contain rounded-full">
                             </div>
                         </div>
                         <div class="text-center min-w-0">
@@ -316,8 +311,7 @@
         </div>
     </div>
     
-    <!-- This div is for the print output only -->
-    <div id="print-output" class="print-only">
+    <!-- This div is for the print output only --><div id="print-output" class="print-only">
         <div class="print-container">
             <div class="header-print">
                 <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo SMPN 4 Pandak">
@@ -357,11 +351,9 @@
                     </tr>
                 </thead>
                 <tbody id="print-table-body">
-                    <!-- Rows will be dynamically injected by JavaScript -->
-                </tbody>
+                    <!-- Rows will be dynamically injected by JavaScript --></tbody>
                 <tfoot id="print-table-foot">
-                    <!-- Totals will be injected here -->
-                </tfoot>
+                    <!-- Totals will be injected here --></tfoot>
             </table>
             
             <div class="footer-print">
@@ -954,4 +946,5 @@
     </script>
 </body>
 </html>
+
 
