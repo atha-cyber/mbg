@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://raw.githubusercontent.com/atha-cyber/logo-/main/tengkorak.png" as="image">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -191,7 +192,8 @@
     
     <!-- Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-[100]">
-        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/ac869dca5685dcebf85a0ff12ae48a5344786407/unggultentara.png" alt="Loading..." class="w-48 h-48 animate-pulse">
+        <!-- MODIFICATION: Removed 'animate-pulse' class to prevent rendering issues -->
+        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/tengkorak.png" alt="Loading..." class="w-48 h-48">
     </div>
 
     <!-- This div wraps the entire interactive UI and will be hidden during print -->
@@ -373,7 +375,7 @@
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Splash Screen Logic ---
-        document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('load', () => {
             const splashScreen = document.getElementById('splash-screen');
             const mainUI = document.getElementById('main-dashboard-ui');
             
