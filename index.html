@@ -191,7 +191,7 @@
     
     <!-- Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-[100]">
-        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/tengkorak.png" alt="Loading..." class="w-48 h-48 animate-pulse">
+        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/ac869dca5685dcebf85a0ff12ae48a5344786407/unggultentara.png" alt="Loading..." class="w-48 h-48 animate-pulse">
     </div>
 
     <!-- This div wraps the entire interactive UI and will be hidden during print -->
@@ -482,8 +482,6 @@
             'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
         };
         
-        // REMOVED: Geolocation variables
-        
         let audioCtx;
         function initAudioContext() {
             if (hasUserInteracted && !audioCtx) {
@@ -584,10 +582,12 @@
 
         function getWIBDateString() {
             const now = new Date();
-            const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-            const year = wibTime.getUTCFullYear();
-            const month = String(wibTime.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(wibTime.getUTCDate()).padStart(2, '0');
+            // Use Indonesian locale which is in the correct timezone group
+            const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
+            const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(now);
+            const year = parts.find(p => p.type === 'year').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const day = parts.find(p => p.type === 'day').value;
             return `${year}-${month}-${day}`;
         }
 
@@ -690,8 +690,6 @@
             }
         });
 
-        // REMOVED: getDistance function
-        
         attendanceGrid.addEventListener('click', async (e) => {
             const card = e.target.closest('.attendance-card');
             if (!card) return;
@@ -704,7 +702,6 @@
                 const cancelBtn = e.target.closest('.cancel-class-btn');
 
                 if (editBtn) {
-                    // MODIFIED: Removed geolocation check, directly enable edit mode
                     playTone(440, 0.1);
                     card.querySelector('.attendance-display').classList.add('hidden');
                     card.querySelector('.attendance-input').classList.remove('hidden');
@@ -788,7 +785,6 @@
         });
         
         function triggerSuperuserUnlock(targetClassId = null) {
-            // MODIFIED: Removed geolocation check, directly show unlock modal
             if (targetClassId) {
                 unlockModal.dataset.unlockTarget = targetClassId;
                 unlockModal.querySelector('h2').textContent = `Buka Kunci Kelas ${targetClassId}`;
@@ -892,22 +888,38 @@
         doneUnlockingBtn.addEventListener('click', resetUnlockModal);
 
         // --- Dashboard Initialization ---
+        // ++ MODIFICATION START: Add a flag to prevent multiple resets ++
+        let hasPerformedDailyCheck = false; 
+
         function initializeDashboard() {
             displayCurrentDate();
             renderSkeletonLoader();
 
             onSnapshot(attendanceDocRef, (doc) => {
-                const todayString = getWIBDateString();
                 const docData = doc.exists() ? doc.data() : null;
+                
+                // If the daily check has already been performed, just update the UI.
+                if (hasPerformedDailyCheck) {
+                    if (docData) {
+                        currentData = docData;
+                        renderAttendanceGrid(currentData);
+                        updateSummary(currentData);
+                    }
+                    return; // Stop further processing to prevent re-resetting.
+                }
 
+                // --- This block will now only run ONCE per page load ---
+                const todayString = getWIBDateString();
+                
                 if (docData && docData.lastUpdated === todayString) {
-                    // Hari masih sama, tampilkan data yang ada.
+                    // It's the same day, data already exists. Load it.
+                    console.log(`Data untuk ${todayString} berhasil dimuat.`);
                     currentData = docData;
                     renderAttendanceGrid(currentData);
                     updateSummary(currentData);
                 } else {
-                    // Hari telah berganti atau dokumen belum ada. Reset data.
-                    console.log(`Pergantian hari terdeteksi. Resetting data untuk ${todayString}.`);
+                    // It's a new day or the document doesn't exist. Reset the data.
+                    console.log(`Hari baru terdeteksi atau data tidak ditemukan. Mereset untuk ${todayString}.`);
                     const resetData = { lastUpdated: todayString, locks: {} };
                     Object.keys(CLASSES_CONFIG).forEach(level => {
                         const levelRoman = level.split(' ')[1];
@@ -922,7 +934,13 @@
                         console.error("Gagal mereset data secara otomatis:", error);
                         showNotification("Gagal memulai sesi baru untuk hari ini.", 'error');
                     });
+                    // Note: onSnapshot will fire again after setDoc, but it will be handled by the check above.
                 }
+                
+                // Mark the daily check as completed so it doesn't run again.
+                hasPerformedDailyCheck = true;
+                // ++ MODIFICATION END ++
+
             }, (error) => {
                 console.error("Firestore onSnapshot error:", error);
                 attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan Security Rules di Firebase sudah diatur ke mode publik.</p>`;
