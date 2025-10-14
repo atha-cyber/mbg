@@ -307,7 +307,7 @@
                         </div>
                         <div class="mt-6">
                             <div class="flex justify-between mb-1">
-                                <span class="text-base font-medium text-white">Persentase Kehadiran</span>
+                                <span class="text-base font-medium text-white">Persentase Kehadiran Total</span>
                                 <span class="text-sm font-medium text-white" id="progress-percentage">0%</span>
                             </div>
                             <div class="w-full bg-gray-700 rounded-full h-2.5">
@@ -507,9 +507,9 @@
             let isMuted = false;
             const TOTAL_SISWA_KESELURUHAN = 472;
             const CLASSES_CONFIG = {
-                'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'] },
-                'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'] },
-                'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
+                'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 160 },
+                'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 155 },
+                'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 157 }
             };
             
             let audioCtx;
@@ -588,7 +588,17 @@
                                 </div>
                             </div>`;
                     });
-                    html += `</div></section>`;
+                    html += `</div>
+                        <div class="mt-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-white">Persentase Kehadiran ${level}</span>
+                                <span class="text-sm font-medium text-white" id="progress-percentage-${levelRoman}">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div id="progress-bar-${levelRoman}" class="bg-${details.color}-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </section>`;
                 }
                 attendanceGrid.innerHTML = html;
             }
@@ -602,6 +612,17 @@
                     details.rombels.forEach(rombel => levelTotal += parseInt(data[`${levelRoman}${rombel}`], 10) || 0);
                     totals[levelRoman] = levelTotal;
                     totalHadir += levelTotal;
+
+                    const levelPercentage = details.totalSiswa > 0 ? (levelTotal / details.totalSiswa * 100).toFixed(1) : 0;
+                    const progressBarLevel = document.getElementById(`progress-bar-${levelRoman}`);
+                    const progressPercentageLevel = document.getElementById(`progress-percentage-${levelRoman}`);
+                    
+                    if (progressBarLevel) {
+                        progressBarLevel.style.width = `${levelPercentage}%`;
+                    }
+                    if (progressPercentageLevel) {
+                        progressPercentageLevel.textContent = `${levelPercentage}%`;
+                    }
                 }
                 document.getElementById('total-vii').textContent = totals['VII'];
                 document.getElementById('total-viii').textContent = totals['VIII'];
@@ -1036,5 +1057,4 @@
     </script>
 </body>
 </html>
-
 
