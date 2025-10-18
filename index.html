@@ -260,7 +260,7 @@
                             <div class="flex justify-start">
                                  <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center">
                                      <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo SMPN 4 Pandak" class="h-full w-full object-contain rounded-full">
-                                </div>
+                                 </div>
                             </div>
                             <div class="text-center min-w-0">
                                 <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-100 tracking-tight">Dasbor Kehadiran MBG</h1>
@@ -421,7 +421,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener('DOMContentLoaded', () => {
             const scrollSound = document.getElementById('scroll-sound');
@@ -476,6 +476,7 @@
                 errorOverlay.className = "fixed inset-0 z-[100] flex items-center justify-center bg-red-100 text-red-700 p-4";
                 errorOverlay.textContent = 'Gagal menginisialisasi Firebase. Periksa konfigurasi.';
                 document.body.appendChild(errorOverlay);
+                return; // Stop execution if Firebase fails
             }
             
             const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
@@ -642,7 +643,6 @@
 
             function getWIBDateString() {
                 const now = new Date();
-                // Use Indonesian locale which is in the correct timezone group
                 const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
                 const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(now);
                 const year = parts.find(p => p.type === 'year').value;
@@ -977,7 +977,7 @@
             });
 
             document.getElementById('reset-data-btn').addEventListener('click', () => {
-                showConfirm("Semua data kehadiran hari ini akan diatur ulang ke 0. Tindakan ini tidak dapat dibatalkan.", async () => {
+                showConfirm("Semua data kehadiran hari ini akan diatur ulang ke 0 dan semua kunci akan dibuka. Tindakan ini tidak dapat dibatalkan.", async () => {
                     console.log("Mereset data harian...");
                     const resetData = { lastUpdated: getWIBDateString(), locks: {} };
                     Object.keys(CLASSES_CONFIG).forEach(level => {
@@ -1004,33 +1004,19 @@
             cancelUnlockBtn.addEventListener('click', resetUnlockModal);
             doneUnlockingBtn.addEventListener('click', resetUnlockModal);
 
-            // --- Dashboard Initialization ---
-            let hasPerformedDailyCheck = false; 
+            // --- NEW: Dashboard Initialization Logic ---
 
-            function initializeDashboard() {
-                displayCurrentDate();
-                renderSkeletonLoader();
+            async function checkAndSetupDailyData() {
+                const todayString = getWIBDateString();
+                try {
+                    const docSnap = await getDoc(attendanceDocRef);
+                    let shouldReset = true;
 
-                onSnapshot(attendanceDocRef, (doc) => {
-                    const docData = doc.exists() ? doc.data() : null;
-                    
-                    if (hasPerformedDailyCheck) {
-                        if (docData) {
-                            currentData = docData;
-                            renderAttendanceGrid(currentData);
-                            updateSummary(currentData);
-                        }
-                        return; 
+                    if (docSnap.exists() && docSnap.data().lastUpdated === todayString) {
+                        shouldReset = false;
                     }
 
-                    const todayString = getWIBDateString();
-                    
-                    if (docData && docData.lastUpdated === todayString) {
-                        console.log(`Data untuk ${todayString} berhasil dimuat.`);
-                        currentData = docData;
-                        renderAttendanceGrid(currentData);
-                        updateSummary(currentData);
-                    } else {
+                    if (shouldReset) {
                         console.log(`Hari baru terdeteksi atau data tidak ditemukan. Mereset untuk ${todayString}.`);
                         const resetData = { lastUpdated: todayString, locks: {} };
                         Object.keys(CLASSES_CONFIG).forEach(level => {
@@ -1038,28 +1024,46 @@
                             CLASSES_CONFIG[level].rombels.forEach(rombel => {
                                 const classId = `${levelRoman}${rombel}`;
                                 resetData[classId] = 0;
-                                resetData.locks[classId] = false;
+                                resetData.locks[classId] = false; 
                             });
                         });
-                        
-                        setDoc(attendanceDocRef, resetData).catch(error => {
-                            console.error("Gagal mereset data secara otomatis:", error);
-                            showNotification("Gagal memulai sesi baru untuk hari ini.", 'error');
-                        });
+                        await setDoc(attendanceDocRef, resetData);
+                        console.log("Data harian berhasil direset.");
+                    } else {
+                        console.log(`Data untuk ${todayString} sudah ada. Melanjutkan.`);
                     }
-                    
-                    hasPerformedDailyCheck = true;
+                } catch (error) {
+                    console.error("Gagal memeriksa atau mereset data harian:", error);
+                    showNotification("Gagal memuat data sesi hari ini.", 'error');
+                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal memuat data. Periksa koneksi dan coba muat ulang halaman.</p>`;
+                }
+            }
 
+            function listenForUpdates() {
+                onSnapshot(attendanceDocRef, (doc) => {
+                    if (doc.exists()) {
+                        currentData = doc.data();
+                        renderAttendanceGrid(currentData);
+                        updateSummary(currentData);
+                    } else {
+                        console.log("Dokumen tidak ditemukan, mungkin sedang dibuat...");
+                        renderSkeletonLoader();
+                    }
                 }, (error) => {
                     console.error("Firestore onSnapshot error:", error);
-                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan Security Rules di Firebase sudah diatur ke mode publik.</p>`;
+                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan Security Rules di Firebase sudah diatur dengan benar.</p>`;
                 });
             }
-            
-            // Directly initialize dashboard on page load
+
+            async function initializeDashboard() {
+                displayCurrentDate();
+                renderSkeletonLoader();
+                await checkAndSetupDailyData(); // First, check if a reset is needed
+                listenForUpdates(); // Then, start listening for real-time updates
+            }
+
             initializeDashboard();
         });
     </script>
 </body>
 </html>
-
