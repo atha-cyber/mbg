@@ -831,13 +831,17 @@
                         card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
                         card.querySelector('.edit-class-btn').classList.add('hidden');
                     } else if (cancelBtn) {
-                        try {
-                            await updateDoc(attendanceDocRef, { [`locks.${classId}`]: true });
-                            showNotification(`Pengeditan untuk kelas ${classId} dibatalkan & dikunci.`, 'success');
-                        } catch (error) {
-                            console.error("Gagal mengunci kartu saat batal:", error);
-                            showNotification("Gagal mengunci kartu.", 'error');
-                        }
+                        playTone(330, 0.1); // Cancellation sound
+                        // Simply revert the UI to its display state without saving or locking
+                        const inputField = card.querySelector('.attendance-input');
+                        
+                        // Reset input value to what's currently in the data
+                        inputField.value = currentData[classId] || 0;
+
+                        card.querySelector('.attendance-display').classList.remove('hidden');
+                        inputField.classList.add('hidden');
+                        card.querySelector('.edit-mode-controls-card').classList.add('hidden');
+                        card.querySelector('.edit-class-btn').classList.remove('hidden');
                     } else if (saveBtn) {
                         const value = parseInt(card.querySelector('.attendance-input').value, 10);
                         const validValue = isNaN(value) || value < 0 ? 0 : value;
@@ -1131,6 +1135,5 @@
     </script>
 </body>
 </html>
-
-
+", could you tell me what the total number of students is at SMP Negeri 4 Pandak?
 
