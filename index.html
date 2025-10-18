@@ -76,6 +76,10 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         
+        .text-glow-blue { text-shadow: 0 0 12px rgba(96, 165, 250, 0.8), 0 0 4px rgba(96, 165, 250, 0.6); }
+        .text-glow-green { text-shadow: 0 0 12px rgba(74, 222, 128, 0.8), 0 0 4px rgba(74, 222, 128, 0.6); }
+        .text-glow-purple { text-shadow: 0 0 12px rgba(192, 132, 252, 0.8), 0 0 4px rgba(192, 132, 252, 0.6); }
+        
         /* Print-specific Styles - UPDATED FOR POSTER LAYOUT & SINGLE PAGE */
         .print-only {
              display: none;
@@ -347,6 +351,22 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- NEW: Type-to-confirm Reset Modal -->
+                <div id="reset-confirm-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="reset-confirm-content">
+                        <div class="mx-auto mb-4 text-red-500">
+                           <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Konfirmasi Reset Data</h3>
+                        <p class="text-md text-gray-600 mb-4">Tindakan ini akan menghapus semua data hari ini dan tidak dapat dibatalkan. Untuk melanjutkan, ketik <strong class="text-red-600">RESET</strong> di bawah ini.</p>
+                        <input type="text" id="reset-confirm-input" class="w-full border-2 border-gray-300 rounded-lg p-2 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="KETIK DI SINI">
+                        <div class="flex justify-center gap-4 mt-6">
+                             <button id="reset-cancel-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-8 rounded-lg transition w-full">Batal</button>
+                             <button id="reset-ok-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-lg transition w-full opacity-50 cursor-not-allowed" disabled>Reset Data</button>
+                        </div>
+                    </div>
+                </div>
 
 
                 <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
@@ -479,7 +499,21 @@
                 return; // Stop execution if Firebase fails
             }
             
-            const attendanceDocRef = doc(db, "kehadiran", "rekapHarian");
+            // This function is now defined earlier to be used by the doc ref
+            function getWIBDateString() {
+                const now = new Date();
+                const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
+                const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(now);
+                const year = parts.find(p => p.type === 'year').value;
+                const month = parts.find(p => p.type === 'month').value;
+                const day = parts.find(p => p.type === 'day').value;
+                return `${year}-${month}-${day}`;
+            }
+
+            // --- DYNAMIC DOCUMENT REFERENCE ---
+            const todayString = getWIBDateString();
+            const docId = `rekap-${todayString}`;
+            const attendanceDocRef = doc(db, "kehadiran", docId);
             
             const mainDashboard = document.getElementById('main-dashboard');
             const dateElement = document.getElementById('current-date');
@@ -499,6 +533,13 @@
             const confirmMessage = document.getElementById('confirm-message');
             const confirmOkBtn = document.getElementById('confirm-ok-btn');
             const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
+            // --- NEW: Reset Modal Elements ---
+            const resetConfirmModal = document.getElementById('reset-confirm-modal');
+            const resetConfirmContent = document.getElementById('reset-confirm-content');
+            const resetConfirmInput = document.getElementById('reset-confirm-input');
+            const resetOkBtn = document.getElementById('reset-ok-btn');
+            const resetCancelBtn = document.getElementById('reset-cancel-btn');
 
 
             const unlockModal = document.getElementById('unlock-modal');
@@ -577,10 +618,10 @@
                         const isLocked = data.locks && data.locks[classId];
 
                         html += `
-                            <div class="attendance-card relative bg-${details.color}-800/50 rounded-xl border border-${details.color}-400/50 p-3 text-center flex flex-col justify-between transition-all duration-300" data-class-id="${classId}">
+                            <div class="attendance-card relative backdrop-blur-sm rounded-2xl p-3 text-center flex flex-col justify-between transition-all duration-300 shadow-lg hover:scale-105 hover:shadow-2xl hover:shadow-${details.color}-500/40 bg-gradient-to-br from-${details.color}-600/60 to-${details.color}-900/70 border border-${details.color}-500/50" data-class-id="${classId}">
                                 <div>
                                     <p class="text-base font-bold text-white">${levelRoman} ${rombel}</p>
-                                    <span class="attendance-display block text-3xl sm:text-4xl font-bold my-2 text-white" style="text-shadow: 0 2px 5px rgba(0,0,0,0.7);">${count}</span>
+                                    <span class="attendance-display block text-3xl sm:text-4xl font-bold my-2 text-white text-glow-${details.color}">${count}</span>
                                     <input type="number" class="attendance-input hidden w-full text-center text-3xl sm:text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
                                     <p class="text-xs text-gray-300">Siswa Hadir</p>
                                 </div>
@@ -639,16 +680,6 @@
                 const percentage = TOTAL_SISWA_KESELURUHAN > 0 ? (totalHadir / TOTAL_SISWA_KESELURUHAN * 100).toFixed(1) : 0;
                 document.getElementById('progress-bar').style.width = `${percentage}%`;
                 document.getElementById('progress-percentage').textContent = `${percentage}%`;
-            }
-
-            function getWIBDateString() {
-                const now = new Date();
-                const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
-                const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(now);
-                const year = parts.find(p => p.type === 'year').value;
-                const month = parts.find(p => p.type === 'month').value;
-                const day = parts.find(p => p.type === 'day').value;
-                return `${year}-${month}-${day}`;
             }
 
             function getFormattedDate() {
@@ -976,48 +1007,80 @@
                 }
             });
 
-            document.getElementById('reset-data-btn').addEventListener('click', () => {
-                showConfirm("Semua data kehadiran hari ini akan diatur ulang ke 0 dan semua kunci akan dibuka. Tindakan ini tidak dapat dibatalkan.", async () => {
-                    console.log("Mereset data harian...");
-                    const resetData = { lastUpdated: getWIBDateString(), locks: {} };
-                    Object.keys(CLASSES_CONFIG).forEach(level => {
-                        const levelRoman = level.split(' ')[1];
-                        CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                            const classId = `${levelRoman}${rombel}`;
-                            resetData[classId] = 0;
-                            resetData.locks[classId] = false;
-                        });
-                    });
-                    
-                    try {
-                        await setDoc(attendanceDocRef, resetData);
-                        resetUnlockModal();
-                        showNotification("Data harian berhasil direset.", 'success');
-                        playSuccessSound();
-                    } catch (error) {
-                         console.error("Gagal mereset data secara manual:", error);
-                         showNotification("Gagal mereset data.", 'error');
-                    }
-                });
+            // --- NEW: Logic for Safe Reset Modal ---
+
+            function showResetConfirm() {
+                resetConfirmInput.value = ''; // Clear previous input
+                resetOkBtn.disabled = true;
+                resetOkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                resetConfirmModal.classList.remove('hidden');
+                setTimeout(() => {
+                    resetConfirmModal.style.opacity = '1';
+                    resetConfirmContent.style.transform = 'scale(1)';
+                    resetConfirmContent.style.opacity = '1';
+                }, 10);
+            }
+
+            function hideResetConfirm() {
+                resetConfirmModal.style.opacity = '0';
+                resetConfirmContent.style.transform = 'scale(0.95)';
+                resetConfirmContent.style.opacity = '0';
+                setTimeout(() => {
+                    resetConfirmModal.classList.add('hidden');
+                }, 300);
+            }
+
+            document.getElementById('reset-data-btn').addEventListener('click', showResetConfirm);
+            resetCancelBtn.addEventListener('click', hideResetConfirm);
+
+            resetConfirmInput.addEventListener('input', () => {
+                if (resetConfirmInput.value === 'RESET') {
+                    resetOkBtn.disabled = false;
+                    resetOkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    resetOkBtn.disabled = true;
+                    resetOkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
             });
+            
+            resetOkBtn.addEventListener('click', async () => {
+                console.log("Mereset data harian setelah konfirmasi ketik...");
+                const resetData = { lastUpdated: getWIBDateString(), locks: {} };
+                Object.keys(CLASSES_CONFIG).forEach(level => {
+                    const levelRoman = level.split(' ')[1];
+                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                        const classId = `${levelRoman}${rombel}`;
+                        resetData[classId] = 0;
+                        resetData.locks[classId] = false;
+                    });
+                });
+                
+                try {
+                    await setDoc(attendanceDocRef, resetData);
+                    hideResetConfirm();
+                    resetUnlockModal();
+                    showNotification("Data harian berhasil direset.", 'success');
+                    playSuccessSound();
+                } catch (error) {
+                     console.error("Gagal mereset data secara manual:", error);
+                     showNotification("Gagal mereset data.", 'error');
+                }
+            });
+
 
             cancelUnlockBtn.addEventListener('click', resetUnlockModal);
             doneUnlockingBtn.addEventListener('click', resetUnlockModal);
 
-            // --- NEW: Dashboard Initialization Logic ---
+            // --- Dashboard Initialization Logic ---
 
             async function checkAndSetupDailyData() {
-                const todayString = getWIBDateString();
                 try {
                     const docSnap = await getDoc(attendanceDocRef);
-                    let shouldReset = true;
 
-                    if (docSnap.exists() && docSnap.data().lastUpdated === todayString) {
-                        shouldReset = false;
-                    }
-
-                    if (shouldReset) {
-                        console.log(`Hari baru terdeteksi atau data tidak ditemukan. Mereset untuk ${todayString}.`);
+                    // If the document for today does NOT exist, create it.
+                    if (!docSnap.exists()) {
+                        const todayString = getWIBDateString();
+                        console.log(`Dokumen untuk ${todayString} tidak ditemukan. Membuat dokumen baru...`);
                         const resetData = { lastUpdated: todayString, locks: {} };
                         Object.keys(CLASSES_CONFIG).forEach(level => {
                             const levelRoman = level.split(' ')[1];
@@ -1028,9 +1091,10 @@
                             });
                         });
                         await setDoc(attendanceDocRef, resetData);
-                        console.log("Data harian berhasil direset.");
+                        console.log("Dokumen harian baru berhasil dibuat.");
                     } else {
-                        console.log(`Data untuk ${todayString} sudah ada. Melanjutkan.`);
+                        const todayString = getWIBDateString();
+                        console.log(`Dokumen untuk ${todayString} sudah ada. Melanjutkan.`);
                     }
                 } catch (error) {
                     console.error("Gagal memeriksa atau mereset data harian:", error);
@@ -1067,3 +1131,6 @@
     </script>
 </body>
 </html>
+
+
+
