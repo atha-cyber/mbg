@@ -258,10 +258,12 @@
             <!-- Main Dashboard Content -->
             <div id="main-dashboard">
                 <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
-                <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <!-- HEADER UPDATED HERE -->
-                    <header class="relative mb-8 rounded-2xl shadow-xl p-4 sm:p-8 border border-white/20" style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/HALOWEEN.png'); background-size: cover; background-position: center bottom; background-repeat: no-repeat; background-color: #000;">
-                        <div class="absolute inset-0 bg-black/30 rounded-2xl"></div> <!-- Added overlay for text readability -->
+                
+                <!-- HEADER - NOW FULL WIDTH AND TALLER -->
+                <header class="relative py-16 sm:py-24 px-4 sm:px-8 border-b border-white/20" style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/HALOWEEN.png'); background-size: cover; background-position: center center; background-repeat: no-repeat; background-color: #000;">
+                    <div class="absolute inset-0 bg-black/40"></div> <!-- Increased overlay for better readability -->
+                    <!-- Container added INSIDE header to keep content aligned -->
+                    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
                             <div class="flex justify-start">
                                 <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center">
@@ -281,9 +283,11 @@
                                 <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-14 w-14 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
                             </div>
                         </div>
-                    </header>
-
-                    <main id="attendance-grid" class="space-y-8"></main>
+                    </div>
+                </header>
+                
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <main id="attendance-grid" class="space-y-8 pt-8"></main>
                     
                     <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
                         <div class="flex justify-between items-center mb-4">
@@ -1121,7 +1125,8 @@
                     }
                 }, (error) => {
                     console.error("Firestore onSnapshot error:", error);
-                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal terhubung ke database. Pastikan Security Rules di Firebase sudah diatur dengan benar.</p>`;
+                    // This is the error message the user is likely seeing
+                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Koneksi ke database gagal. Periksa Aturan Keamanan (Security Rules) di Firebase Console Anda. Anda harus mengizinkan 'read' dan 'write'.</p>`;
                 });
             }
 
@@ -1137,9 +1142,5 @@
     </script>
 </body>
 </html>
-
-
-
-
 
 
