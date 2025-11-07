@@ -214,7 +214,8 @@
     <!-- Background Video -->
     <div id="background-video-container">
         <video autoplay loop muted playsinline id="bg-video">
-            <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
+            <!-- UPDATED LINE -->
+            <source src="https://www.shutterstock.com/shutterstock/videos/3504828793/preview/stock-footage-spacecraft-flying-in-tunnel-on-snow-planet-mission-in-sci-fi-computer-video-game-playing-alien.webm" type="video/webm">
             Browser Anda tidak mendukung tag video.
         </video>
     </div>
@@ -260,8 +261,8 @@
                 <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
                 
                 <!-- HEADER - NOW FULL WIDTH -->
-                <header class="relative p-4 sm:p-8 border-b border-white/20" style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/HALOWEEN.png'); background-size: cover; background-position: center bottom; background-repeat: no-repeat; background-color: #000;">
-                    <div class="absolute inset-0 bg-black/40"></div> <!-- Increased overlay for better readability -->
+                <header class="relative p-4 sm:p-8 border-b border-white/20 bg-black/20 backdrop-blur-md">
+                    <!-- <div class="absolute inset-0 bg-black/40"></div> --> <!-- Overlay div removed, background now controlled by header classes -->
                     <!-- Container added INSIDE header to keep content aligned -->
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
@@ -1142,5 +1143,3 @@
     </script>
 </body>
 </html>
-
-
