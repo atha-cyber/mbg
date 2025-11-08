@@ -9,6 +9,59 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* Video Pembuka (Splash Screen) Styles */
+        #video-splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        #intro-video-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* BARU: Tombol Putar Manual jika Autoplay Gagal */
+        #play-intro-btn {
+            position: absolute;
+            z-index: 102;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            display: none; /* Sembunyi awalnya */
+            transition: all 0.2s ease;
+        }
+        #play-intro-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Konten utama disembunyikan awalnya */
+        #content-wrapper {
+            position: relative;
+            z-index: 1;
+            opacity: 0; /* Mulai dengan 0 */
+            transition: opacity 0.5s ease-in;
+        }
+
         /* CSS for the background video */
         #background-video-container {
             position: fixed;
@@ -29,10 +82,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             object-fit: cover;
-        }
-        #content-wrapper {
-            position: relative;
-            z-index: 1;
         }
 
         body {
@@ -99,7 +148,7 @@
                 font-family: 'Arial Black', 'Impact', sans-serif; /* Bolder fonts for poster style */
                 color: #000 !important;
             }
-            .no-print, #main-dashboard-ui, #background-video-container { display: none !important; }
+            .no-print, #main-dashboard-ui, #background-video-container, #video-splash-screen { display: none !important; }
             .print-only { display: block !important; }
 
             .print-container { text-align: center; }
@@ -211,6 +260,22 @@
     </style>
 </head>
 <body class="text-gray-200">
+    <!-- Video Pembuka (Splash Screen) -->
+    <div id="video-splash-screen">
+        <iframe 
+            id="intro-video-iframe"
+            src="https://player.vimeo.com/video/1134762097?autoplay=1&muted=1&controls=0&byline=0&title=0&loop=0&autopause=0" 
+            allow="autoplay; fullscreen; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+        <!-- TOMBOL BARU DITAMBAHKAN -->
+        <button id="play-intro-btn">Putar Video</button>
+        
+        <button id="skip-intro-btn" class="absolute bottom-10 right-10 z-[101] bg-white/20 backdrop-blur-sm text-white font-semibold py-2 px-4 rounded-lg hover:bg-white/40 transition">
+            Lewati Video
+        </button>
+    </div>
+
     <!-- Background Video -->
     <div id="background-video-container">
         <video autoplay loop muted playsinline id="bg-video">
@@ -280,7 +345,7 @@
                                 <p id="current-date" class="mt-3 text-gray-300 bg-black/30 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
                             </div>
                             <div class="flex justify-end">
-                                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-14 w-14 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
+                                <img src="httpsia-cyber/logo-/main/logo-bgn.png" alt="Logo Badan Gizi Nasional" class="h-14 w-14 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
                             </div>
                         </div>
                     </div>
@@ -445,11 +510,87 @@
         </div>
     </div>
 
+    <!-- Script API Pemutar Vimeo (PENTING, ditambahkan di sini) -->
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener('DOMContentLoaded', () => {
+            // --- LOGIKA VIDEO PEMBUKA (DIPERBARUI DENGAN TOMBOL PUTAR MANUAL) ---
+            const splashScreen = document.getElementById('video-splash-screen');
+            const introVideoIframe = document.getElementById('intro-video-iframe');
+            const skipBtn = document.getElementById('skip-intro-btn');
+            const contentWrapper = document.getElementById('content-wrapper');
+            const playBtn = document.getElementById('play-intro-btn'); // Tombol baru
+
+            // Buat instance pemutar Vimeo baru
+            let vimeoPlayer;
+            if (introVideoIframe) {
+                vimeoPlayer = new Vimeo.Player(introVideoIframe);
+            }
+
+            // Timer pengaman jika video macet (20 detik)
+            let failSafeTimer = setTimeout(() => {
+                console.warn("Video tidak selesai dalam 20 detik. Memaksa menampilkan dasbor.");
+                hideSplashScreen();
+            }, 20000); // 20.000 milidetik = 20 detik
+
+            let splashHidden = false; 
+
+            function hideSplashScreen() {
+                if (splashHidden) return; 
+                splashHidden = true;
+                clearTimeout(failSafeTimer); // Hentikan timer pengaman
+
+                if (!splashScreen) return;
+                splashScreen.style.opacity = '0';
+                if (contentWrapper) {
+                    contentWrapper.style.opacity = '1'; 
+                }
+                setTimeout(() => {
+                    splashScreen.style.display = 'none'; 
+                }, 500); 
+            }
+
+            if (vimeoPlayer && skipBtn && contentWrapper && playBtn) {
+                // Sembunyikan splash saat video selesai
+                vimeoPlayer.on('ended', hideSplashScreen);
+                
+                // Sembunyikan splash saat tombol "Lewati" diklik
+                skipBtn.addEventListener('click', () => {
+                    vimeoPlayer.pause(); 
+                    hideSplashScreen();
+                });
+                
+                // BARU: Tambahkan listener untuk tombol putar manual
+                playBtn.addEventListener('click', () => {
+                    vimeoPlayer.play(); // Putar video setelah diklik
+                    playBtn.style.display = 'none'; // Sembunyikan tombol putar
+                    skipBtn.style.display = 'block'; // Tampilkan lagi tombol lewati
+                });
+
+                // Coba putar video
+                vimeoPlayer.play().catch(error => {
+                    // INI PERUBAHAN UTAMA:
+                    // Jika autoplay gagal, jangan lewati, tapi tampilkan tombol "Putar Video"
+                    console.warn("Autoplay video pembuka diblokir. Menampilkan tombol putar manual.");
+                    
+                    // Sembunyikan tombol lewati agar tidak tumpang tindih
+                    skipBtn.style.display = 'none';
+                    // Tampilkan tombol putar manual
+                    playBtn.style.display = 'block';
+                });
+
+            } else {
+                // Jika ada elemen yang tidak ditemukan, langsung tampilkan konten
+                console.warn("Elemen video pembuka tidak ditemukan, tampilkan konten utama.");
+                hideSplashScreen(); // Gunakan fungsi ini untuk konsistensi
+            }
+            // --- AKHIR LOGIKA VIDEO PEMBUKA ---
+
+
             const scrollSound = document.getElementById('scroll-sound');
             let hasUserInteracted = false; 
 
@@ -1142,5 +1283,3 @@
     </script>
 </body>
 </html>
-
-
