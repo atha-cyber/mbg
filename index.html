@@ -577,8 +577,9 @@
                     // Jika autoplay gagal, jangan lewati, tapi tampilkan tombol "Putar Video"
                     console.warn("Autoplay video pembuka diblokir. Menampilkan tombol putar manual.");
                     
-                    // Sembunyikan tombol lewati agar tidak tumpang tindih
-                    skipBtn.style.display = 'none';
+                    // DIHAPUS: Baris 'skipBtn.style.display = 'none';' dihapus
+                    // Sekarang tombol "Lewati Video" akan tetap terlihat.
+                    
                     // Tampilkan tombol putar manual
                     playBtn.style.display = 'block';
                 });
