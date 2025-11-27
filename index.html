@@ -9,52 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* BARU: Image Splash Screen Styles */
-        #image-splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000; /* Latar belakang hitam */
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-        #image-splash-screen img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            border-radius: 1rem;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-        }
-        #skip-splash-btn {
-            position: absolute;
-            bottom: 2.5rem; /* 10 */
-            right: 2.5rem; /* 10 */
-            z-index: 101;
-            background-color: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(4px);
-            color: white;
-            font-weight: 600; /* font-semibold */
-            padding: 0.5rem 1rem; /* py-2 px-4 */
-            border-radius: 0.5rem; /* rounded-lg */
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-        }
-        #skip-splash-btn:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* Konten utama disembunyikan awalnya */
+        /* Konten utama langsung terlihat */
         #content-wrapper {
             position: relative;
             z-index: 1;
-            opacity: 0; /* DIKEMBALIKAN: Mulai dengan 0 */
-            transition: opacity 0.5s ease-in; /* DIKEMBALIKAN: transisi */
+            opacity: 1; /* Langsung visible */
+            transition: opacity 0.5s ease-in;
         }
 
         /* CSS for the background video */
@@ -143,7 +103,7 @@
                 font-family: 'Arial Black', 'Impact', sans-serif; /* Bolder fonts for poster style */
                 color: #000 !important;
             }
-            .no-print, #main-dashboard-ui, #background-video-container, #image-splash-screen { display: none !important; }
+            .no-print, #main-dashboard-ui, #background-video-container { display: none !important; }
             .print-only { display: block !important; }
 
             .print-container { text-align: center; }
@@ -255,12 +215,6 @@
     </style>
 </head>
 <body class="text-gray-200">
-    <!-- BARU: Image Splash Screen -->
-    <div id="image-splash-screen">
-        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/gambar%20ultah%20fix.png" alt="Splash Screen SMPN 4 Pandak" />
-        <button id="skip-splash-btn">Lewati</button>
-    </div>
-
     <!-- Background Video -->
     <div id="background-video-container">
         <video autoplay loop muted playsinline id="bg-video">
@@ -269,7 +223,7 @@
         </video>
     </div>
     
-    <!-- Content Wrapper (Sekarang dimulai dengan opacity 0) -->
+    <!-- Content Wrapper (Langsung muncul) -->
     <div id="content-wrapper">
         <!-- This div wraps the entire interactive UI and will be hidden during print -->
         <div id="main-dashboard-ui">
@@ -309,9 +263,8 @@
             <div id="main-dashboard">
                 <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
                 
-                <!-- HEADER - NOW FULL WIDTH -->
-                <header class="relative p-4 sm:p-8 border-b border-white/20" style="background-image: url('https://raw.githubusercontent.com/atha-cyber/logo-/main/HALOWEEN.png'); background-size: cover; background-position: center bottom; background-repeat: no-repeat; background-color: #000;">
-                    <div class="absolute inset-0 bg-black/40"></div> <!-- Increased overlay for better readability -->
+                <!-- HEADER - MODIFIKASI: Background dihapus agar transparan -->
+                <header class="relative p-4 sm:p-8 border-b border-white/20 bg-transparent">
                     <!-- Container added INSIDE header to keep content aligned -->
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
@@ -502,42 +455,6 @@
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener('DOMContentLoaded', () => {
-            // --- BARU: LOGIKA IMAGE SPLASH SCREEN ---
-            const splashScreen = document.getElementById('image-splash-screen');
-            const skipBtn = document.getElementById('skip-splash-btn');
-            const contentWrapper = document.getElementById('content-wrapper');
-
-            let splashHidden = false;
-            let autoSkipTimer; // Deklarasikan timer di sini
-
-            function hideSplashScreen() {
-                if (splashHidden) return;
-                splashHidden = true;
-                clearTimeout(autoSkipTimer); // Hentikan timer otomatis
-
-                if (splashScreen) {
-                    splashScreen.style.opacity = '0';
-                }
-                if (contentWrapper) {
-                    contentWrapper.style.opacity = '1';
-                }
-                setTimeout(() => {
-                    if (splashScreen) {
-                        splashScreen.style.display = 'none';
-                    }
-                }, 500); // Sesuai durasi transisi CSS
-            }
-
-            // Sembunyikan otomatis setelah 4 detik
-            autoSkipTimer = setTimeout(hideSplashScreen, 4000);
-
-            // Sembunyikan jika tombol "Lewati" diklik
-            if (skipBtn) {
-                skipBtn.addEventListener('click', hideSplashScreen);
-            }
-            // --- AKHIR LOGIKA SPLASH SCREEN ---
-
-
             const scrollSound = document.getElementById('scroll-sound');
             let hasUserInteracted = false; 
 
