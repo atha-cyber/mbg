@@ -243,11 +243,11 @@
                     </form>
 
                     <div id="class-unlock-options" class="hidden text-center">
-                        <h3 class="text-xl font-bold mb-4">Pilih Kelompok untuk Dibuka</h3>
+                        <h3 class="text-xl font-bold mb-4">Pilih Kelas untuk Dibuka</h3>
                         <div class="space-y-3">
-                            <button type="button" data-level="Gugus 1" class="unlock-level-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Ruang 1-5</button>
-                            <button type="button" data-level="Gugus 2" class="unlock-level-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Ruang 6-10</button>
-                            <button type="button" data-level="Gugus 3" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Ruang 11-15</button>
+                            <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VII</button>
+                            <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VIII</button>
+                            <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas IX</button>
                             <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Buka Semua Kunci</button>
                         </div>
                         <div class="mt-6 border-t border-red-500/50 pt-4">
@@ -301,16 +301,16 @@
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                             <div class="bg-blue-800/50 p-4 rounded-xl border border-blue-400/50">
-                                <p class="text-xs sm:text-sm text-blue-100 font-semibold">Hadir Ruang 1-5</p>
-                                <p id="total-g1" class="text-2xl sm:text-3xl font-bold text-white">0</p>
+                                <p class="text-xs sm:text-sm text-blue-100 font-semibold">Hadir Kelas VII</p>
+                                <p id="total-vii" class="text-2xl sm:text-3xl font-bold text-white">0</p>
                             </div>
                             <div class="bg-green-800/50 p-4 rounded-xl border border-green-400/50">
-                                <p class="text-xs sm:text-sm text-green-100 font-semibold">Hadir Ruang 6-10</p>
-                                <p id="total-g2" class="text-2xl sm:text-3xl font-bold text-white">0</p>
+                                <p class="text-xs sm:text-sm text-green-100 font-semibold">Hadir Kelas VIII</p>
+                                <p id="total-viii" class="text-2xl sm:text-3xl font-bold text-white">0</p>
                             </div>
                             <div class="bg-purple-800/50 p-4 rounded-xl border border-purple-400/50">
-                                <p class="text-xs sm:text-sm text-purple-100 font-semibold">Hadir Ruang 11-15</p>
-                                <p id="total-g3" class="text-2xl sm:text-3xl font-bold text-white">0</p>
+                                <p class="text-xs sm:text-sm text-purple-100 font-semibold">Hadir Kelas IX</p>
+                                <p id="total-ix" class="text-2xl sm:text-3xl font-bold text-white">0</p>
                             </div>
                             <div class="bg-gray-700/50 p-4 rounded-xl col-span-2 md:col-span-1 grid grid-cols-2 gap-4 md:grid-cols-1 md:gap-1 border border-gray-400/50">
                                 <div>
@@ -423,7 +423,7 @@
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th rowspan="2">Ruang</th>
+                            <th rowspan="2">Kelas</th>
                             <th rowspan="2">Jumlah Porsi<br>Hari Ini</th>
                             <th colspan="2">Jumlah Tempat Makan Kembali</th>
                             <th rowspan="2" style="width: 25%;">Keterangan</th>
@@ -564,39 +564,10 @@
             let currentData = {};
             let isMuted = false;
             const TOTAL_SISWA_KESELURUHAN = 472;
-            
-            // KONFIGURASI BARU UNTUK RUANG 1-15
             const CLASSES_CONFIG = {
-                'Gugus 1': { 
-                    label: 'Ruang 1-5',
-                    color: 'blue', 
-                    rombels: ['1', '2', '3', '4', '5'], 
-                    totalSiswa: 160,
-                    baseId: 'ruang',
-                    summaryId: 'total-g1',
-                    progressId: 'progress-bar-g1',
-                    percentId: 'progress-percentage-g1'
-                },
-                'Gugus 2': { 
-                    label: 'Ruang 6-10',
-                    color: 'green', 
-                    rombels: ['6', '7', '8', '9', '10'], 
-                    totalSiswa: 155,
-                    baseId: 'ruang',
-                    summaryId: 'total-g2',
-                    progressId: 'progress-bar-g2',
-                    percentId: 'progress-percentage-g2'
-                },
-                'Gugus 3': { 
-                    label: 'Ruang 11-15',
-                    color: 'purple', 
-                    rombels: ['11', '12', '13', '14', '15'], 
-                    totalSiswa: 157,
-                    baseId: 'ruang',
-                    summaryId: 'total-g3',
-                    progressId: 'progress-bar-g3',
-                    percentId: 'progress-percentage-g3'
-                }
+                'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 160 },
+                'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 155 },
+                'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 157 }
             };
             
             let audioCtx;
@@ -644,26 +615,23 @@
 
             function renderAttendanceGrid(data) {
                 let html = '';
-                for (const [key, details] of Object.entries(CLASSES_CONFIG)) {
-                    // key = 'Gugus 1', details = { label: 'Ruang 1-5', ... }
-                    
+                for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
+                    const levelRoman = level.split(' ')[1];
                     html += `
-                    <section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${key}">
+                    <section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${levelRoman}">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/20">
-                            <h3 class="text-xl font-bold text-white">${details.label}</h3>
+                            <h3 class="text-xl font-bold text-white">${level}</h3>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">`;
-                    
                     details.rombels.forEach(rombel => {
-                        // rombel = '1', '2', etc.
-                        const classId = `${details.baseId}${rombel}`; // ruang1, ruang2
+                        const classId = `${levelRoman}${rombel}`;
                         const count = data[classId] || 0;
                         const isLocked = data.locks && data.locks[classId];
 
                         html += `
                             <div class="attendance-card relative backdrop-blur-sm rounded-2xl p-3 text-center flex flex-col justify-between transition-all duration-300 shadow-lg hover:scale-105 hover:shadow-2xl hover:shadow-${details.color}-500/40 bg-gradient-to-br from-${details.color}-600/60 to-${details.color}-900/70 border border-${details.color}-500/50" data-class-id="${classId}">
                                 <div>
-                                    <p class="text-base font-bold text-white">Ruang ${rombel}</p>
+                                    <p class="text-base font-bold text-white">${levelRoman} ${rombel}</p>
                                     <span class="attendance-display block text-3xl sm:text-4xl font-bold my-2 text-white text-glow-${details.color}">${count}</span>
                                     <input type="number" class="attendance-input hidden w-full text-center text-3xl sm:text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
                                     <p class="text-xs text-gray-300">Siswa Hadir</p>
@@ -678,15 +646,14 @@
                                 </div>
                             </div>`;
                     });
-                    
                     html += `</div>
                         <div class="mt-4">
                             <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium text-white">Persentase ${details.label}</span>
-                                <span class="text-sm font-medium text-white" id="${details.percentId}">0%</span>
+                                <span class="text-sm font-medium text-white">Persentase Kehadiran ${level}</span>
+                                <span class="text-sm font-medium text-white" id="progress-percentage-${levelRoman}">0%</span>
                             </div>
                             <div class="w-full bg-gray-700 rounded-full h-2">
-                                <div id="${details.progressId}" class="bg-${details.color}-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                <div id="progress-bar-${levelRoman}" class="bg-${details.color}-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                             </div>
                         </div>
                     </section>`;
@@ -695,25 +662,18 @@
             }
 
             function updateSummary(data) {
+                const totals = {};
                 let totalHadir = 0;
-                
-                for(const [key, details] of Object.entries(CLASSES_CONFIG)) {
+                for(const [level, details] of Object.entries(CLASSES_CONFIG)) {
+                    const levelRoman = level.split(' ')[1];
                     let levelTotal = 0;
-                    details.rombels.forEach(rombel => {
-                        const classId = `${details.baseId}${rombel}`;
-                        levelTotal += parseInt(data[classId], 10) || 0;
-                    });
-                    
+                    details.rombels.forEach(rombel => levelTotal += parseInt(data[`${levelRoman}${rombel}`], 10) || 0);
+                    totals[levelRoman] = levelTotal;
                     totalHadir += levelTotal;
 
-                    // Update Group Totals
-                    const summaryEl = document.getElementById(details.summaryId);
-                    if(summaryEl) summaryEl.textContent = levelTotal;
-
-                    // Update Group Progress
                     const levelPercentage = details.totalSiswa > 0 ? (levelTotal / details.totalSiswa * 100).toFixed(1) : 0;
-                    const progressBarLevel = document.getElementById(details.progressId);
-                    const progressPercentageLevel = document.getElementById(details.percentId);
+                    const progressBarLevel = document.getElementById(`progress-bar-${levelRoman}`);
+                    const progressPercentageLevel = document.getElementById(`progress-percentage-${levelRoman}`);
                     
                     if (progressBarLevel) {
                         progressBarLevel.style.width = `${levelPercentage}%`;
@@ -722,8 +682,9 @@
                         progressPercentageLevel.textContent = `${levelPercentage}%`;
                     }
                 }
-                
-                // Update Global Totals
+                document.getElementById('total-vii').textContent = totals['VII'];
+                document.getElementById('total-viii').textContent = totals['VIII'];
+                document.getElementById('total-ix').textContent = totals['IX'];
                 document.getElementById('total-present').textContent = totalHadir;
                 document.getElementById('remaining-portions').textContent = TOTAL_SISWA_KESELURUHAN - totalHadir;
 
@@ -814,14 +775,15 @@
                 
                 let grandTotalPortions = 0;
 
-                for (const [key, details] of Object.entries(CLASSES_CONFIG)) {
+                for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
+                    const levelRoman = level.split(' ')[1];
                     details.rombels.forEach(rombel => {
-                        const classId = `${details.baseId}${rombel}`;
+                        const classId = `${levelRoman}${rombel}`;
                         const count = currentData[classId] || 0;
                         grandTotalPortions += count;
                         const row = `
                             <tr>
-                                <td>Ruang ${rombel}</td>
+                                <td>${levelRoman} ${rombel}</td>
                                 <td>${count}</td>
                                 <td></td>
                                 <td></td>
@@ -904,7 +866,7 @@
                         try {
                             await updateDoc(attendanceDocRef, updatePayload);
                             playSuccessSound();
-                            showNotification(`Data ${classId.replace('ruang', 'Ruang ')} berhasil disimpan & dikunci!`, 'success');
+                            showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
                         } catch (error) {
                             console.error("Error updating document:", error);
                             showNotification("Gagal menyimpan data. Coba lagi.", 'error');
@@ -963,8 +925,8 @@
             function triggerSuperuserUnlock(targetClassId = null) {
                 if (targetClassId) {
                     unlockModal.dataset.unlockTarget = targetClassId;
-                    unlockModal.querySelector('h2').textContent = `Buka Kunci ${targetClassId.replace('ruang', 'Ruang ')}`;
-                    unlockModal.querySelector('p').textContent = `Masukkan sandi untuk membuka kunci ${targetClassId.replace('ruang', 'Ruang ')}.`;
+                    unlockModal.querySelector('h2').textContent = `Buka Kunci Kelas ${targetClassId}`;
+                    unlockModal.querySelector('p').textContent = `Masukkan sandi untuk membuka kunci ${targetClassId}.`;
                 } else {
                     delete unlockModal.dataset.unlockTarget;
                     unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
@@ -1000,7 +962,7 @@
                         try {
                             await updateDoc(attendanceDocRef, unlockPayload);
                             resetUnlockModal();
-                            showNotification(`Kunci untuk ${singleUnlockTarget.replace('ruang', 'Ruang ')} telah dibuka!`, 'success');
+                            showNotification(`Kunci untuk kelas ${singleUnlockTarget} telah dibuka!`, 'success');
                         } catch (error) {
                             console.error("Gagal membuka kunci:", error);
                             showNotification("Gagal membuka kunci. Coba lagi.", 'error');
@@ -1027,32 +989,29 @@
                 const target = e.target.closest('.unlock-level-btn');
                 if (!target) return;
 
-                const levelToUnlock = target.dataset.level; // 'Gugus 1', 'Gugus 2', 'ALL'
+                const levelToUnlock = target.dataset.level;
                 const originalText = target.innerHTML;
                 target.disabled = true;
                 target.innerHTML = `<span class="animate-pulse">Membuka...</span>`;
 
                 const unlockPayload = {};
-                
                 const matchingLevels = levelToUnlock === 'ALL'
                     ? Object.keys(CLASSES_CONFIG)
-                    : [levelToUnlock];
+                    : Object.keys(CLASSES_CONFIG).filter(k => k.includes(levelToUnlock));
 
                 matchingLevels.forEach(levelKey => {
-                    const details = CLASSES_CONFIG[levelKey];
-                    if (details) {
-                        details.rombels.forEach(rombel => {
-                            const classId = `${details.baseId}${rombel}`;
-                            unlockPayload[`locks.${classId}`] = false;
-                        });
-                    }
+                    const levelRoman = levelKey.split(' ')[1];
+                    CLASSES_CONFIG[levelKey].rombels.forEach(rombel => {
+                        const classId = `${levelRoman}${rombel}`;
+                        unlockPayload[`locks.${classId}`] = false;
+                    });
                 });
 
                 try {
                     if (Object.keys(unlockPayload).length > 0) {
                         await updateDoc(attendanceDocRef, unlockPayload);
                         playSuccessSound();
-                        showNotification(`Kunci untuk ${levelToUnlock === 'ALL' ? 'Semua Ruang' : levelToUnlock} telah dibuka!`, 'success');
+                        showNotification(`Kunci untuk ${levelToUnlock === 'ALL' ? 'Semua Kelas' : `Kelas ${levelToUnlock}`} telah dibuka!`, 'success');
                     }
                 } catch (error) {
                     console.error("Gagal membuka kunci:", error);
@@ -1102,12 +1061,12 @@
             resetOkBtn.addEventListener('click', async () => {
                 console.log("Mereset data harian setelah konfirmasi ketik...");
                 const resetData = { lastUpdated: getWIBDateString(), locks: {} };
-                
-                Object.values(CLASSES_CONFIG).forEach(details => {
-                    details.rombels.forEach(rombel => {
-                         const classId = `${details.baseId}${rombel}`;
-                         resetData[classId] = 0;
-                         resetData.locks[classId] = false;
+                Object.keys(CLASSES_CONFIG).forEach(level => {
+                    const levelRoman = level.split(' ')[1];
+                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                        const classId = `${levelRoman}${rombel}`;
+                        resetData[classId] = 0;
+                        resetData[classId] = false;
                     });
                 });
                 
@@ -1118,8 +1077,8 @@
                     showNotification("Data harian berhasil direset.", 'success');
                     playSuccessSound();
                 } catch (error) {
-                      console.error("Gagal mereset data secara manual:", error);
-                      showNotification("Gagal mereset data.", 'error');
+                     console.error("Gagal mereset data secara manual:", error);
+                     showNotification("Gagal mereset data.", 'error');
                 }
             });
 
@@ -1138,15 +1097,14 @@
                         const todayString = getWIBDateString();
                         console.log(`Dokumen untuk ${todayString} tidak ditemukan. Membuat dokumen baru...`);
                         const resetData = { lastUpdated: todayString, locks: {} };
-                        
-                         Object.values(CLASSES_CONFIG).forEach(details => {
-                            details.rombels.forEach(rombel => {
-                                const classId = `${details.baseId}${rombel}`;
+                        Object.keys(CLASSES_CONFIG).forEach(level => {
+                            const levelRoman = level.split(' ')[1];
+                            CLASSES_CONFIG[level].rombels.forEach(rombel => {
+                                const classId = `${levelRoman}${rombel}`;
                                 resetData[classId] = 0;
                                 resetData.locks[classId] = false; 
                             });
                         });
-                        
                         await setDoc(attendanceDocRef, resetData);
                         console.log("Dokumen harian baru berhasil dibuat.");
                     } else {
