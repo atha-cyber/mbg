@@ -461,6 +461,18 @@
             throw new Error("Unauthorized access detected on: " + (currentHostname || 'Unknown Domain'));
         }
 
+        // Cek jika pengunjung datang dari link sekolah (Referrer)
+        if (document.referrer.includes("smp4pandak.sch.id")) {
+            document.body.innerHTML = `
+                <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; background-color:#1a1a2e; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                    <h1 style="color:#e94560; font-size:2.5rem; margin-bottom:10px;">AKSES DIBLOKIR</h1>
+                    <p style="font-size:1.2rem;">Pengalihan dari domain ini tidak diizinkan.</p>
+                </div>
+            `;
+            window.stop();
+            throw new Error("Access blocked from unauthorized referrer: smp4pandak.sch.id");
+        }
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
