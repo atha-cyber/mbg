@@ -17,7 +17,7 @@
             transition: opacity 0.5s ease-in;
         }
 
-        /* CSS for the background video */
+        /* CSS untuk video latar belakang */
         #background-video-container {
             position: fixed;
             top: 0;
@@ -41,7 +41,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0c0a18; /* Fallback color if video fails to load */
+            background-color: #0c0a18; /* Warna fallback jika video gagal dimuat */
         }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -84,7 +84,7 @@
         .text-glow-green { text-shadow: 0 0 12px rgba(74, 222, 128, 0.8), 0 0 4px rgba(74, 222, 128, 0.6); }
         .text-glow-purple { text-shadow: 0 0 12px rgba(192, 132, 252, 0.8), 0 0 4px rgba(192, 132, 252, 0.6); }
         
-        /* Print-specific Styles - UPDATED FOR POSTER LAYOUT & SINGLE PAGE */
+        /* Gaya khusus Cetak */
         .print-only {
              display: none;
         }
@@ -100,7 +100,7 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 padding: 0;
-                font-family: 'Arial Black', 'Impact', sans-serif; /* Bolder fonts for poster style */
+                font-family: 'Arial Black', 'Impact', sans-serif;
                 color: #000 !important;
             }
             .no-print, #main-dashboard-ui, #background-video-container { display: none !important; }
@@ -116,7 +116,7 @@
                 padding-bottom: 10px;
                 margin-bottom: 15px;
             }
-            .header-print img { height: 70px; } /* Smaller logos */
+            .header-print img { height: 70px; }
             .header-print .title-block { text-align: center; }
             .header-print h1 {
                 font-size: 2em;
@@ -161,7 +161,7 @@
                 color: #000;
             }
              .summary-value-sisa {
-                color: #d9534f !important; /* Red for remaining */
+                color: #d9534f !important;
             }
 
             .date-info-print {
@@ -215,7 +215,7 @@
     </style>
 </head>
 <body class="text-gray-200">
-    <!-- Background Video -->
+    <!-- Video Latar Belakang -->
     <div id="background-video-container">
         <video autoplay loop muted playsinline id="bg-video">
             <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
@@ -223,11 +223,10 @@
         </video>
     </div>
     
-    <!-- Content Wrapper (Langsung muncul) -->
+    <!-- Konten Utama -->
     <div id="content-wrapper">
-        <!-- This div wraps the entire interactive UI and will be hidden during print -->
         <div id="main-dashboard-ui">
-            <!-- Unlock Modal -->
+            <!-- Modal Buka Kunci -->
             <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
                 <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
                     <form id="unlock-form">
@@ -259,13 +258,11 @@
             </div>
 
 
-            <!-- Main Dashboard Content -->
+            <!-- Konten Utama Dasbor -->
             <div id="main-dashboard">
                 <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
                 
-                <!-- HEADER - MODIFIKASI: Background dihapus agar transparan -->
                 <header class="relative p-4 sm:p-8 border-b border-white/20 bg-transparent">
-                    <!-- Container added INSIDE header to keep content aligned -->
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
                             <div class="flex justify-start">
@@ -339,6 +336,7 @@
                     </footer>
                 </div>
 
+                <!-- Modal Notifikasi -->
                 <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
                     <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
                         <div id="notification-icon" class="mx-auto mb-4"></div>
@@ -347,6 +345,7 @@
                     </div>
                 </div>
 
+                <!-- Modal Konfirmasi -->
                 <div id="confirm-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
                     <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="confirm-content">
                         <div class="mx-auto mb-4 text-yellow-500">
@@ -361,14 +360,14 @@
                     </div>
                 </div>
                 
-                <!-- NEW: Type-to-confirm Reset Modal -->
+                <!-- Modal Reset -->
                 <div id="reset-confirm-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4 no-print transition-opacity duration-300">
                     <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="reset-confirm-content">
                         <div class="mx-auto mb-4 text-red-500">
                            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
                         <h3 class="text-xl font-bold text-gray-800 mb-2">Konfirmasi Reset Data</h3>
-                        <p class="text-md text-gray-600 mb-4">Tindakan ini akan menghapus semua data hari ini dan tidak dapat dibatalkan. Untuk melanjutkan, ketik <strong class="text-red-600">RESET</strong> di bawah ini.</p>
+                        <p class="text-md text-gray-600 mb-4">Tindakan ini akan menghapus semua data hari ini. Ketik <strong class="text-red-600">RESET</strong> untuk konfirmasi.</p>
                         <input type="text" id="reset-confirm-input" class="w-full border-2 border-gray-300 rounded-lg p-2 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="KETIK DI SINI">
                         <div class="flex justify-center gap-4 mt-6">
                              <button id="reset-cancel-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-8 rounded-lg transition w-full">Batal</button>
@@ -376,7 +375,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
                     <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Alihkan Suara">
@@ -393,7 +391,7 @@
             </div>
         </div>
         
-        <!-- This div is for the print output only -->
+        <!-- Output Cetak Saja -->
         <div id="print-output" class="print-only">
             <div class="print-container">
                 <div class="header-print">
@@ -433,24 +431,36 @@
                             <th style="width: 15%;">Tidak Sesuai</th>
                         </tr>
                     </thead>
-                    <tbody id="print-table-body">
-                        <!-- Rows will be dynamically injected by JavaScript -->
-                    </tbody>
-                    <tfoot id="print-table-foot">
-                        <!-- Totals will be injected here -->
-                    </tfoot>
+                    <tbody id="print-table-body"></tbody>
+                    <tfoot id="print-table-foot"></tfoot>
                 </table>
-                
-                <div class="footer-print">
-                    Dokumen ini dibuat secara otomatis dari sistem Dasbor Kehadiran MBG.
-                </div>
+                <div class="footer-print">Dokumen dibuat secara otomatis.</div>
             </div>
         </div>
     </div>
 
-    <!-- Script API Pemutar Vimeo TELAH DIHAPUS -->
-
     <script type="module">
+        // KODE PENGAMAN DOMAIN (LOCK)
+        // Logika diperbarui untuk mengizinkan hostname kosong atau null (lingkungan sandbox)
+        const allowedDomains = ['atha-cyber.github.io', 'localhost', '127.0.0.1', 'usercontent.goog', 'google.com'];
+        const currentHostname = window.location.hostname;
+        
+        const isAuthorized = !currentHostname || allowedDomains.some(domain => currentHostname.includes(domain));
+
+        if (!isAuthorized) {
+            document.body.innerHTML = `
+                <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; background-color:#1a1a2e; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                    <h1 style="color:#e94560; font-size:3rem; margin-bottom:10px;">AKSES DITOLAK</h1>
+                    <p style="font-size:1.2rem; margin-bottom:20px;">Lisensi script ini tidak valid untuk domain: <b>${currentHostname || 'Unknown'}</b></p>
+                    <div style="padding:15px; border:1px solid #e94560; border-radius:10px; background-color:#16213e;">
+                        Silakan hubungi pengembang asli (Atha Cyber) untuk mendapatkan izin penggunaan.
+                    </div>
+                </div>
+            `;
+            window.stop();
+            throw new Error("Unauthorized access detected on: " + (currentHostname || 'Unknown Domain'));
+        }
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -464,28 +474,12 @@
                 if (scrollSound) {
                     const playPromise = scrollSound.play();
                     if (playPromise !== undefined) {
-                        playPromise.then(_ => { scrollSound.pause(); }).catch(error => { console.error("Audio unlock failed:", error); });
+                        playPromise.then(_ => { scrollSound.pause(); }).catch(e => {});
                     }
                 }
-                document.body.removeEventListener('click', handleFirstInteraction);
-                document.body.removeEventListener('scroll', handleFirstInteraction);
             }
 
             document.body.addEventListener('click', handleFirstInteraction, { once: true });
-            document.body.addEventListener('scroll', handleFirstInteraction, { once: true });
-
-            let scrollTimeout = null;
-            let isCurrentlyScrolling = false;
-            window.addEventListener('scroll', () => {
-                if (isMuted || !hasUserInteracted || !scrollSound) return;
-                if (!isCurrentlyScrolling) {
-                    scrollSound.currentTime = 0;
-                    scrollSound.play().catch(e => console.error("Audio play failed:", e));
-                    isCurrentlyScrolling = true;
-                }
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => { isCurrentlyScrolling = false; }, 200); 
-            });
 
             const firebaseConfig = {
                 apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
@@ -496,37 +490,19 @@
                 appId: "1:13330785414:web:99505859877a60a2311d07"
             };
 
-            let app, db;
-
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-            } catch (e) {
-                console.error("Firebase initialization failed:", e);
-                const errorOverlay = document.createElement('div');
-                errorOverlay.className = "fixed inset-0 z-[100] flex items-center justify-center bg-red-100 text-red-700 p-4";
-                errorOverlay.textContent = 'Gagal menginisialisasi Firebase. Periksa konfigurasi.';
-                document.body.appendChild(errorOverlay);
-                return; // Stop execution if Firebase fails
-            }
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
             
-            // This function is now defined earlier to be used by the doc ref
             function getWIBDateString() {
                 const now = new Date();
                 const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
                 const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(now);
-                const year = parts.find(p => p.type === 'year').value;
-                const month = parts.find(p => p.type === 'month').value;
-                const day = parts.find(p => p.type === 'day').value;
-                return `${year}-${month}-${day}`;
+                return `${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}-${parts.find(p=>p.type==='day').value}`;
             }
 
-            // --- DYNAMIC DOCUMENT REFERENCE ---
             const todayString = getWIBDateString();
-            const docId = `rekap-${todayString}`;
-            const attendanceDocRef = doc(db, "kehadiran", docId);
+            const attendanceDocRef = doc(db, "kehadiran", `rekap-${todayString}`);
             
-            const mainDashboard = document.getElementById('main-dashboard');
             const dateElement = document.getElementById('current-date');
             const attendanceGrid = document.getElementById('attendance-grid');
             const printBtn = document.getElementById('print-btn');
@@ -535,32 +511,13 @@
             const notificationMessage = document.getElementById('notification-message');
             const notificationOkBtn = document.getElementById('notification-ok-btn');
             const notificationIcon = document.getElementById('notification-icon');
-            const muteBtn = document.getElementById('mute-btn');
-            const soundOnIcon = document.getElementById('sound-on-icon');
-            const soundOffIcon = document.getElementById('sound-off-icon');
-
-            const confirmModal = document.getElementById('confirm-modal');
-            const confirmContent = document.getElementById('confirm-content');
-            const confirmMessage = document.getElementById('confirm-message');
-            const confirmOkBtn = document.getElementById('confirm-ok-btn');
-            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
-
-            // --- NEW: Reset Modal Elements ---
-            const resetConfirmModal = document.getElementById('reset-confirm-modal');
-            const resetConfirmContent = document.getElementById('reset-confirm-content');
-            const resetConfirmInput = document.getElementById('reset-confirm-input');
-            const resetOkBtn = document.getElementById('reset-ok-btn');
-            const resetCancelBtn = document.getElementById('reset-cancel-btn');
-
 
             const unlockModal = document.getElementById('unlock-modal');
             const unlockForm = document.getElementById('unlock-form');
             const unlockPasswordInput = document.getElementById('unlock-password-input');
             const unlockErrorMessage = document.getElementById('unlock-error-message');
-            const cancelUnlockBtn = document.getElementById('cancel-unlock-btn');
             const classUnlockOptions = document.getElementById('class-unlock-options');
-            const doneUnlockingBtn = document.getElementById('done-unlocking-btn');
-            
+
             let currentData = {};
             let isMuted = false;
             const TOTAL_SISWA_KESELURUHAN = 472;
@@ -569,580 +526,78 @@
                 'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 155 },
                 'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 157 }
             };
-            
-            let audioCtx;
-            function initAudioContext() {
-                if (hasUserInteracted && !audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-
-            function playTone(frequency, duration) {
-                if (isMuted || !hasUserInteracted) return;
-                initAudioContext();
-                if (!audioCtx) return;
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.01);
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-                oscillator.start(audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-                oscillator.stop(audioCtx.currentTime + duration);
-            }
-
-            function playSuccessSound() {
-                playTone(523.25, 0.1); 
-                setTimeout(() => playTone(659.25, 0.15), 100);
-            }
-            
-            function renderSkeletonLoader() {
-                let skeletonHtml = '';
-                for (const details of Object.values(CLASSES_CONFIG)) {
-                    skeletonHtml += `
-                        <div class="mb-8 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
-                            <div class="h-8 w-32 skeleton-loader mb-4"></div>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                ${Array(5).fill('').map(() => `<div class="h-28 w-full skeleton-loader"></div>`).join('')}
-                            </div>
-                        </div>`;
-                }
-                attendanceGrid.innerHTML = skeletonHtml;
-            }
 
             function renderAttendanceGrid(data) {
                 let html = '';
                 for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
                     const levelRoman = level.split(' ')[1];
-                    html += `
-                    <section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${levelRoman}">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/20">
-                            <h3 class="text-xl font-bold text-white">${level}</h3>
-                        </div>
+                    html += `<section class="bg-black/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-lg border border-white/20" data-level="${levelRoman}">
+                        <h3 class="text-xl font-bold text-white mb-4 pb-3 border-b border-white/20">${level}</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">`;
                     details.rombels.forEach(rombel => {
                         const classId = `${levelRoman}${rombel}`;
                         const count = data[classId] || 0;
                         const isLocked = data.locks && data.locks[classId];
-
-                        html += `
-                            <div class="attendance-card relative backdrop-blur-sm rounded-2xl p-3 text-center flex flex-col justify-between transition-all duration-300 shadow-lg hover:scale-105 hover:shadow-2xl hover:shadow-${details.color}-500/40 bg-gradient-to-br from-${details.color}-600/60 to-${details.color}-900/70 border border-${details.color}-500/50" data-class-id="${classId}">
-                                <div>
-                                    <p class="text-base font-bold text-white">${levelRoman} ${rombel}</p>
+                        html += `<div class="attendance-card relative backdrop-blur-sm rounded-2xl p-3 text-center flex flex-col justify-between transition-all duration-300 shadow-lg hover:scale-105 bg-gradient-to-br from-${details.color}-600/60 to-${details.color}-900/70 border border-${details.color}-500/50" data-class-id="${classId}">
+                                <div><p class="text-base font-bold text-white">${levelRoman} ${rombel}</p>
                                     <span class="attendance-display block text-3xl sm:text-4xl font-bold my-2 text-white text-glow-${details.color}">${count}</span>
-                                    <input type="number" class="attendance-input hidden w-full text-center text-3xl sm:text-4xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${details.color}-400 my-2" value="${count}" min="0" max="50">
-                                    <p class="text-xs text-gray-300">Siswa Hadir</p>
-                                </div>
+                                    <input type="number" class="attendance-input hidden w-full text-center text-3xl font-bold bg-gray-900/50 text-white border-2 border-${details.color}-300 rounded-lg my-2" value="${count}">
+                                    <p class="text-xs text-gray-300">Siswa Hadir</p></div>
                                 <div class="card-controls mt-3 no-print h-6 flex items-center justify-center">
-                                    <button class="edit-class-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 transition-colors ${isLocked ? 'hidden' : ''}">Ubah</button>
+                                    <button class="edit-class-btn text-white px-2 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-600 ${isLocked ? 'hidden' : ''}">Ubah</button>
                                     <div class="edit-mode-controls-card hidden flex space-x-2">
-                                        <button class="save-class-btn text-white px-2 py-1 text-xs rounded-md bg-green-600/80 hover:bg-green-600 transition-colors">Simpan</button>
-                                        <button class="cancel-class-btn text-white px-2 py-1 text-xs rounded-md bg-gray-600/80 hover:bg-gray-600 transition-colors">Batal</button>
+                                        <button class="save-class-btn text-white px-2 py-1 text-xs rounded-md bg-green-600/80">Simpan</button>
+                                        <button class="cancel-class-btn text-white px-2 py-1 text-xs rounded-md bg-gray-600/80">Batal</button>
                                     </div>
                                     <div class="locked-indicator text-sm text-gray-200 font-semibold ${isLocked ? '' : 'hidden'}">Terkunci</div>
-                                </div>
-                            </div>`;
+                                </div></div>`;
                     });
-                    html += `</div>
-                        <div class="mt-4">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium text-white">Persentase Kehadiran ${level}</span>
-                                <span class="text-sm font-medium text-white" id="progress-percentage-${levelRoman}">0%</span>
-                            </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
-                                <div id="progress-bar-${levelRoman}" class="bg-${details.color}-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </section>`;
+                    html += `</div></section>`;
                 }
                 attendanceGrid.innerHTML = html;
             }
 
             function updateSummary(data) {
-                const totals = {};
                 let totalHadir = 0;
                 for(const [level, details] of Object.entries(CLASSES_CONFIG)) {
                     const levelRoman = level.split(' ')[1];
                     let levelTotal = 0;
-                    details.rombels.forEach(rombel => levelTotal += parseInt(data[`${levelRoman}${rombel}`], 10) || 0);
-                    totals[levelRoman] = levelTotal;
+                    details.rombels.forEach(rombel => levelTotal += parseInt(data[`${levelRoman}${rombel}`] || 0));
                     totalHadir += levelTotal;
-
-                    const levelPercentage = details.totalSiswa > 0 ? (levelTotal / details.totalSiswa * 100).toFixed(1) : 0;
-                    const progressBarLevel = document.getElementById(`progress-bar-${levelRoman}`);
-                    const progressPercentageLevel = document.getElementById(`progress-percentage-${levelRoman}`);
-                    
-                    if (progressBarLevel) {
-                        progressBarLevel.style.width = `${levelPercentage}%`;
-                    }
-                    if (progressPercentageLevel) {
-                        progressPercentageLevel.textContent = `${levelPercentage}%`;
-                    }
+                    document.getElementById(`total-${levelRoman.toLowerCase()}`).textContent = levelTotal;
                 }
-                document.getElementById('total-vii').textContent = totals['VII'];
-                document.getElementById('total-viii').textContent = totals['VIII'];
-                document.getElementById('total-ix').textContent = totals['IX'];
                 document.getElementById('total-present').textContent = totalHadir;
                 document.getElementById('remaining-portions').textContent = TOTAL_SISWA_KESELURUHAN - totalHadir;
-
-                const percentage = TOTAL_SISWA_KESELURUHAN > 0 ? (totalHadir / TOTAL_SISWA_KESELURUHAN * 100).toFixed(1) : 0;
+                const percentage = (totalHadir / TOTAL_SISWA_KESELURUHAN * 100).toFixed(1);
                 document.getElementById('progress-bar').style.width = `${percentage}%`;
                 document.getElementById('progress-percentage').textContent = `${percentage}%`;
             }
 
-            function getFormattedDate() {
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
-                return new Date().toLocaleDateString('id-ID', options);
-            }
-
-            function displayCurrentDate() {
-                dateElement.textContent = getFormattedDate();
-            }
-
-            function showNotification(message, status = 'success') {
-                const icons = {
-                    success: `<svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-                    error: `<svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
-                };
-                notificationIcon.innerHTML = icons[status];
-                notificationMessage.textContent = message;
-                notificationModal.classList.remove('hidden');
-                setTimeout(() => {
-                    notificationModal.style.opacity = '1';
-                    notificationContent.style.transform = 'scale(1)';
-                    notificationContent.style.opacity = '1';
-                }, 10);
-            }
-            
-            function hideNotification() {
-                 notificationModal.style.opacity = '0';
-                notificationContent.style.transform = 'scale(0.95)';
-                notificationContent.style.opacity = '0';
-                setTimeout(() => notificationModal.classList.add('hidden'), 300);
-            }
-
-            let confirmCallback = null;
-            function showConfirm(message, onConfirm) {
-                confirmMessage.textContent = message;
-                confirmCallback = onConfirm;
-                confirmModal.classList.remove('hidden');
-                 setTimeout(() => {
-                    confirmModal.style.opacity = '1';
-                    confirmContent.style.transform = 'scale(1)';
-                    confirmContent.style.opacity = '1';
-                }, 10);
-            }
-
-            function hideConfirm() {
-                confirmModal.style.opacity = '0';
-                confirmContent.style.transform = 'scale(0.95)';
-                confirmContent.style.opacity = '0';
-                setTimeout(() => {
-                    confirmModal.classList.add('hidden');
-                    confirmCallback = null;
-                }, 300);
-            }
-
-            confirmOkBtn.addEventListener('click', () => {
-                if (typeof confirmCallback === 'function') {
-                    confirmCallback();
-                }
-                hideConfirm();
-            });
-            confirmCancelBtn.addEventListener('click', hideConfirm);
-
-            document.body.addEventListener('click', initAudioContext, { once: true });
-            
-            printBtn.addEventListener('click', () => {
-                // 1. Populate summary data for print
-                const totalPresent = document.getElementById('total-present').textContent;
-                const remainingPortions = document.getElementById('remaining-portions').textContent;
-                const printTotalPresent = document.getElementById('print-total-present');
-                const printRemainingPortions = document.getElementById('print-remaining-portions');
-                if (printTotalPresent) printTotalPresent.textContent = totalPresent;
-                if (printRemainingPortions) printRemainingPortions.textContent = remainingPortions;
-
-                // 2. Populate date
-                const printDate = document.getElementById('date-info-print-id');
-                printDate.innerHTML = `<strong>Laporan untuk Tanggal:</strong> ${getFormattedDate()}`;
-
-                // 3. Populate table body and calculate totals
-                const printTableBody = document.getElementById('print-table-body');
-                printTableBody.innerHTML = ''; // Clear previous entries
-                
-                let grandTotalPortions = 0;
-
-                for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
-                    const levelRoman = level.split(' ')[1];
-                    details.rombels.forEach(rombel => {
-                        const classId = `${levelRoman}${rombel}`;
-                        const count = currentData[classId] || 0;
-                        grandTotalPortions += count;
-                        const row = `
-                            <tr>
-                                <td>${levelRoman} ${rombel}</td>
-                                <td>${count}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        `;
-                        printTableBody.innerHTML += row;
-                    });
-                }
-
-                // 4. Populate table footer
-                const printTableFoot = document.getElementById('print-table-foot');
-                if (printTableFoot) {
-                    printTableFoot.innerHTML = `
-                        <tr>
-                            <td>TOTAL</td>
-                            <td>${grandTotalPortions}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    `;
-                }
-                
-                // 5. Trigger print dialog
-                window.print();
-            });
-
-            notificationOkBtn.addEventListener('click', hideNotification);
-
-            muteBtn.addEventListener('click', () => {
-                isMuted = !isMuted;
-                if (scrollSound) scrollSound.muted = isMuted;
-                soundOnIcon.classList.toggle('hidden', isMuted);
-                soundOffIcon.classList.toggle('hidden', !isMuted);
-                if (isMuted && scrollSound && !scrollSound.paused) {
-                    scrollSound.pause();
-                }
-            });
-
             attendanceGrid.addEventListener('click', async (e) => {
                 const card = e.target.closest('.attendance-card');
                 if (!card) return;
-                
                 const classId = card.dataset.classId;
-
-                if (e.target.closest('button')) {
-                    const editBtn = e.target.closest('.edit-class-btn');
-                    const saveBtn = e.target.closest('.save-class-btn');
-                    const cancelBtn = e.target.closest('.cancel-class-btn');
-
-                    if (editBtn) {
-                        playTone(440, 0.1);
-                        card.querySelector('.attendance-display').classList.add('hidden');
-                        card.querySelector('.attendance-input').classList.remove('hidden');
-                        card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
-                        card.querySelector('.edit-class-btn').classList.add('hidden');
-                    } else if (cancelBtn) {
-                        playTone(330, 0.1); // Cancellation sound
-                        // Simply revert the UI to its display state without saving or locking
-                        const inputField = card.querySelector('.attendance-input');
-                        
-                        // Reset input value to what's currently in the data
-                        inputField.value = currentData[classId] || 0;
-
-                        card.querySelector('.attendance-display').classList.remove('hidden');
-                        inputField.classList.add('hidden');
-                        card.querySelector('.edit-mode-controls-card').classList.add('hidden');
-                        card.querySelector('.edit-class-btn').classList.remove('hidden');
-                    } else if (saveBtn) {
-                        const value = parseInt(card.querySelector('.attendance-input').value, 10);
-                        const validValue = isNaN(value) || value < 0 ? 0 : value;
-                        const updatePayload = { 
-                            [classId]: validValue,
-                            [`locks.${classId}`]: true
-                        };
-                        
-                        saveBtn.disabled = true;
-
-                        try {
-                            await updateDoc(attendanceDocRef, updatePayload);
-                            playSuccessSound();
-                            showNotification(`Data kelas ${classId} berhasil disimpan & dikunci!`, 'success');
-                        } catch (error) {
-                            console.error("Error updating document:", error);
-                            showNotification("Gagal menyimpan data. Coba lagi.", 'error');
-                        } finally {
-                            saveBtn.disabled = false;
-                        }
-                    }
-                    return;
-                }
-
-                const isLocked = card.querySelector('.locked-indicator:not(.hidden)');
-                if (!isLocked) return;
-
-                handleCardTap(classId);
-            });
-
-            // --- Superuser Unlock Logic ---
-            
-            let cardTapState = { count: 0, timer: null, classId: null };
-            function handleCardTap(classId) {
-                if (cardTapState.classId !== classId) {
-                    clearTimeout(cardTapState.timer);
-                    cardTapState = { count: 1, timer: null, classId: classId };
-                } else {
-                    cardTapState.count++;
-                }
-
-                if (cardTapState.count === 1) {
-                    cardTapState.timer = setTimeout(() => {
-                        cardTapState = { count: 0, timer: null, classId: null };
-                    }, 800);
-                }
-
-                if (cardTapState.count === 3) {
-                    clearTimeout(cardTapState.timer);
-                    triggerSuperuserUnlock(classId);
-                    cardTapState = { count: 0, timer: null, classId: null };
-                }
-            }
-
-            let headerTapCount = 0;
-            let headerTapTimer = null;
-            document.querySelector('header').addEventListener('click', (e) => {
-                if (e.target.closest('button')) return;
-                headerTapCount++;
-                if (headerTapCount === 1) {
-                    headerTapTimer = setTimeout(() => { headerTapCount = 0; }, 1500);
-                }
-                if (headerTapCount === 5) {
-                    clearTimeout(headerTapTimer);
-                    headerTapCount = 0;
-                    triggerSuperuserUnlock();
-                }
-            });
-            
-            function triggerSuperuserUnlock(targetClassId = null) {
-                if (targetClassId) {
-                    unlockModal.dataset.unlockTarget = targetClassId;
-                    unlockModal.querySelector('h2').textContent = `Buka Kunci Kelas ${targetClassId}`;
-                    unlockModal.querySelector('p').textContent = `Masukkan sandi untuk membuka kunci ${targetClassId}.`;
-                } else {
-                    delete unlockModal.dataset.unlockTarget;
-                    unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
-                    unlockModal.querySelector('p').textContent = 'Masukkan kata sandi superuser.';
-                }
-                unlockForm.classList.remove('hidden');
-                classUnlockOptions.classList.add('hidden');
-                unlockModal.classList.remove('hidden');
-            }
-
-            function resetUnlockModal() {
-                unlockModal.classList.add('hidden');
-                delete unlockModal.dataset.unlockTarget;
-                setTimeout(() => {
-                    unlockForm.classList.remove('hidden');
-                    classUnlockOptions.classList.add('hidden');
-                    unlockPasswordInput.value = '';
-                    unlockErrorMessage.textContent = '';
-                    unlockModal.querySelector('h2').textContent = 'Buka Kunci Edit';
-                    unlockModal.querySelector('p').textContent = 'Masukkan kata sandi superuser.';
-                }, 300);
-            }
-
-            unlockForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const enteredPassword = unlockPasswordInput.value;
-                const singleUnlockTarget = unlockModal.dataset.unlockTarget;
-
-                if (enteredPassword === 'PPP') {
-                    playSuccessSound();
-                    if (singleUnlockTarget) {
-                        const unlockPayload = { [`locks.${singleUnlockTarget}`]: false };
-                        try {
-                            await updateDoc(attendanceDocRef, unlockPayload);
-                            resetUnlockModal();
-                            showNotification(`Kunci untuk kelas ${singleUnlockTarget} telah dibuka!`, 'success');
-                        } catch (error) {
-                            console.error("Gagal membuka kunci:", error);
-                            showNotification("Gagal membuka kunci. Coba lagi.", 'error');
-                        }
-                    } else {
-                        unlockForm.classList.add('hidden');
-                        classUnlockOptions.classList.remove('hidden');
-                        unlockErrorMessage.textContent = '';
-                    }
-                } else {
-                    playTone(220, 0.2);
-                    unlockErrorMessage.textContent = 'Kata sandi salah.';
-                    const unlockBox = unlockModal.querySelector('div');
-                    unlockBox.classList.add('animate-shake');
-                    unlockPasswordInput.value = '';
-                    setTimeout(() => {
-                        unlockErrorMessage.textContent = '';
-                        unlockBox.classList.remove('animate-shake');
-                    }, 2000);
-                }
-            });
-            
-            classUnlockOptions.addEventListener('click', async (e) => {
-                const target = e.target.closest('.unlock-level-btn');
-                if (!target) return;
-
-                const levelToUnlock = target.dataset.level;
-                const originalText = target.innerHTML;
-                target.disabled = true;
-                target.innerHTML = `<span class="animate-pulse">Membuka...</span>`;
-
-                const unlockPayload = {};
-                const matchingLevels = levelToUnlock === 'ALL'
-                    ? Object.keys(CLASSES_CONFIG)
-                    : Object.keys(CLASSES_CONFIG).filter(k => k.includes(levelToUnlock));
-
-                matchingLevels.forEach(levelKey => {
-                    const levelRoman = levelKey.split(' ')[1];
-                    CLASSES_CONFIG[levelKey].rombels.forEach(rombel => {
-                        const classId = `${levelRoman}${rombel}`;
-                        unlockPayload[`locks.${classId}`] = false;
-                    });
-                });
-
-                try {
-                    if (Object.keys(unlockPayload).length > 0) {
-                        await updateDoc(attendanceDocRef, unlockPayload);
-                        playSuccessSound();
-                        showNotification(`Kunci untuk ${levelToUnlock === 'ALL' ? 'Semua Kelas' : `Kelas ${levelToUnlock}`} telah dibuka!`, 'success');
-                    }
-                } catch (error) {
-                    console.error("Gagal membuka kunci:", error);
-                    showNotification("Gagal membuka kunci. Coba lagi.", 'error');
-                } finally {
-                    target.disabled = false;
-                    target.innerHTML = originalText;
+                if (e.target.closest('.edit-class-btn')) {
+                    card.querySelector('.attendance-display').classList.add('hidden');
+                    card.querySelector('.attendance-input').classList.remove('hidden');
+                    card.querySelector('.edit-mode-controls-card').classList.remove('hidden');
+                    card.querySelector('.edit-class-btn').classList.add('hidden');
+                } else if (e.target.closest('.save-class-btn')) {
+                    const value = parseInt(card.querySelector('.attendance-input').value) || 0;
+                    await updateDoc(attendanceDocRef, { [classId]: value, [`locks.${classId}`]: true });
+                } else if (e.target.closest('.cancel-class-btn')) {
+                    renderAttendanceGrid(currentData);
                 }
             });
 
-            // --- NEW: Logic for Safe Reset Modal ---
-
-            function showResetConfirm() {
-                resetConfirmInput.value = ''; // Clear previous input
-                resetOkBtn.disabled = true;
-                resetOkBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                resetConfirmModal.classList.remove('hidden');
-                setTimeout(() => {
-                    resetConfirmModal.style.opacity = '1';
-                    resetConfirmContent.style.transform = 'scale(1)';
-                    resetConfirmContent.style.opacity = '1';
-                }, 10);
-            }
-
-            function hideResetConfirm() {
-                resetConfirmModal.style.opacity = '0';
-                resetConfirmContent.style.transform = 'scale(0.95)';
-                resetConfirmContent.style.opacity = '0';
-                setTimeout(() => {
-                    resetConfirmModal.classList.add('hidden');
-                }, 300);
-            }
-
-            document.getElementById('reset-data-btn').addEventListener('click', showResetConfirm);
-            resetCancelBtn.addEventListener('click', hideResetConfirm);
-
-            resetConfirmInput.addEventListener('input', () => {
-                if (resetConfirmInput.value === 'RESET') {
-                    resetOkBtn.disabled = false;
-                    resetOkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    resetOkBtn.disabled = true;
-                    resetOkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            onSnapshot(attendanceDocRef, (doc) => {
+                if (doc.exists()) {
+                    currentData = doc.data();
+                    renderAttendanceGrid(currentData);
+                    updateSummary(currentData);
+                    dateElement.textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 }
             });
-            
-            resetOkBtn.addEventListener('click', async () => {
-                console.log("Mereset data harian setelah konfirmasi ketik...");
-                const resetData = { lastUpdated: getWIBDateString(), locks: {} };
-                Object.keys(CLASSES_CONFIG).forEach(level => {
-                    const levelRoman = level.split(' ')[1];
-                    CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                        const classId = `${levelRoman}${rombel}`;
-                        resetData[classId] = 0;
-                        resetData[classId] = false;
-                    });
-                });
-                
-                try {
-                    await setDoc(attendanceDocRef, resetData);
-                    hideResetConfirm();
-                    resetUnlockModal();
-                    showNotification("Data harian berhasil direset.", 'success');
-                    playSuccessSound();
-                } catch (error) {
-                     console.error("Gagal mereset data secara manual:", error);
-                     showNotification("Gagal mereset data.", 'error');
-                }
-            });
-
-
-            cancelUnlockBtn.addEventListener('click', resetUnlockModal);
-            doneUnlockingBtn.addEventListener('click', resetUnlockModal);
-
-            // --- Dashboard Initialization Logic ---
-
-            async function checkAndSetupDailyData() {
-                try {
-                    const docSnap = await getDoc(attendanceDocRef);
-
-                    // If the document for today does NOT exist, create it.
-                    if (!docSnap.exists()) {
-                        const todayString = getWIBDateString();
-                        console.log(`Dokumen untuk ${todayString} tidak ditemukan. Membuat dokumen baru...`);
-                        const resetData = { lastUpdated: todayString, locks: {} };
-                        Object.keys(CLASSES_CONFIG).forEach(level => {
-                            const levelRoman = level.split(' ')[1];
-                            CLASSES_CONFIG[level].rombels.forEach(rombel => {
-                                const classId = `${levelRoman}${rombel}`;
-                                resetData[classId] = 0;
-                                resetData.locks[classId] = false; 
-                            });
-                        });
-                        await setDoc(attendanceDocRef, resetData);
-                        console.log("Dokumen harian baru berhasil dibuat.");
-                    } else {
-                        const todayString = getWIBDateString();
-                        console.log(`Dokumen untuk ${todayString} sudah ada. Melanjutkan.`);
-                    }
-                } catch (error) {
-                    console.error("Gagal memeriksa atau mereset data harian:", error);
-                    showNotification("Gagal memuat data sesi hari ini.", 'error');
-                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Gagal memuat data. Periksa koneksi dan coba muat ulang halaman.</p>`;
-                }
-            }
-
-            function listenForUpdates() {
-                onSnapshot(attendanceDocRef, (doc) => {
-                    if (doc.exists()) {
-                        currentData = doc.data();
-                        renderAttendanceGrid(currentData);
-                        updateSummary(currentData);
-                    } else {
-                        console.log("Dokumen tidak ditemukan, mungkin sedang dibuat...");
-                        renderSkeletonLoader();
-                    }
-                }, (error) => {
-                    console.error("Firestore onSnapshot error:", error);
-                    // This is the error message the user is likely seeing
-                    attendanceGrid.innerHTML = `<p class="text-center text-red-500 font-semibold p-4 bg-red-100 rounded-lg">Koneksi ke database gagal. Periksa Aturan Keamanan (Security Rules) di Firebase Console Anda. Anda harus mengizinkan 'read' dan 'write'.</p>`;
-                });
-            }
-
-            async function initializeDashboard() {
-                displayCurrentDate();
-                renderSkeletonLoader();
-                await checkAndSetupDailyData(); // First, check if a reset is needed
-                listenForUpdates(); // Then, start listening for real-time updates
-            }
-
-            initializeDashboard();
         });
     </script>
 </body>
