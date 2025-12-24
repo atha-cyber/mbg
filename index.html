@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Full Screen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Memastikan body dan html tidak memiliki margin dan memenuhi layar */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
 
+        /* Animasi masuk sederhana untuk gambar */
+        .fade-in {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Wadah Utama yang memenuhi layar -->
+    <div class="w-screen h-screen overflow-hidden">
+        <img 
+            id="hacker-img"
+            src="https://i.pinimg.com/1200x/37/63/d0/3763d0d92ef9ba970232bd260f25f8bc.jpg" 
+            alt="Gambar Hacker Full Screen" 
+            class="w-full h-full object-cover fade-in"
+            onerror="this.src='https://via.placeholder.com/1920x1080?text=Gambar+Tidak+Ditemukan'"
+        >
+    </div>
+
+    <script>
+        // Pesan konfirmasi di konsol bahwa gambar berhasil dimuat tanpa error izin
+        window.onload = () => {
+            console.log("Tampilan Full Screen visual aktif.");
+        };
+    </script>
+</body>
+</html>
