@@ -3,48 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hacker Full Screen</title>
+    <title>Dasbor Kehadiran - Program Makan Bergizi</title>
+    
+    <script>
+        // Konfigurasi Keamanan Domain
+        const DOMAIN_RESMI = "atha-cyber.github.io";
+        let isAuthorized = true;
+
+        (function() {
+            // Periksa apakah hostname valid (mengizinkan domain resmi dan localhost untuk testing)
+            if (window.location.hostname !== DOMAIN_RESMI && 
+                window.location.hostname !== "localhost" && 
+                window.location.hostname !== "127.0.0.1") {
+                
+                isAuthorized = false;
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Memastikan body dan html tidak memiliki margin dan memenuhi layar */
-        body, html {
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #000; /* Default background hitam */
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
         }
-
-        /* Animasi masuk sederhana untuk gambar */
-        .fade-in {
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        
+        #safe-content {
+            transition: opacity 0.5s ease-in;
         }
     </style>
 </head>
-<body>
+<body class="text-gray-200">
 
-    <!-- Wadah Utama yang memenuhi layar -->
-    <div class="w-screen h-screen overflow-hidden">
-        <img 
-            id="hacker-img"
-            src="https://i.pinimg.com/1200x/37/63/d0/3763d0d92ef9ba970232bd260f25f8bc.jpg" 
-            alt="Gambar Hacker Full Screen" 
-            class="w-full h-full object-cover fade-in"
-            onerror="this.src='https://via.placeholder.com/1920x1080?text=Gambar+Tidak+Ditemukan'"
-        >
+    <!-- Konten Utama -->
+    <div id="safe-content" class="hidden">
+        <div id="background-video-container" class="fixed inset-0 z-[-1] overflow-hidden">
+            <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
+            </video>
+        </div>
+        
+        <div id="content-wrapper">
+            <header class="p-4 sm:p-8 border-b border-white/20">
+                <div class="container mx-auto flex justify-between items-center text-center">
+                    <h1 class="text-xl font-black text-white">DASBOR KEHADIRAN MBG</h1>
+                </div>
+            </header>
+            <div class="container mx-auto p-8 text-center">
+                <p class="text-2xl font-bold">Data sedang dimuat...</p>
+                <p id="total-present" class="text-5xl mt-4 font-black">0</p>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Pesan konfirmasi di konsol bahwa gambar berhasil dimuat tanpa error izin
-        window.onload = () => {
-            console.log("Tampilan Full Screen visual aktif.");
-        };
+    <script type="module">
+        // Import harus berada di level teratas skrip modul
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const safeContent = document.getElementById('safe-content');
+
+        if (!isAuthorized) {
+            // Jika tidak resmi: Hapus seluruh elemen dari DOM dan biarkan layar tetap hitam
+            if (safeContent) safeContent.remove();
+            document.body.style.backgroundColor = "#000";
+            window.stop(); // Hentikan semua request (video/skrip/api)
+        } else {
+            // Jika resmi: Tampilkan konten dan jalankan Firebase
+            if (safeContent) {
+                safeContent.classList.remove('hidden');
+            }
+            
+            const firebaseConfig = {
+                apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
+                authDomain: "mbg4-329e3.firebaseapp.com",
+                projectId: "mbg4-329e3",
+                storageBucket: "mbg4-329e3.appspot.com",
+                messagingSenderId: "13330785414",
+                appId: "1:13330785414:web:99505859877a60a2311d07"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            const today = new Date().toISOString().split('T')[0];
+            onSnapshot(doc(db, "kehadiran", `rekap-${today}`), (doc) => {
+                if (doc.exists()) {
+                    let total = 0;
+                    const data = doc.data();
+                    Object.values(data).forEach(v => { if(typeof v === 'number') total += v; });
+                    const displayElement = document.getElementById('total-present');
+                    if (displayElement) {
+                        displayElement.innerText = total;
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
