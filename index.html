@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- MEMANGGIL KONFIGURASI DARI FILE LOKAL -->
+    <!-- File config.js inilah yang berisi API Key dan JANGAN diunggah ke GitHub -->
+    <script src="config.js"></script>
+
     <style>
         #content-wrapper { position: relative; z-index: 1; opacity: 1; transition: opacity 0.5s ease-in; }
         #background-video-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; }
@@ -27,13 +32,15 @@
             body { background: white !important; color: black !important; }
             .no-print, #background-video-container { display: none !important; }
             .print-only { display: block !important; }
-            .header-print { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid black; padding-bottom: 10px; }
-            .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-            .report-table th, .report-table td { border: 1px solid black; padding: 6px; text-align: center; }
+            .header-print { display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid black; padding-bottom: 10px; margin-bottom: 15px; }
+            .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+            .report-table th, .report-table td { border: 2px solid #333; padding: 10px; text-align: center; color: black; font-weight: bold; }
+            .report-table th { background-color: #eee !important; }
         }
     </style>
 </head>
 <body class="text-gray-200">
+    <!-- Latar Belakang Video -->
     <div id="background-video-container">
         <video autoplay loop muted playsinline id="bg-video">
             <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
@@ -42,27 +49,28 @@
     
     <div id="content-wrapper">
         <div id="main-dashboard-ui">
-            <!-- Modal Akses Kontrol -->
+            <!-- Modal Superuser -->
             <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900/95 backdrop-blur-lg flex items-center justify-center z-50 p-4 no-print">
                 <div class="w-full max-w-sm bg-gray-800 border border-white/10 rounded-2xl p-8 shadow-2xl">
                     <form id="unlock-form">
-                        <h2 class="text-2xl font-bold text-center mb-6">Akses Kontrol</h2>
+                        <h2 class="text-2xl font-bold text-center mb-6 text-white">Akses Kontrol</h2>
                         <input type="password" id="unlock-password-input" placeholder="Sandi Admin" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 mb-4 text-center text-xl focus:ring-2 focus:ring-yellow-500 outline-none text-white">
-                        <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-bold transition">Masuk</button>
+                        <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-bold transition text-white">Masuk</button>
                         <button type="button" id="cancel-unlock-btn" class="w-full mt-2 text-gray-400 py-2">Batal</button>
                     </form>
                     <div id="class-unlock-options" class="hidden space-y-4">
                         <h3 class="text-center font-bold text-yellow-500">Panel Superuser</h3>
-                        <button type="button" id="unlock-all-btn" class="w-full bg-blue-600 py-3 rounded-lg font-bold">Buka Semua Kunci</button>
-                        <button type="button" id="reset-data-btn" class="w-full bg-red-600 py-3 rounded-lg font-bold">Reset Data Harian</button>
+                        <button type="button" id="unlock-all-btn" class="w-full bg-blue-600 py-3 rounded-lg font-bold text-white">Buka Semua Kunci</button>
+                        <button type="button" id="reset-data-btn" class="w-full bg-red-600 py-3 rounded-lg font-bold text-white">Reset Data Harian</button>
                         <button type="button" id="done-unlocking-btn" class="w-full bg-gray-600 py-2 rounded-lg mt-4 text-white">Tutup Panel</button>
                     </div>
                 </div>
             </div>
 
-            <header class="relative p-6 sm:p-10 border-b border-white/10 bg-black/50 backdrop-blur-md">
+            <!-- Header -->
+            <header class="relative p-6 sm:p-10 border-b border-white/10 bg-black/50 backdrop-blur-md cursor-pointer">
                 <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo Sekolah" class="h-20 w-20 rounded-full bg-white p-1">
+                    <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo" class="h-20 w-20 rounded-full bg-white p-1">
                     <div class="text-center">
                         <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white uppercase">Dasbor Kehadiran MBG</h1>
                         <p class="text-yellow-500 font-bold uppercase tracking-widest text-sm sm:text-base">SMP NEGERI 4 PANDAK</p>
@@ -73,12 +81,14 @@
             </header>
             
             <div class="container mx-auto px-4 py-8">
+                <!-- Grid Utama -->
                 <main id="attendance-grid" class="space-y-10"></main>
                 
+                <!-- Bagian Rangkuman -->
                 <section id="summary-section" class="bg-black/60 backdrop-blur-xl p-8 rounded-3xl mt-12 border border-white/10 shadow-2xl">
                     <div class="flex justify-between items-center mb-8">
                         <h3 class="text-2xl font-black italic text-white">RANGKUMAN PORSI</h3>
-                        <button id="print-btn" class="no-print bg-white/10 hover:bg-white/20 p-4 rounded-2xl transition-all active:scale-95 text-white">
+                        <button id="print-btn" title="Cetak Laporan" class="no-print bg-white/10 hover:bg-white/20 p-4 rounded-2xl transition-all active:scale-95 text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zM11 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z"/><path d="M1 7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2z"/></svg>
                         </button>
                     </div>
@@ -108,35 +118,35 @@
             </div>
         </div>
 
-        <!-- Tampilan Cetak -->
+        <!-- Layout Cetak (Tersembunyi di Browser) -->
         <div id="print-output" class="print-only">
             <div class="header-print">
-                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" height="70">
+                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" height="80">
                 <div style="text-align:center">
-                    <h1 style="margin:0; font-size: 24px;">LAPORAN KEHADIRAN MBG</h1>
-                    <h2 style="margin:0; font-size: 18px;">SMP NEGERI 4 PANDAK</h2>
+                    <h1 style="margin:0; font-size: 28px;">LAPORAN KEHADIRAN MBG</h1>
+                    <h2 style="margin:0; font-size: 20px;">SMP NEGERI 4 PANDAK</h2>
                 </div>
-                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" height="70">
+                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" height="80">
             </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 15px; font-weight: bold;">
+            <div style="display: flex; justify-content: space-between; margin-top: 15px; font-weight: bold; border: 2px solid black; padding: 10px; border-radius: 8px;">
                 <p id="print-date-display"></p>
-                <p>Total Porsi Terpakai: <span id="print-total-val">0</span></p>
+                <p>TOTAL PORSI TERPAKAI: <span id="print-total-val" style="font-size: 1.5em;">0</span></p>
             </div>
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th width="30%">KELAS / UNIT</th>
+                        <th width="30%">KELAS</th>
                         <th width="20%">HADIR</th>
                         <th width="50%">KETERANGAN</th>
                     </tr>
                 </thead>
                 <tbody id="print-table-body"></tbody>
             </table>
-            <div style="margin-top: 40px; display: flex; justify-content: flex-end;">
-                <div style="text-align: center; width: 200px;">
+            <div style="margin-top: 50px; display: flex; justify-content: flex-end;">
+                <div style="text-align: center; width: 250px; font-weight: bold;">
                     <p>Petugas MBG,</p>
-                    <div style="height: 80px;"></div>
-                    <p>( ................................ )</p>
+                    <div style="height: 100px;"></div>
+                    <p>( ....................................... )</p>
                 </div>
             </div>
         </div>
@@ -146,82 +156,65 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi Environment Aman
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "", // Masukkan API Key Anda di sini jika menjalankan lokal
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: ""
-        };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-mbg-app';
-        const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // MENGAMBIL KONFIGURASI DARI FILE config.js
+        const firebaseConfig = window.firebaseConfig;
+        const SECRET_ACCESS = window.appSecret;
+        
+        // Cek Keberadaan Config
+        if (!firebaseConfig) {
+            document.body.innerHTML = "<div class='flex flex-col items-center justify-center h-screen text-white p-10 text-center bg-black'><h1 class='text-red-500 font-black text-2xl mb-4'>Error: config.js Tidak Ditemukan</h1><p class='text-gray-400'>Pastikan file <b>config.js</b> berada di satu folder dengan file ini di komputer Anda.</p></div>";
+        }
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // DATA KELAS (Konfigurasi Utama - Sumber Kebenaran Tampilan)
         const CLASSES_CONFIG = {
             'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'] },
             'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'] },
             'Kelas IX': { color: 'purple', rombels: ['A', 'B', 'C', 'D', 'E'] }
         };
         
-        const TOTAL_PORSI = 472; 
-        const SECRET_ACCESS = "MBG4PANDAK"; 
+        const TOTAL_PORSI_KAPASITAS = 472; 
 
-        let user = null;
-        let currentAttendanceData = {};
-
-        const initAuth = async () => {
-            try {
-                if (initialToken && initialToken !== "") await signInWithCustomToken(auth, initialToken);
-                else await signInAnonymously(auth);
-            } catch (err) { 
-                console.error("Auth error:", err); 
-            }
-        };
+        let currentData = {};
 
         const getTodayId = () => {
             const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         };
 
-        const docPath = `artifacts/${appId}/public/data/daily_rekap/rekap-${getTodayId()}`;
+        const docPath = `artifacts/mbg4-pandak/public/data/daily_rekap/rekap-${getTodayId()}`;
 
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) startApp();
+        // 1. Jalankan Auth Dahulu
+        signInAnonymously(auth).catch(err => console.error("Auth error:", err));
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("Koneksi Database Aktif");
+                startListening();
+            }
         });
 
-        const startApp = () => {
+        const startListening = () => {
             const attendanceDocRef = doc(db, docPath);
-            
-            // Listener untuk data dari database
             onSnapshot(attendanceDocRef, (snap) => {
-                currentAttendanceData = snap.exists() ? snap.data() : {};
-                
-                // Pastikan UI ter-update dengan data terbaru
-                renderUI(currentAttendanceData);
-                
-                // Jika dokumen belum ada di database, buat dokumen baru dengan struktur lengkap A-E
-                if (!snap.exists()) {
-                    createEmptyData();
-                }
+                currentData = snap.exists() ? snap.data() : {};
+                renderUI(currentData);
+                if (!snap.exists()) createDefaultData();
             }, (err) => {
-                console.error("Firestore error:", err);
-                // Jika error (misal koneksi lokal bermasalah), tetap render UI kosong agar tidak pecah
+                console.error("Gagal mengambil data:", err);
                 renderUI({});
             });
         };
 
-        const createEmptyData = async () => {
-            if (!user) return;
+        const createDefaultData = async () => {
             const initial = { date: getTodayId(), locks: {} };
             Object.entries(CLASSES_CONFIG).forEach(([level, details]) => {
                 const levelRoman = level.split(' ')[1];
@@ -231,11 +224,7 @@
                     initial.locks[id] = false;
                 });
             });
-            try {
-                await setDoc(doc(db, docPath), initial);
-            } catch (e) {
-                console.error("Gagal membuat data awal:", e);
-            }
+            await setDoc(doc(db, docPath), initial);
         };
 
         const renderUI = (data) => {
@@ -244,14 +233,13 @@
             let totalOverall = 0;
             const summary = { vii: 0, viii: 0, ix: 0 };
 
-            // Render BERDASARKAN CLASSES_CONFIG agar daftar rombel A-E selalu konsisten
             for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
                 let levelSum = 0;
                 const levelRoman = level.split(' ')[1];
 
                 html += `
                 <div class="bg-black/30 rounded-3xl p-6 border border-white/5 shadow-inner">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3 text-white">
                         <span class="w-3 h-3 rounded-full bg-${details.color}-500 shadow-[0_0_10px_rgba(0,0,0,0.5)]"></span>
                         ${level}
                     </h3>
@@ -259,7 +247,6 @@
 
                 details.rombels.forEach(rombel => {
                     const id = `${levelRoman}${rombel}`;
-                    // Jika data[id] tidak ada di DB, tampilkan 0
                     const count = (data && data[id] !== undefined) ? data[id] : 0;
                     const locked = (data && data.locks && data.locks[id]) || false;
                     levelSum += count;
@@ -272,7 +259,7 @@
                             
                             <div class="mt-3 min-h-[24px]">
                                 ${locked ? 
-                                    '<span class="text-[9px] text-gray-600 font-bold uppercase tracking-widest flex items-center justify-center gap-1"><svg class="w-2 h-2" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg> Terkunci</span>' : 
+                                    '<span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-1">Terkunci</span>' : 
                                     `<button class="btn-edit text-[9px] bg-${details.color}-600/20 hover:bg-${details.color}-600 text-white px-3 py-1 rounded-full font-black uppercase transition-all active:scale-90">Ubah</button>`
                                 }
                                 <div class="hidden edit-controls flex justify-center gap-2">
@@ -298,7 +285,7 @@
             document.getElementById('total-viii').textContent = summary.viii;
             document.getElementById('total-ix').textContent = summary.ix;
             document.getElementById('total-present').textContent = totalOverall;
-            document.getElementById('remaining-portions').textContent = Math.max(0, TOTAL_PORSI - totalOverall);
+            document.getElementById('remaining-portions').textContent = Math.max(0, TOTAL_PORSI_KAPASITAS - totalOverall);
 
             attachEvents();
         };
@@ -316,7 +303,7 @@
             });
 
             document.querySelectorAll('.btn-cancel').forEach(btn => {
-                btn.onclick = () => renderUI(currentAttendanceData);
+                btn.onclick = () => renderUI(currentData);
             });
 
             document.querySelectorAll('.btn-save').forEach(btn => {
@@ -324,23 +311,13 @@
                     const card = e.target.closest('[data-class]');
                     const classId = card.dataset.class;
                     const newVal = parseInt(card.querySelector('.input-val').value) || 0;
-                    
-                    if (!user) return;
-                    try {
-                        await updateDoc(doc(db, docPath), {
-                            [classId]: newVal,
-                            [`locks.${classId}`]: true
-                        });
-                    } catch (err) {
-                        console.error("Gagal menyimpan data:", err);
-                        alert("Gagal menyimpan! Periksa koneksi atau konfigurasi Firebase.");
-                    }
+                    await updateDoc(doc(db, docPath), {
+                        [classId]: newVal,
+                        [`locks.${classId}`]: true
+                    });
                 };
             });
         };
-
-        // Inisialisasi awal UI kosong agar rombel langsung muncul
-        renderUI({});
 
         // UI Helpers
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -354,7 +331,7 @@
             }
         };
 
-        // Admin Auth
+        // Admin Auth (Klik Header 5x)
         let tapCount = 0;
         document.querySelector('header').onclick = () => {
             tapCount++;
@@ -381,52 +358,40 @@
         };
 
         document.getElementById('reset-data-btn').onclick = async () => {
-            if (confirm("PERHATIAN: Hapus semua data kehadiran hari ini?")) {
-                await createEmptyData();
+            if (confirm("Reset seluruh data kehadiran hari ini?")) {
+                await createDefaultData();
                 location.reload();
             }
         };
 
         document.getElementById('unlock-all-btn').onclick = async () => {
-            if (!user) return;
             const newLocks = {};
-            // Loop melalui konfigurasi rombel yang benar (A-E)
-            Object.entries(CLASSES_CONFIG).forEach(([level, details]) => {
-                const levelRoman = level.split(' ')[1];
-                details.rombels.forEach(r => {
-                    newLocks[`locks.${levelRoman}${r}`] = false;
-                });
+            Object.keys(currentData).forEach(key => {
+                if (key !== 'date' && key !== 'locks') newLocks[`locks.${key}`] = false;
             });
             await updateDoc(doc(db, docPath), newLocks);
             location.reload();
         };
 
-        document.getElementById('done-unlocking-btn').onclick = () => {
-            document.getElementById('unlock-modal').classList.add('hidden');
-            document.getElementById('unlock-form').classList.remove('hidden');
-            document.getElementById('class-unlock-options').classList.add('hidden');
-            document.getElementById('unlock-password-input').value = "";
-        };
+        document.getElementById('done-unlocking-btn').onclick = () => location.reload();
 
         document.getElementById('print-btn').onclick = () => {
             const body = document.getElementById('print-table-body');
             body.innerHTML = '';
-            
             Object.entries(CLASSES_CONFIG).forEach(([level, details]) => {
                 const levelRoman = level.split(' ')[1];
                 details.rombels.forEach(r => {
                     const id = `${levelRoman}${r}`;
-                    const val = currentAttendanceData[id] || 0;
+                    const val = currentData[id] || 0;
                     body.innerHTML += `<tr><td>${levelRoman} ${r}</td><td>${val}</td><td></td></tr>`;
                 });
             });
-
             document.getElementById('print-total-val').textContent = document.getElementById('total-present').textContent;
             document.getElementById('print-date-display').textContent = "Tanggal: " + document.getElementById('current-date').textContent;
             window.print();
         };
-
-        initAuth();
+        
+        renderUI({});
     </script>
 </body>
 </html>
