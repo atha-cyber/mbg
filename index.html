@@ -12,9 +12,10 @@
 
         (function() {
             // Periksa apakah hostname valid (mengizinkan domain resmi dan localhost untuk testing)
-            if (window.location.hostname !== DOMAIN_RESMI && 
-                window.location.hostname !== "localhost" && 
-                window.location.hostname !== "127.0.0.1") {
+            const currentHost = window.location.hostname;
+            if (currentHost !== DOMAIN_RESMI && 
+                currentHost !== "localhost" && 
+                currentHost !== "127.0.0.1") {
                 
                 isAuthorized = false;
             }
@@ -56,7 +57,7 @@
                 </div>
             </header>
             <div class="container mx-auto p-8 text-center">
-                <p class="text-2xl font-bold">Data sedang dimuat...</p>
+                <p id="loading-status" class="text-2xl font-bold">Data sedang dimuat...</p>
                 <p id="total-present" class="text-5xl mt-4 font-black">0</p>
             </div>
         </div>
@@ -73,7 +74,7 @@
             // Jika tidak resmi: Hapus seluruh elemen dari DOM dan biarkan layar tetap hitam
             if (safeContent) safeContent.remove();
             document.body.style.backgroundColor = "#000";
-            window.stop(); // Hentikan semua request (video/skrip/api)
+            window.stop(); 
         } else {
             // Jika resmi: Tampilkan konten dan jalankan Firebase
             if (safeContent) {
@@ -92,17 +93,43 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
-            const today = new Date().toISOString().split('T')[0];
-            onSnapshot(doc(db, "kehadiran", `rekap-${today}`), (doc) => {
+            // Fungsi untuk mendapatkan tanggal WIB (Asia/Jakarta) agar sesuai dengan nama dokumen di DB
+            function getWIBDateString() {
+                const now = new Date();
+                const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
+                const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(now);
+                const year = parts.find(p => p.type === 'year').value;
+                const month = parts.find(p => p.type === 'month').value;
+                const day = parts.find(p => p.type === 'day').value;
+                return `${year}-${month}-${day}`;
+            }
+
+            const today = getWIBDateString();
+            const docRef = doc(db, "kehadiran", `rekap-${today}`);
+
+            onSnapshot(docRef, (doc) => {
+                const statusElement = document.getElementById('loading-status');
+                const displayElement = document.getElementById('total-present');
+
                 if (doc.exists()) {
                     let total = 0;
                     const data = doc.data();
-                    Object.values(data).forEach(v => { if(typeof v === 'number') total += v; });
-                    const displayElement = document.getElementById('total-present');
-                    if (displayElement) {
-                        displayElement.innerText = total;
-                    }
+                    // Menghitung total porsi dari semua field angka
+                    Object.keys(data).forEach(key => {
+                        if (typeof data[key] === 'number') total += data[key];
+                    });
+                    
+                    if (statusElement) statusElement.innerText = "Total Hadir Hari Ini:";
+                    if (displayElement) displayElement.innerText = total;
+                } else {
+                    // Jika dokumen hari ini belum dibuat di database
+                    if (statusElement) statusElement.innerText = "Belum ada data untuk hari ini.";
+                    if (displayElement) displayElement.innerText = "0";
                 }
+            }, (error) => {
+                console.error("Firebase Error:", error);
+                const statusElement = document.getElementById('loading-status');
+                if (statusElement) statusElement.innerText = "Gagal memuat data. Periksa koneksi.";
             });
         }
     </script>
