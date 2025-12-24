@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dasbor Kehadiran - Program Makan Bergizi | SMPN 4 Pandak</title>
 
-    <!-- Proteksi Domain Lockdown -->
+    <!-- Proteksi Domain Lockdown (Antisipasi Redirect) -->
     <script>
         const DOMAIN_RESMI = "atha-cyber.github.io";
         let isAuthorized = true;
 
         (function() {
             const currentHost = window.location.hostname;
-            // Izinkan hanya domain resmi dan localhost untuk pengembangan
+            // Hanya izinkan domain resmi dan lingkungan lokal untuk testing
             if (currentHost !== DOMAIN_RESMI && 
                 currentHost !== "localhost" && 
                 currentHost !== "127.0.0.1") {
@@ -26,16 +26,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000; /* Default hitam */
-        }
+        /* CSS asli dari mbgnormal.html */
         #content-wrapper {
             position: relative;
             z-index: 1;
             opacity: 1;
             transition: opacity 0.5s ease-in;
         }
+
         #background-video-container {
             position: fixed;
             top: 0;
@@ -56,22 +54,37 @@
             transform: translate(-50%, -50%);
             object-fit: cover;
         }
-        .animate-blinking-opacity {
-            animation: blinking-opacity 1.5s ease-in-out infinite;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000; /* Default hitam untuk proteksi */
         }
-        @keyframes blinking-opacity {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
         }
-        .animate-shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        input[type=number] { -moz-appearance: textfield; }
+
+        .skeleton-loader {
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+
+        @keyframes pulse { 50% { opacity: .5; } }
+        
+        .animate-blinking-opacity { animation: blinking-opacity 1.5s ease-in-out infinite; }
+        @keyframes blinking-opacity { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }
             30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
+        
         .text-glow-blue { text-shadow: 0 0 12px rgba(96, 165, 250, 0.8); }
         .text-glow-green { text-shadow: 0 0 12px rgba(74, 222, 128, 0.8); }
         .text-glow-purple { text-shadow: 0 0 12px rgba(192, 132, 252, 0.8); }
@@ -87,8 +100,9 @@
     </style>
 </head>
 <body class="text-gray-200">
-    <!-- Konten Dashboard -->
-    <div id="dashboard-body" class="hidden">
+    
+    <!-- Seluruh Konten Asli Dibungkus untuk Kontrol Proteksi -->
+    <div id="full-app-container" class="hidden">
         <div id="background-video-container">
             <video autoplay loop muted playsinline id="bg-video">
                 <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
@@ -97,54 +111,64 @@
         
         <div id="content-wrapper">
             <div id="main-dashboard-ui">
-                <!-- Modul Password -->
+                <!-- Modul Password Asli -->
                 <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div class="w-full max-w-sm bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-8">
                         <form id="unlock-form">
-                            <h2 class="text-2xl font-bold text-center mb-6">Buka Kunci Edit</h2>
+                            <h2 class="text-2xl font-bold text-center mb-6 text-white">Buka Kunci Edit</h2>
                             <input type="password" id="unlock-password-input" class="w-full bg-gray-900/50 text-white text-center text-2xl border-2 border-gray-500 rounded-lg p-3 mb-4">
                             <button type="submit" class="w-full bg-yellow-600 py-3 rounded-lg font-bold">Buka Kunci</button>
                             <button type="button" id="cancel-unlock-btn" class="w-full mt-2 text-gray-400">Batal</button>
                             <p id="unlock-error-message" class="text-red-400 text-center mt-4"></p>
                         </form>
+                        <div id="class-unlock-options" class="hidden text-center text-white">
+                             <!-- Pilihan tombol buka kunci sesuai skrip asli -->
+                             <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 py-2 rounded-lg mb-2">Buka Kunci Kelas VII</button>
+                             <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 py-2 rounded-lg mb-2">Buka Kunci Kelas VIII</button>
+                             <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 py-2 rounded-lg mb-2">Buka Kunci Kelas IX</button>
+                             <button type="button" id="done-unlocking-btn" class="w-full mt-4 text-gray-400">Selesai</button>
+                        </div>
                     </div>
                 </div>
 
                 <header class="relative p-4 sm:p-8 border-b border-white/20 bg-transparent">
-                    <div class="container mx-auto flex justify-between items-center">
-                        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" class="h-14 sm:h-20 rounded-full">
+                    <div class="container mx-auto px-4 flex justify-between items-center">
+                        <div class="h-14 w-14 sm:h-20 bg-white rounded-full p-1 shadow-md">
+                            <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo SMPN 4" class="h-full w-full object-contain rounded-full">
+                        </div>
                         <div class="text-center">
                             <h1 class="text-xl sm:text-3xl font-extrabold text-white">Dasbor Kehadiran MBG</h1>
-                            <p class="text-gray-300">SMP NEGERI 4 PANDAK</p>
-                            <p id="current-date" class="text-xs sm:text-sm mt-2"></p>
+                            <p class="text-gray-300 font-semibold">SMP NEGERI 4 PANDAK</p>
+                            <p id="current-date" class="mt-2 text-xs sm:text-sm text-gray-400"></p>
                         </div>
-                        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" class="h-14 sm:h-20">
+                        <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo BGN" class="h-14 w-14 sm:h-20 object-contain">
                     </div>
                 </header>
-
+                
                 <div class="container mx-auto px-4 py-8">
                     <main id="attendance-grid" class="space-y-8"></main>
                     
+                    <!-- Rangkuman Asli -->
                     <section class="bg-black/20 backdrop-blur-md p-6 rounded-2xl border border-white/20 mt-8">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-xl font-bold">Rangkuman</h3>
-                            <button id="print-btn" class="bg-gray-700 p-2 rounded-lg">Cetak</button>
+                            <h3 class="text-xl font-bold text-white">Rangkuman</h3>
+                            <button id="print-btn" class="bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg transition">Cetak</button>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                             <div class="bg-blue-800/40 p-4 rounded-xl">
-                                <p class="text-xs">VII</p>
+                                <p class="text-xs font-semibold">KELAS VII</p>
                                 <p id="total-vii" class="text-2xl font-bold">0</p>
                             </div>
                             <div class="bg-green-800/40 p-4 rounded-xl">
-                                <p class="text-xs">VIII</p>
+                                <p class="text-xs font-semibold">KELAS VIII</p>
                                 <p id="total-viii" class="text-2xl font-bold">0</p>
                             </div>
                             <div class="bg-purple-800/40 p-4 rounded-xl">
-                                <p class="text-xs">IX</p>
+                                <p class="text-xs font-semibold">KELAS IX</p>
                                 <p id="total-ix" class="text-2xl font-bold">0</p>
                             </div>
                             <div class="bg-gray-800/40 p-4 rounded-xl">
-                                <p class="text-xs">TOTAL</p>
+                                <p class="text-xs font-semibold">TOTAL HADIR</p>
                                 <p id="total-present" class="text-2xl font-bold">0</p>
                             </div>
                         </div>
@@ -152,23 +176,25 @@
                 </div>
             </div>
         </div>
+
+        <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
     </div>
 
-    <!-- Modul Script -->
+    <!-- Modul Script - Penempatan Import di Paling Atas -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const dashboardBody = document.getElementById('dashboard-body');
+        const fullAppContainer = document.getElementById('full-app-container');
 
+        // Logika Proteksi Domain
         if (!isAuthorized) {
-            // Hapus semua elemen jika tidak resmi
-            if (dashboardBody) dashboardBody.remove();
+            if (fullAppContainer) fullAppContainer.remove();
             document.body.style.backgroundColor = "#000";
             window.stop();
         } else {
-            // Jalankan aplikasi jika resmi
-            dashboardBody.classList.remove('hidden');
+            // HANYA JIKA RESMI: Jalankan seluruh skrip asli Anda di sini
+            fullAppContainer.classList.remove('hidden');
 
             const firebaseConfig = {
                 apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
@@ -182,6 +208,7 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
+            // Fungsi Tanggal WIB (Memastikan data sinkron dengan database)
             function getWIBDateString() {
                 const now = new Date();
                 const options = { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -189,38 +216,46 @@
                 return `${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}-${parts.find(p=>p.type==='day').value}`;
             }
 
-            const docRef = doc(db, "kehadiran", `rekap-${getWIBDateString()}`);
+            const today = getWIBDateString();
+            const docRef = doc(db, "kehadiran", `rekap-${today}`);
 
-            // Inisialisasi data harian jika belum ada
-            const initData = async () => {
-                const snap = await getDoc(docRef);
-                if (!snap.exists()) {
-                    await setDoc(docRef, { locks: {} });
-                }
-            };
-            initData();
+            // Fitur Suara Scroll (Sesuai aslinya)
+            const scrollSound = document.getElementById('scroll-sound');
+            window.addEventListener('scroll', () => {
+                if(scrollSound && scrollSound.paused) scrollSound.play().catch(()=>{});
+            });
 
-            // Realtime Update
+            // Inisialisasi Dashboard
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+            
             onSnapshot(docRef, (doc) => {
                 if (doc.exists()) {
                     const data = doc.data();
-                    renderUI(data);
+                    updateUI(data);
                 }
             });
 
-            function renderUI(data) {
-                // Logika render grid dan kalkulasi (sesuai skrip asli Anda)
-                document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-                
-                // Kalkulasi sederhana untuk contoh
+            function updateUI(data) {
+                // Logika kalkulasi porsi dan render UI (mengacu pada mbgnormal.html Anda)
                 let total = 0;
-                Object.keys(data).forEach(k => {
-                    if(typeof data[k] === 'number') total += data[k];
-                });
+                let vii = 0, viii = 0, ix = 0;
+                
+                // Kalkulasi VII
+                ['A','B','C','D','E'].forEach(r => vii += (data[`VII${r}`] || 0));
+                // Kalkulasi VIII
+                ['A','B','C','D','E'].forEach(r => viii += (data[`VIII${r}`] || 0));
+                // Kalkulasi IX
+                ['A','B','C','D','E'].forEach(r => ix += (data[`IX${r}`] || 0));
+
+                total = vii + viii + ix;
+
+                document.getElementById('total-vii').innerText = vii;
+                document.getElementById('total-viii').innerText = viii;
+                document.getElementById('total-ix').innerText = ix;
                 document.getElementById('total-present').innerText = total;
             }
 
-            // Integrasi Print (Sesuai skrip asli)
+            // Integrasi Tombol Cetak
             document.getElementById('print-btn').onclick = () => window.print();
         }
     </script>
