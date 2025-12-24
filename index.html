@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dasbor Kehadiran - Program Makan Bergizi | SMPN 4 Pandak</title>
-
-    <!-- Proteksi Domain Lockdown (Antisipasi Redirect) -->
+    
+    <!-- Proteksi Domain Lockdown (Anti-Redirect) -->
     <script>
-        const DOMAIN_RESMI = "atha-cyber.github.io";
-        let isAuthorized = true;
-
         (function() {
-            const currentHost = window.location.hostname;
-            // Hanya izinkan domain resmi dan lingkungan lokal untuk testing
-            if (currentHost !== DOMAIN_RESMI && 
-                currentHost !== "localhost" && 
-                currentHost !== "127.0.0.1") {
-                isAuthorized = false;
+            const DOMAIN_RESMI = "atha-cyber.github.io";
+            const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+            window.isAuthorized = window.location.hostname === DOMAIN_RESMI || isLocal;
+
+            // Jika domain tidak resmi, langsung hentikan eksekusi browser dan bersihkan layar
+            if (!window.isAuthorized) {
+                window.stop();
+                document.documentElement.innerHTML = '<head><title>Akses Ditolak</title></head><body style="background:#000;"></body>';
             }
         })();
     </script>
@@ -26,14 +25,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* CSS Asli dari mbgnormal.html */
+        /* Konten utama langsung terlihat */
         #content-wrapper {
             position: relative;
             z-index: 1;
-            opacity: 1;
+            opacity: 1; /* Langsung visible */
             transition: opacity 0.5s ease-in;
         }
 
+        /* CSS for the background video */
         #background-video-container {
             position: fixed;
             top: 0;
@@ -57,7 +57,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0c0a18;
+            background-color: #0c0a18; /* Fallback color if video fails to load */
         }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -72,12 +72,23 @@
             animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        @keyframes pulse { 50% { opacity: .5; } }
+        @keyframes pulse {
+            50% { opacity: .5; }
+        }
         
-        .animate-blinking-opacity { animation: blinking-opacity 1.5s ease-in-out infinite; }
-        @keyframes blinking-opacity { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .animate-blinking-opacity {
+            animation: blinking-opacity 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blinking-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
         
-        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }
@@ -89,148 +100,271 @@
         .text-glow-green { text-shadow: 0 0 12px rgba(74, 222, 128, 0.8), 0 0 4px rgba(74, 222, 128, 0.6); }
         .text-glow-purple { text-shadow: 0 0 12px rgba(192, 132, 252, 0.8), 0 0 4px rgba(192, 132, 252, 0.6); }
         
-        .print-only { display: none; }
+        /* Print-specific Styles - UPDATED FOR POSTER LAYOUT & SINGLE PAGE */
+        .print-only {
+             display: none;
+        }
+
         @media print {
-            @page { size: A4; margin: 1cm; }
-            body { background-color: white !important; color: #000 !important; font-family: 'Arial Black', sans-serif; }
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            body {
+                background-image: none !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 0;
+                font-family: 'Arial Black', 'Impact', sans-serif; /* Bolder fonts for poster style */
+                color: #000 !important;
+            }
             .no-print, #main-dashboard-ui, #background-video-container { display: none !important; }
             .print-only { display: block !important; }
+
             .print-container { text-align: center; }
-            .header-print { display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
-            .header-print img { height: 70px; }
-            .header-print h1 { font-size: 2em; font-weight: 900; margin: 0; text-transform: uppercase; }
-            .print-summary { margin: 15px 0; padding: 10px; border: 4px solid #000; border-radius: 10px; display: flex; justify-content: space-around; background-color: #f0f0f0 !important; }
-            .summary-value { font-size: 4em; font-weight: 900; }
-            .summary-value-sisa { font-size: 4em; font-weight: 900; color: #d9534f !important; }
-            .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            .report-table th, .report-table td { border: 2px solid #333; padding: 8px; text-align: center; font-weight: bold; color: #000; }
-            .report-table th { background-color: #ddd !important; text-transform: uppercase; }
+
+            .header-print {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 5px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+            }
+            .header-print img { height: 70px; } /* Smaller logos */
+            .header-print .title-block { text-align: center; }
+            .header-print h1 {
+                font-size: 2em;
+                font-weight: 900;
+                margin: 0;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: #000;
+            }
+            .header-print h2 {
+                font-size: 1.2em;
+                font-weight: normal;
+                margin: 0;
+                color: #000;
+            }
+
+            .print-summary {
+                margin: 15px 0;
+                padding: 10px;
+                border: 4px solid #000;
+                border-radius: 10px;
+                display: flex;
+                justify-content: space-around;
+                background-color: #f0f0f0 !important;
+            }
+            .summary-item {
+                display: flex;
+                flex-direction: column;
+                padding: 0 15px;
+            }
+            .summary-label {
+                font-size: 1.2em;
+                font-weight: bold;
+                color: #000;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            .summary-value, .summary-value-sisa {
+                font-size: 4em;
+                font-weight: 900;
+                line-height: 1.1;
+                color: #000;
+            }
+             .summary-value-sisa {
+                color: #d9534f !important; /* Red for remaining */
+            }
+
+            .date-info-print {
+                text-align: center;
+                margin-bottom: 15px;
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #000;
+            }
+
+            .report-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                page-break-inside: auto;
+            }
+             .report-table tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            .report-table th, .report-table td {
+                border: 2px solid #333;
+                padding: 8px;
+                text-align: center;
+                font-weight: bold;
+                color: #000;
+            }
+            .report-table th {
+                font-size: 1em;
+                background-color: #ddd !important;
+                color: #000;
+                text-transform: uppercase;
+            }
+            .report-table td { font-size: 0.9em; }
+            
+            .report-table tfoot td {
+                font-weight: 900;
+                background-color: #ccc !important;
+                font-size: 1.1em;
+                border-top: 4px solid #000;
+                text-transform: uppercase;
+                color: #000;
+            }
+
+            .footer-print {
+                margin-top: 20px;
+                font-size: 0.9em;
+                color: #000;
+            }
         }
     </style>
 </head>
 <body class="text-gray-200">
+    <!-- Background Video -->
+    <div id="background-video-container">
+        <video autoplay loop muted playsinline id="bg-video">
+            <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
+            Browser Anda tidak mendukung tag video.
+        </video>
+    </div>
     
-    <!-- Wadah Aplikasi dengan Kontrol Proteksi -->
-    <div id="full-app-container" class="hidden">
-        <!-- Background Video -->
-        <div id="background-video-container">
-            <video autoplay loop muted playsinline id="bg-video">
-                <source src="https://cdn.pixabay.com/video/2023/10/25/186421-878016905_large.mp4" type="video/mp4">
-            </video>
-        </div>
-        
-        <div id="content-wrapper">
-            <div id="main-dashboard-ui">
-                <!-- Modul Password Asli -->
-                <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
-                    <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-white">
-                        <form id="unlock-form">
-                            <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
-                            <p class="text-center text-gray-300 mb-6 text-sm">Masukkan kata sandi superuser.</p>
-                            <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-yellow-400 outline-none">
-                            <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-bold transition">Buka Kunci</button>
-                            <button type="button" id="cancel-unlock-btn" class="w-full mt-2 text-gray-400 text-sm">Batal</button>
-                            <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
-                        </form>
-
-                        <div id="class-unlock-options" class="hidden text-center">
-                            <h3 class="text-xl font-bold mb-4">Pilih Kelas untuk Dibuka</h3>
-                            <div class="space-y-3">
-                                <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 py-3 rounded-lg font-bold">Buka Kunci Kelas VII</button>
-                                <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 py-3 rounded-lg font-bold">Buka Kunci Kelas VIII</button>
-                                <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 py-3 rounded-lg font-bold">Buka Kunci Kelas IX</button>
-                                <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 py-3 rounded-lg font-bold mt-4">Buka Semua Kunci</button>
-                            </div>
-                            <div class="mt-6 border-t border-red-500/50 pt-4">
-                               <button type="button" id="reset-data-btn" class="w-full bg-red-700 py-3 rounded-lg font-bold">Reset Data Harian</button>
-                            </div>
-                            <button type="button" id="done-unlocking-btn" class="w-full mt-6 text-gray-400">Selesai</button>
+    <!-- Content Wrapper -->
+    <div id="content-wrapper">
+        <div id="main-dashboard-ui">
+            <!-- Unlock Modal -->
+            <div id="unlock-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+                <div class="w-full max-w-sm mx-auto bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 text-white">
+                    <form id="unlock-form">
+                        <h2 class="text-2xl font-bold text-center mb-2">Buka Kunci Edit</h2>
+                        <p class="text-center text-gray-300 mb-6">Masukkan kata sandi superuser.</p>
+                        <div class="mb-4">
+                            <label for="unlock-password-input" class="sr-only">Password</label>
+                            <input type="password" id="unlock-password-input" placeholder="***" class="w-full bg-gray-900/50 text-white text-center text-2xl tracking-[1em] border-2 border-gray-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" autocomplete="off">
                         </div>
+                        <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">Buka Kunci</button>
+                        <button type="button" id="cancel-unlock-btn" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Batal</button>
+                        <p id="unlock-error-message" class="text-red-400 text-center mt-4 h-5"></p>
+                    </form>
+
+                    <div id="class-unlock-options" class="hidden text-center">
+                        <h3 class="text-xl font-bold mb-4">Pilih Kelas untuk Dibuka</h3>
+                        <div class="space-y-3">
+                            <button type="button" data-level="VII" class="unlock-level-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VII</button>
+                            <button type="button" data-level="VIII" class="unlock-level-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas VIII</button>
+                            <button type="button" data-level="IX" class="unlock-level-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Buka Kunci Kelas IX</button>
+                            <button type="button" data-level="ALL" class="unlock-level-btn w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Buka Semua Kunci</button>
+                        </div>
+                        <div class="mt-6 border-t border-red-500/50 pt-4">
+                           <button type="button" id="reset-data-btn" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-4 rounded-lg transition">Reset Data Harian</button>
+                        </div>
+                        <button type="button" id="done-unlocking-btn" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Selesai</button>
                     </div>
                 </div>
+            </div>
 
-                <div id="main-dashboard">
-                    <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
+            <!-- Main Dashboard Content -->
+            <div id="main-dashboard">
+                <audio id="scroll-sound" src="https://raw.githubusercontent.com/atha-cyber/logo-/a2f4c0f6a47da76d0641baf965a40276587660bd/scrollll.wav" preload="auto"></audio>
+                
+                <header class="relative p-4 sm:p-8 border-b border-white/20 bg-transparent">
+                    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center w-full gap-4">
+                            <div class="flex justify-start">
+                                <div class="h-14 w-14 sm:h-20 sm:w-20 flex-shrink-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center">
+                                    <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" alt="Logo SMPN 4 Pandak" class="h-full w-full object-contain rounded-full">
+                                </div>
+                            </div>
+                            <div class="text-center min-w-0">
+                                <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-100 tracking-tight">Dasbor Kehadiran MBG</h1>
+                                <div class="relative flex justify-center mt-1">
+                                    <span class="text-sm sm:text-base md:text-lg text-gray-300 font-semibold uppercase tracking-widest">SMP NEGERI 4 PANDAK</span>
+                                </div>
+                                <p id="current-date" class="mt-3 text-gray-300 bg-black/30 px-4 py-1 rounded-full inline-block text-xs sm:text-sm"></p>
+                            </div>
+                            <div class="flex justify-end">
+                                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" alt="Logo BGN" class="h-14 w-14 sm:h-20 sm:w-20 object-contain drop-shadow-lg flex-shrink-0">
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <main id="attendance-grid" class="space-y-8 pt-8"></main>
                     
-                    <header class="relative p-4 sm:p-8 border-b border-white/20 bg-transparent">
-                        <div class="container mx-auto px-4 grid grid-cols-[auto_1fr_auto] items-center gap-4">
-                            <div class="bg-white h-14 w-14 sm:h-20 sm:w-20 rounded-full p-1 flex items-center justify-center">
-                                <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/images.jfif" class="h-full w-full object-contain rounded-full">
-                            </div>
-                            <div class="text-center">
-                                <h1 class="text-xl sm:text-3xl font-extrabold text-white">Dasbor Kehadiran MBG</h1>
-                                <p class="text-gray-300 font-semibold text-sm sm:text-base">SMP NEGERI 4 PANDAK</p>
-                                <p id="current-date" class="mt-2 text-xs sm:text-sm text-gray-400"></p>
-                            </div>
-                            <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png" class="h-14 w-14 sm:h-20 object-contain">
+                    <section id="summary-section" class="bg-black/20 backdrop-blur-md p-5 rounded-2xl shadow-lg mt-8 border border-white/20">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg sm:text-xl font-bold text-white">Rangkuman Hari Ini</h3>
+                            <button id="print-btn" class="no-print bg-gray-700 hover:bg-gray-800 text-white p-2 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
+                            </button>
                         </div>
-                    </header>
-                    
-                    <div class="container mx-auto px-4 py-8">
-                        <main id="attendance-grid" class="space-y-8"></main>
-                        
-                        <section id="summary-section" class="bg-black/20 backdrop-blur-md p-6 rounded-2xl border border-white/20 mt-8">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-xl font-bold">Rangkuman</h3>
-                                <button id="print-btn" class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>
-                                </button>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <div class="bg-blue-800/50 p-4 rounded-xl border border-blue-400/50">
+                                <p class="text-xs sm:text-sm text-blue-100 font-semibold">Hadir Kelas VII</p>
+                                <p id="total-vii" class="text-2xl sm:text-3xl font-bold text-white">0</p>
                             </div>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                                <div class="bg-blue-800/40 p-4 rounded-xl border border-blue-500/30">
-                                    <p class="text-xs font-bold">KELAS VII</p>
-                                    <p id="total-vii" class="text-2xl font-bold">0</p>
-                                </div>
-                                <div class="bg-green-800/40 p-4 rounded-xl border border-green-500/30">
-                                    <p class="text-xs font-bold">KELAS VIII</p>
-                                    <p id="total-viii" class="text-2xl font-bold">0</p>
-                                </div>
-                                <div class="bg-purple-800/40 p-4 rounded-xl border border-purple-500/30">
-                                    <p class="text-xs font-bold">KELAS IX</p>
-                                    <p id="total-ix" class="text-2xl font-bold">0</p>
-                                </div>
-                                <div class="bg-gray-800/40 p-4 rounded-xl border border-gray-500/30">
-                                    <p class="text-xs font-bold">TOTAL HADIR</p>
-                                    <p id="total-present" class="text-2xl font-bold">0</p>
-                                    <p class="text-[10px] mt-1 text-red-400 font-bold uppercase tracking-widest">Sisa: <span id="remaining-portions">472</span></p>
-                                </div>
+                            <div class="bg-green-800/50 p-4 rounded-xl border border-green-400/50">
+                                <p class="text-xs sm:text-sm text-green-100 font-semibold">Hadir Kelas VIII</p>
+                                <p id="total-viii" class="text-2xl sm:text-3xl font-bold text-white">0</p>
                             </div>
-                            <div class="mt-6">
-                                <div class="w-full bg-gray-800 h-2 rounded-full">
-                                    <div id="progress-bar" class="bg-yellow-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                                </div>
-                                <p id="progress-percentage" class="text-right text-xs mt-1 text-gray-400">0%</p>
+                            <div class="bg-purple-800/50 p-4 rounded-xl border border-purple-400/50">
+                                <p class="text-xs sm:text-sm text-purple-100 font-semibold">Hadir Kelas IX</p>
+                                <p id="total-ix" class="text-2xl sm:text-3xl font-bold text-white">0</p>
                             </div>
-                        </section>
-                    </div>
+                            <div class="bg-gray-700/50 p-4 rounded-xl col-span-2 md:col-span-1 border border-gray-400/50">
+                                <p class="text-sm text-gray-200 font-bold">TOTAL HADIR</p>
+                                <p id="total-present" class="text-3xl font-extrabold text-white">0</p>
+                                <p class="text-sm text-red-400 font-bold mt-1">SISA: <span id="remaining-portions" class="animate-blinking-opacity">472</span></p>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-base font-medium text-white">Progres Kehadiran Total</span>
+                                <span class="text-sm font-medium text-white" id="progress-percentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                <div id="progress-bar" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
 
-                <!-- Modals -->
-                <div id="reset-confirm-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4 no-print">
-                    <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center text-gray-800">
-                        <div class="text-red-600 mb-4">
-                            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div id="reset-confirm-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-[100] p-4 no-print transition-opacity duration-300">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="reset-confirm-content">
+                        <div class="mx-auto mb-4 text-red-500">
+                           <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Konfirmasi Reset Data</h3>
-                        <p class="text-sm text-gray-600 mb-4">Tindakan ini akan menghapus semua data hari ini. Ketik <strong class="text-red-600">RESET</strong> di bawah ini untuk lanjut.</p>
-                        <input type="text" id="reset-confirm-input" class="w-full border-2 border-gray-300 rounded-lg p-2 text-center text-lg focus:border-red-500 outline-none" placeholder="KETIK DI SINI">
-                        <div class="flex gap-4 mt-6">
-                             <button id="reset-cancel-btn" class="flex-1 bg-gray-200 py-2 rounded-lg font-bold">Batal</button>
-                             <button id="reset-ok-btn" class="flex-1 bg-red-600 text-white py-2 rounded-lg font-bold opacity-50 cursor-not-allowed" disabled>Reset</button>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Konfirmasi Reset</h3>
+                        <p class="text-md text-gray-600 mb-4 text-sm leading-relaxed">Tindakan ini menghapus seluruh data hari ini. Ketik <strong class="text-red-600">RESET</strong> di bawah ini.</p>
+                        <input type="text" id="reset-confirm-input" class="w-full border-2 border-gray-300 rounded-lg p-2 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-red-500 uppercase" placeholder="KETIK DISINI">
+                        <div class="flex justify-center gap-4 mt-6">
+                             <button id="reset-cancel-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-8 rounded-lg transition w-full">Batal</button>
+                             <button id="reset-ok-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-lg transition w-full opacity-50 cursor-not-allowed" disabled>Reset</button>
                         </div>
                     </div>
                 </div>
 
-                <div id="notification-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4 no-print">
-                    <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center text-gray-800 shadow-2xl">
+                <div id="notification-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-[110] p-4 no-print transition-opacity duration-300">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm text-center transform transition-all scale-95 opacity-0" id="notification-content">
                         <div id="notification-icon" class="mx-auto mb-4"></div>
-                        <p id="notification-message" class="text-lg font-bold mb-6"></p>
-                        <button id="notification-ok-btn" class="bg-blue-600 text-white py-2 px-8 rounded-lg font-bold w-full">OK</button>
+                        <p id="notification-message" class="text-lg text-gray-800 mb-6 font-bold"></p>
+                        <button id="notification-ok-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transition w-full">OK</button>
                     </div>
                 </div>
 
                 <div id="mute-container" class="no-print fixed bottom-5 right-5 z-50">
-                    <button id="mute-btn" class="bg-gray-800/70 p-3 rounded-full text-white shadow-lg">
+                    <button id="mute-btn" class="bg-gray-700/50 hover:bg-gray-800/70 backdrop-blur-sm text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110">
                         <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.482 5.482 0 0 1 11.025 8a5.482 5.482 0 0 1-1.61 3.89z"/><path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/></svg>
                         <svg id="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hidden" viewBox="0 0 16 16"><path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/></svg>
                     </button>
@@ -238,7 +372,7 @@
             </div>
         </div>
         
-        <!-- Output Cetak -->
+        <!-- Print Output (Poster Layout) -->
         <div id="print-output" class="print-only">
             <div class="print-container">
                 <div class="header-print">
@@ -250,38 +384,29 @@
                     <img src="https://raw.githubusercontent.com/atha-cyber/logo-/main/logo-bgn.png">
                 </div>
                 <div class="print-summary">
-                    <div><span>TOTAL HADIR</span><br><span id="print-total-present" class="summary-value">0</span></div>
-                    <div><span>SISA PORSI</span><br><span id="print-remaining-portions" class="summary-value-sisa">0</span></div>
+                    <div class="summary-item"><span class="summary-label">TOTAL PORSI</span><br><span id="print-total-present" class="summary-value">0</span></div>
+                    <div class="summary-item"><span class="summary-label">SISA PORSI</span><br><span id="print-remaining-portions-p" class="summary-value-sisa">0</span></div>
                 </div>
-                <p id="date-info-print-id" class="text-center font-bold mb-4"></p>
+                <p id="date-info-print-id" class="date-info-print"></p>
                 <table class="report-table">
                     <thead>
-                        <tr><th rowspan="2">Kelas</th><th rowspan="2">Porsi</th><th colspan="2">Tempat Kembali</th><th rowspan="2">Ket</th></tr>
+                        <tr><th rowspan="2">Kelas</th><th rowspan="2">Jumlah</th><th colspan="2">Wadah Kembali</th><th rowspan="2">Keterangan</th></tr>
                         <tr><th>Sesuai</th><th>Tidak</th></tr>
                     </thead>
                     <tbody id="print-table-body"></tbody>
                     <tfoot id="print-table-foot"></tfoot>
                 </table>
+                <div class="footer-print text-center mt-10 text-xs italic">Sistem Pelaporan Digital MBG - SMPN 4 Pandak</div>
             </div>
         </div>
     </div>
 
-    <!-- Script Utama (ES Module) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Import harus di paling atas. Logika proteksi diletakkan di bawahnya.
-        const fullAppContainer = document.getElementById('full-app-container');
-
-        if (!isAuthorized) {
-            if (fullAppContainer) fullAppContainer.remove();
-            document.body.style.backgroundColor = "#000";
-            window.stop();
-        } else {
-            // Jalankan aplikasi jika resmi
-            fullAppContainer.classList.remove('hidden');
-
+        // Global check (isAuthorized is defined in head script)
+        if (window.isAuthorized) {
             const firebaseConfig = {
                 apiKey: "AIzaSyCFoiJXBRwJkCmAVSOVb0za1vLlB58Eugc",
                 authDomain: "mbg4-329e3.firebaseapp.com",
@@ -294,7 +419,7 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
-            // --- FUNGSI & LOGIKA PERSIS MBGNORMAL.HTML ---
+            // --- ALL ORIGINAL FEATURES FROM MBGNORMAL.HTML ---
             
             function getWIBDateString() {
                 const now = new Date();
@@ -303,7 +428,8 @@
                 return `${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}-${parts.find(p=>p.type==='day').value}`;
             }
 
-            const docRef = doc(db, "kehadiran", `rekap-${getWIBDateString()}`);
+            const docId = `rekap-${getWIBDateString()}`;
+            const docRef = doc(db, "kehadiran", docId);
             const CLASSES_CONFIG = {
                 'Kelas VII': { color: 'blue', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 160 },
                 'Kelas VIII': { color: 'green', rombels: ['A', 'B', 'C', 'D', 'E'], totalSiswa: 155 },
@@ -312,49 +438,65 @@
 
             let currentData = {};
             let isMuted = false;
+            let hasUserInteracted = false;
             const scrollSound = document.getElementById('scroll-sound');
 
-            // Suara Scroll
+            // Interactive sound unlock
+            document.addEventListener('click', () => { hasUserInteracted = true; }, { once: true });
+            
+            let isScrolling = false, scrollTimer;
             window.addEventListener('scroll', () => {
-                if(!isMuted && scrollSound && scrollSound.paused) {
-                    scrollSound.currentTime = 0;
-                    scrollSound.play().catch(()=>{});
+                if(!isMuted && hasUserInteracted && scrollSound) {
+                    if(!isScrolling) { scrollSound.currentTime = 0; scrollSound.play().catch(()=>{}); isScrolling = true; }
+                    clearTimeout(scrollTimer); scrollTimer = setTimeout(()=>isScrolling=false, 200);
                 }
             });
 
-            // Sinkronisasi Realtime
+            // Firebase Snapshots
             onSnapshot(docRef, (doc) => {
                 if (doc.exists()) {
                     currentData = doc.data();
                     renderAttendanceGrid(currentData);
                     updateSummary(currentData);
+                } else {
+                    initializeDailyData();
                 }
             });
+
+            async function initializeDailyData() {
+                const snap = await getDoc(docRef);
+                if(!snap.exists()) {
+                    const base = { locks: {} };
+                    Object.keys(CLASSES_CONFIG).forEach(l => {
+                        const rom = l.split(' ')[1];
+                        CLASSES_CONFIG[l].rombels.forEach(r => base[`${rom}${r}`] = 0);
+                    });
+                    await setDoc(docRef, base);
+                }
+            }
 
             function renderAttendanceGrid(data) {
                 const grid = document.getElementById('attendance-grid');
                 let html = '';
                 for (const [level, details] of Object.entries(CLASSES_CONFIG)) {
                     const lv = level.split(' ')[1];
-                    html += `
-                    <section class="bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/20">
-                        <h3 class="text-xl font-bold mb-4">${level}</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">`;
+                    html += `<section class="bg-black/20 backdrop-blur-md p-5 rounded-2xl border border-white/20 shadow-xl">
+                        <h3 class="text-xl font-bold mb-5 flex justify-between"><span>${level}</span></h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">`;
                     details.rombels.forEach(r => {
                         const id = `${lv}${r}`;
                         const isLocked = data.locks && data.locks[id];
-                        html += `
-                            <div class="attendance-card bg-gradient-to-br from-${details.color}-600/60 to-${details.color}-900/70 border border-${details.color}-500/50 p-3 rounded-xl text-center shadow-lg transition hover:scale-105" data-class-id="${id}">
-                                <p class="text-xs font-bold">${lv} ${r}</p>
-                                <span class="block text-3xl font-bold my-2 text-glow-${details.color}">${data[id] || 0}</span>
-                                <input type="number" class="hidden w-full text-center text-2xl font-bold bg-black/40 rounded border-white/20 text-white" value="${data[id] || 0}">
-                                <div class="mt-2 h-6 flex justify-center">
-                                    <button class="edit-class-btn bg-white/20 text-[10px] px-2 py-1 rounded hover:bg-white/40 ${isLocked ? 'hidden' : ''}">UBAH</button>
-                                    <div class="edit-mode-controls hidden flex gap-1">
-                                        <button class="save-class-btn bg-green-600 text-[10px] px-2 py-1 rounded">SIMPAN</button>
-                                        <button class="cancel-class-btn bg-red-600 text-[10px] px-2 py-1 rounded">BATAL</button>
+                        html += `<div class="attendance-card bg-gradient-to-br from-${details.color}-600/60 to-${details.color}-900/70 border border-${details.color}-500/50 p-4 rounded-2xl text-center shadow-lg transition transform hover:scale-105" data-class-id="${id}">
+                                <p class="text-sm font-bold uppercase tracking-widest">${lv} ${r}</p>
+                                <span class="block text-4xl font-bold my-3 text-glow-${details.color}">${data[id] || 0}</span>
+                                <input type="number" class="hidden w-full text-center text-4xl font-bold bg-black/40 rounded-xl border-white/30 text-white outline-none" value="${data[id] || 0}">
+                                <div class="mt-4 flex flex-col items-center h-8 justify-center">
+                                    <button class="edit-class-btn bg-white/10 px-4 py-1 rounded-lg text-xs hover:bg-white/20 transition ${isLocked ? 'hidden' : ''}">UBAH</button>
+                                    <div class="edit-controls hidden flex gap-2">
+                                        <button class="save-class-btn bg-green-600 px-3 py-1 rounded-lg text-xs font-bold">SIMPAN</button>
+                                        <button class="cancel-class-btn bg-gray-600 px-3 py-1 rounded-lg text-xs font-bold">BATAL</button>
                                     </div>
-                                    <span class="text-[10px] font-bold text-gray-400 ${isLocked ? '' : 'hidden'}">TERKUNCI</span>
+                                    <span class="locked-label text-xs font-bold text-gray-400 opacity-60 ${isLocked ? '' : 'hidden'} uppercase tracking-widest">Terkunci</span>
                                 </div>
                             </div>`;
                     });
@@ -376,14 +518,13 @@
                 document.getElementById('total-ix').innerText = v9;
                 document.getElementById('total-present').innerText = total;
                 document.getElementById('remaining-portions').innerText = 472 - total;
-                const pct = (total / 472 * 100).toFixed(1);
+                const pct = ((total / 472) * 100).toFixed(1);
                 document.getElementById('progress-bar').style.width = pct + '%';
                 document.getElementById('progress-percentage').innerText = pct + '%';
                 document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
             }
 
-            // --- FITUR INTERAKSI MODAL & SUPERUSER ---
-            
+            // Grid interactions
             document.getElementById('attendance-grid').addEventListener('click', async (e) => {
                 const card = e.target.closest('.attendance-card');
                 if(!card) return;
@@ -392,29 +533,47 @@
                 if(e.target.classList.contains('edit-class-btn')) {
                     card.querySelector('span').classList.add('hidden');
                     card.querySelector('input').classList.remove('hidden');
-                    card.querySelector('.edit-mode-controls').classList.remove('hidden');
+                    card.querySelector('.edit-controls').classList.remove('hidden');
                     e.target.classList.add('hidden');
                 } else if(e.target.classList.contains('cancel-class-btn')) {
                     renderAttendanceGrid(currentData);
                 } else if(e.target.classList.contains('save-class-btn')) {
-                    const val = parseInt(card.querySelector('input').value) || 0;
+                    const val = Math.max(0, parseInt(card.querySelector('input').value) || 0);
                     await updateDoc(docRef, { [id]: val, [`locks.${id}`]: true });
-                } else if(card.querySelector('span').classList.contains('hidden') === false) {
-                    // Tap 3x untuk buka kunci kelas spesifik (Logic Superuser)
+                    showNotification(`Data Kelas ${id} Berhasil Dikunci`, 'success');
+                } else if(!card.querySelector('.locked-label').classList.contains('hidden')) {
                     handleSuperuserTap(id);
                 }
             });
 
-            let tapCount = 0, tapTimer, lastId;
-            function handleSuperuserTap(id) {
-                if(lastId !== id) tapCount = 0;
-                lastId = id; tapCount++;
-                clearTimeout(tapTimer);
-                tapTimer = setTimeout(()=>tapCount=0, 800);
-                if(tapCount === 3) {
-                    document.getElementById('unlock-modal').dataset.target = id;
-                    document.getElementById('unlock-modal').classList.remove('hidden');
+            // Header secret interaction (5 taps)
+            let headerTapCount = 0;
+            document.querySelector('header').onclick = (e) => {
+                if(e.target.closest('img') || e.target.closest('h1')) {
+                    headerTapCount++;
+                    if(headerTapCount === 5) {
+                        headerTapCount = 0;
+                        triggerSuperuserUnlock();
+                    }
+                    setTimeout(()=>headerTapCount=0, 2000);
                 }
+            };
+
+            function handleSuperuserTap(id) {
+                let tapCount = (window.tapCounts = window.tapCounts || {});
+                tapCount[id] = (tapCount[id] || 0) + 1;
+                if(tapCount[id] === 3) {
+                    tapCount[id] = 0;
+                    triggerSuperuserUnlock(id);
+                }
+                setTimeout(()=>tapCount[id]=0, 1000);
+            }
+
+            function triggerSuperuserUnlock(id = null) {
+                const modal = document.getElementById('unlock-modal');
+                modal.dataset.target = id || '';
+                modal.classList.remove('hidden');
+                document.getElementById('unlock-password-input').focus();
             }
 
             document.getElementById('unlock-form').onsubmit = async (e) => {
@@ -424,21 +583,40 @@
                 if(pw === 'PPP') {
                     if(target) {
                         await updateDoc(docRef, { [`locks.${target}`]: false });
-                        document.getElementById('unlock-modal').classList.add('hidden');
-                        document.getElementById('unlock-password-input').value = '';
+                        hideUnlock();
+                        showNotification(`Kunci Kelas ${target} Telah Dibuka`, 'success');
                     } else {
                         document.getElementById('unlock-form').classList.add('hidden');
                         document.getElementById('class-unlock-options').classList.remove('hidden');
                     }
                 } else {
-                    document.getElementById('unlock-error-message').innerText = 'Salah Sandi!';
+                    const err = document.getElementById('unlock-error-message');
+                    err.innerText = 'Sandi Salah';
+                    setTimeout(()=>err.innerText='', 2000);
                 }
             };
 
-            // Logic Reset dengan Kata RESET
+            function hideUnlock() {
+                const modal = document.getElementById('unlock-modal');
+                modal.classList.add('hidden');
+                document.getElementById('unlock-password-input').value = '';
+                document.getElementById('unlock-form').classList.remove('hidden');
+                document.getElementById('class-unlock-options').classList.add('hidden');
+            }
+
+            document.getElementById('cancel-unlock-btn').onclick = hideUnlock;
+            document.getElementById('done-unlocking-btn').onclick = hideUnlock;
+
+            // Reset Logic (Type RESET)
+            document.getElementById('reset-data-btn').onclick = () => {
+                document.getElementById('reset-confirm-modal').classList.remove('hidden');
+                const content = document.getElementById('reset-confirm-content');
+                setTimeout(()=>{ content.style.opacity='1'; content.style.transform='scale(1)'; }, 10);
+            };
+
             document.getElementById('reset-confirm-input').oninput = (e) => {
                 const btn = document.getElementById('reset-ok-btn');
-                if(e.target.value === 'RESET') {
+                if(e.target.value.toUpperCase() === 'RESET') {
                     btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed');
                 } else {
                     btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -448,40 +626,68 @@
             document.getElementById('reset-ok-btn').onclick = async () => {
                 const empty = { locks: {} };
                 Object.keys(CLASSES_CONFIG).forEach(l => {
-                    const roman = l.split(' ')[1];
-                    ['A','B','C','D','E'].forEach(r => empty[`${roman}${r}`] = 0);
+                    const rom = l.split(' ')[1];
+                    ['A','B','C','D','E'].forEach(r => empty[`${rom}${r}`] = 0);
                 });
                 await setDoc(docRef, empty);
                 location.reload();
             };
 
-            // Mute & Print
+            document.getElementById('reset-cancel-btn').onclick = () => document.getElementById('reset-confirm-modal').classList.add('hidden');
+
+            // Bulk Unlock
+            document.querySelectorAll('.unlock-level-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    const lv = btn.dataset.level;
+                    const payload = {};
+                    if(lv === 'ALL') {
+                        Object.keys(CLASSES_CONFIG).forEach(l => {
+                            const rom = l.split(' ')[1];
+                            CLASSES_CONFIG[l].rombels.forEach(r => payload[`locks.${rom}${r}`] = false);
+                        });
+                    } else {
+                        CLASSES_CONFIG[`Kelas ${lv}`].rombels.forEach(r => payload[`locks.${lv}${r}`] = false);
+                    }
+                    await updateDoc(docRef, payload);
+                    hideUnlock();
+                    showNotification("Beberapa Kunci Dibuka", 'success');
+                };
+            });
+
+            // Mute & Notification
             document.getElementById('mute-btn').onclick = () => {
                 isMuted = !isMuted;
                 document.getElementById('sound-on-icon').classList.toggle('hidden', isMuted);
                 document.getElementById('sound-off-icon').classList.toggle('hidden', !isMuted);
             };
 
+            function showNotification(msg, status) {
+                const modal = document.getElementById('notification-modal');
+                const content = document.getElementById('notification-content');
+                const icon = document.getElementById('notification-icon');
+                icon.innerHTML = status === 'success' ? '<svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' : '';
+                document.getElementById('notification-message').innerText = msg;
+                modal.classList.remove('hidden');
+                setTimeout(()=>{ content.style.opacity='1'; content.style.transform='scale(1)'; }, 10);
+            }
+            document.getElementById('notification-ok-btn').onclick = () => document.getElementById('notification-modal').classList.add('hidden');
+
+            // Poster Printing
             document.getElementById('print-btn').onclick = () => {
                 const body = document.getElementById('print-table-body');
                 body.innerHTML = '';
-                Object.keys(currentData).forEach(k => {
-                    if(k !== 'locks' && k !== 'lastUpdated') {
-                        body.innerHTML += `<tr><td>${k}</td><td>${currentData[k]}</td><td></td><td></td><td></td></tr>`;
-                    }
+                Object.keys(CLASSES_CONFIG).forEach(level => {
+                    const lv = level.split(' ')[1];
+                    CLASSES_CONFIG[level].rombels.forEach(r => {
+                        const id = `${lv}${r}`;
+                        body.innerHTML += `<tr><td>${lv} ${r}</td><td>${currentData[id] || 0}</td><td></td><td></td><td></td></tr>`;
+                    });
                 });
                 document.getElementById('print-total-present').innerText = document.getElementById('total-present').innerText;
-                document.getElementById('print-remaining-portions').innerText = document.getElementById('remaining-portions').innerText;
-                document.getElementById('date-info-print-id').innerText = document.getElementById('current-date').innerText;
+                document.getElementById('print-remaining-portions-p').innerText = document.getElementById('remaining-portions').innerText;
+                document.getElementById('date-info-print-id').innerText = `Laporan Hari: ${document.getElementById('current-date').innerText}`;
                 window.print();
             };
-
-            // Tombol-tombol modal lainnya
-            document.getElementById('cancel-unlock-btn').onclick = () => location.reload();
-            document.getElementById('done-unlocking-btn').onclick = () => location.reload();
-            document.getElementById('reset-data-btn').onclick = () => document.getElementById('reset-confirm-modal').classList.remove('hidden');
-            document.getElementById('reset-cancel-btn').onclick = () => document.getElementById('reset-confirm-modal').classList.add('hidden');
-            document.getElementById('notification-ok-btn').onclick = () => document.getElementById('notification-modal').classList.add('hidden');
         }
     </script>
 </body>
